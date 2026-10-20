@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modificadores en Java · Laboratorio I</title>
+<script>try{if(localStorage.getItem('manual-theme')==='light')document.documentElement.setAttribute('data-theme','light')}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#101214; --surface:#171a1e;
+  --line:#414a54; --line-soft:#2f353c;
+  --ink:#e9e6e0; --ink-soft:#c9c5bd; --meta:#a4a096;
+  --ok:#6db895; --danger:#e88b80; --sobra:#d9b473;
+  --wash:rgba(255,255,255,.028);
+  --serif:'Source Serif 4',Georgia,serif;
+  --sans:'Inter',-apple-system,system-ui,sans-serif;
+  --mono:'IBM Plex Mono','SF Mono',ui-monospace,monospace;
+  --s1:2.2cqw; --s2:1.45cqw; --s3:1.22cqw; --s4:1.03cqw; --s5:.96cqw;
+}
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#ffffff; --surface:#f7f5f1;
+  --line:#b3aea4; --line-soft:#d0ccc3;
+  --ink:#1c1b18; --ink-soft:#3c3a35; --meta:#6c685f;
+  --ok:#2a7553; --danger:#a53d33; --sobra:#8a6516;
+  --wash:rgba(0,0,0,.032);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;padding:24px 24px 80px}
+
+/* --- la diapositiva: 16:9 exacto, y el contenido escala con ella --- */
+.deck{max-width:1300px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+.slide.sig{margin-top:-16px}
+.slide{position:relative;aspect-ratio:16/9;width:100%;background:var(--surface);
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;
+  container-type:inline-size;display:flex;flex-direction:column}
+.pad{padding:2.3cqw 2.7cqw;display:flex;flex-direction:column;height:100%;gap:1.25cqw;
+  transform-origin:top left;position:relative}
+
+/* --- el rotulo de grupo: el mismo nombre en las dos laminas de un componente,
+       y el par de marcas dice cual de las dos se esta mirando --- */
+.grupo{position:absolute;top:2.95cqw;right:2.7cqw;display:flex;align-items:center;gap:.8cqw}
+.grupo .gn{font:600 var(--s5)/1 var(--sans);letter-spacing:.12em;
+  text-transform:uppercase;color:var(--meta)}
+.grupo .par{display:flex;align-items:center;gap:.32cqw}
+.grupo .par i{display:block;width:1.7cqw;height:.2cqw;background:var(--line)}
+.grupo .par i.on{height:.4cqw;background:var(--ink)}
+
+/* --- titulo y bajada son un solo grupo --- */
+.tit{display:flex;flex-direction:column;gap:.3cqw}
+h2{font:700 var(--s1)/1.2 var(--sans);letter-spacing:-.005em}
+.dek{font-size:var(--s3);line-height:1.45;color:var(--ink-soft)}
+.dek b{color:var(--ink)}
+
+/* --- la portada: cabecera de tapa, y la tabla debajo como indice --- */
+.tapa .tit{align-items:center;text-align:center;gap:.75cqw;padding:2.8cqw 0 1.5cqw}
+.tapa h2{font-size:4.6cqw;line-height:1.08;letter-spacing:-.025em}
+.tapa .dek{font-size:1.45cqw;max-width:58ch;text-wrap:balance}
+
+.intro{font-family:var(--serif);font-size:var(--s4);line-height:1.5;color:var(--ink-soft);
+  border-left:2px solid var(--line);padding-left:1.1cqw}
+.intro b{color:var(--ink)}
+
+/* --- la tabla: mide lo que mide su contenido, igual en las tres laminas --- */
+table{width:100%;border-collapse:collapse;flex:0 0 auto;margin-top:.9cqw}
+th{text-align:left;padding:.6cqw .95cqw;border-bottom:1px solid var(--line);vertical-align:top}
+th .mod{display:block;font:600 var(--s2)/1.3 var(--mono);margin-bottom:.15cqw}
+th .mod.nada{font-family:var(--sans);letter-spacing:-.01em;color:var(--ink-soft)}
+th .con{display:block;font:600 var(--s5)/1.45 var(--sans);letter-spacing:.1em;
+  text-transform:uppercase;color:var(--meta)}
+td{padding:.7cqw .95cqw;border-bottom:1px solid var(--line-soft);vertical-align:top;color:var(--ink-soft)}
+tr:last-child td{border-bottom:0}
+th+th,td+td{border-left:1px solid var(--line-soft)}
+th:first-child,td.rot{border-right:1px solid var(--line)}
+
+/* --- la columna de rotulos: mono porque son nombres Java, glosa en sans --- */
+td.rot{color:var(--ink);width:12.5%;font:600 var(--s3)/1.3 var(--mono)}
+td.rot .pkg{display:block;font-weight:400;color:var(--meta)}
+td.rot small{display:block;font:400 var(--s5)/1.35 var(--sans);color:var(--meta);margin-top:.3cqw}
+td.rot small.j{font-family:var(--mono)}
+td.rot.q{font-family:var(--sans);letter-spacing:-.01em}
+
+/* --- la lamina de conceptos: cuatro columnas, y el reparto no lo puede
+       decidir el auto-layout porque el codigo va en nowrap --- */
+/* ocho filas: se recupera alto apretando el interlineado de las celdas,
+   que rinde mas que achicar la letra de toda la lamina */
+table.conc td{padding-top:.48cqw;padding-bottom:.48cqw}
+table.conc .why{margin-top:.42cqw}
+table.conc td.rot{width:10%}
+table.conc th:nth-child(2),table.conc td:nth-child(2){width:22%}
+table.conc th:nth-child(3),table.conc td:nth-child(3){width:25%}
+table.conc th:nth-child(4),table.conc td:nth-child(4){width:43%}
+
+/* --- dentro de la celda: codigo, y despues la explicacion, mas lejos --- */
+.ln{display:block;font:400 1cqw/1.45 var(--mono);white-space:nowrap;color:var(--ink)}
+.ln .cm{color:var(--meta)}
+.ln .na{font-family:var(--sans);letter-spacing:-.01em;color:var(--ink-soft)}
+.why{display:block;font-family:var(--serif);font-size:var(--s5);line-height:1.45;
+  color:var(--meta);margin-top:.6cqw;hyphens:auto}
+.si,.nn,.rd{display:inline-block;width:1.25em;height:1.25em;line-height:1.27em;
+  border-radius:50%;text-align:center;font:700 .85em/1.27 var(--sans);
+  color:var(--surface);vertical-align:-.14em}
+.si{background:var(--ok)}
+.nn{background:var(--danger)}
+.rd{background:var(--sobra)}
+.ley{font:400 var(--s5)/1.4 var(--serif);color:var(--meta);margin-top:.15cqw}
+.ley .rd{margin-right:.3em}
+
+/* --- la fila de base: mismo idioma que las demas, con un tinte estructural --- */
+tbody tr:first-child td{border-bottom:1px solid var(--line)}
+tbody tr:first-child td[rowspan]{border-bottom:0}
+td.base{background:var(--wash)}
+tr.corte td{border-bottom:1px solid var(--line)}
+
+.pie{margin-top:auto;column-count:2;column-gap:2.6cqw;
+  font-family:var(--serif);font-size:var(--s4);line-height:1.5;color:var(--meta);
+  border-top:1px solid var(--line);padding-top:1.1cqw}
+.pie b{color:var(--ink-soft)}
+.pie .it{display:block;break-inside:avoid}
+.pie .it + .it{margin-top:.55cqw}
+.m{font-family:var(--mono);font-size:.93em;white-space:nowrap;color:inherit}
+.pie .m,.intro .m{white-space:normal}
+
+/* --- cromo --- */
+.bar{position:fixed;top:0;left:0;right:0;height:2px;background:var(--ink-soft);width:0;z-index:9}
+.mode{position:fixed;top:14px;right:16px;z-index:10;width:34px;height:34px;border-radius:50%;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);cursor:pointer;
+  font-size:14px;line-height:1}
+
+@media print{
+  :root, html[data-theme="light"]{
+    color-scheme:light;
+    --bg:#ffffff; --surface:#ffffff;
+    --line:#8f8b83; --line-soft:#bdb9b1;
+    --ink:#111111; --ink-soft:#2b2a26; --meta:#5c584f;
+    --ok:#24684a; --danger:#93362d; --sobra:#7d5a10;
+    --wash:rgba(0,0,0,.05);
+  }
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{padding:0;background:#fff}
+  .deck{max-width:none;gap:0}
+  .mode,.bar{display:none}
+  .slide{border:0;border-radius:0;box-shadow:none;break-after:page;
+    height:100vh;aspect-ratio:auto}
+  .slide.sig{margin-top:0}
+  .slide:last-child{break-after:auto}
+  .pie{margin-top:0}
+  @page{size:13.333in 7.5in;margin:0}
+}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"></div>
+<button class="mode" id="mode" aria-label="Cambiar tema" title="Cambiar tema">☀&#xFE0E;</button>
+<div class="deck">
+<section class="slide tapa"><div class="pad">
+  <div class="grupo"><span class="gn">Laboratorio I</span></div>
+  <header class="tit"><h2>Modificadores en Java</h2><div class="dek">Las palabras que se escriben delante de un atributo, un método, un constructor, una clase o una interfaz, y qué cambia cada una.</div></header>
+
+  <table>
+    <thead><tr>
+      <th><span class="mod" aria-hidden="true">&nbsp;</span></th>
+      <th><span class="mod nada">de acceso</span><span class="con">quién puede</span></th>
+      <th><span class="mod nada">de no acceso</span><span class="con">cómo se comporta</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rot q">Atributo<small class="j">nombre</small></td>
+        <td><span class="ln">private · <span class="na">sin modificador</span> · protected · public</span><span class="why">deciden quién puede leer el campo y asignarlo</span></td>
+        <td><span class="ln">static · final</span><span class="why">a quién pertenece el atributo, y cuántas veces se le puede asignar</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Método<small class="j">saludar()</small></td>
+        <td><span class="ln">private · <span class="na">sin modificador</span> · protected · public</span><span class="why">deciden quién puede invocarlo y sobrescribirlo</span></td>
+        <td><span class="ln">static · final · abstract</span><span class="why">si hace falta un objeto para invocarlo, si se puede sobrescribir y si trae cuerpo</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Constructor<small class="j">Persona(...)</small></td>
+        <td><span class="ln">private · <span class="na">sin modificador</span> · protected · public</span><span class="why">deciden quién puede hacer new y quién llamar a super(...)</span></td>
+        <td><span class="ln"><span class="na">ninguno</span></span><span class="why">un constructor no admite ningún modificador de no acceso</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Clase<small class="j">Persona</small></td>
+        <td><span class="ln"><span class="na">sin modificador</span> · public</span><span class="why">private y protected no compilan sobre una clase de nivel superior, solo sobre una anidada</span></td>
+        <td><span class="ln">abstract · final · static</span><span class="why">si se puede instanciar y si se puede extender. static, solo si está anidada</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Interfaz<small class="j">Volador</small></td>
+        <td><span class="ln"><span class="na">sin modificador</span> · public</span><span class="why">las mismas reglas que la clase. Sus miembros, en cambio, son públicos siempre</span></td>
+        <td><span class="ln">abstract · static · default · final</span><span class="why">casi todos implícitos: rigen sin que los escribas</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div></section>
+
+
+<section class="slide"><div class="pad">
+  <div class="grupo"><span class="gn">atributo</span><span class="par" aria-hidden="true"><i class="on"></i><i></i></span></div>
+  <header class="tit"><h2>Atributo: modificadores de acceso</h2><div class="dek">Qué habilita el acceso: <b>leer el campo y asignarlo</b> directamente, sin pasar por un getter ni un setter.</div></header>
+
+  <div class="intro"><b>La notación.</b> Un <b>paquete</b> es la carpeta donde vive una clase, y se declara en la primera línea del archivo: <span class="m">package package1;</span>. Entonces <span class="m">package1.Persona</span> se lee «la clase <span class="m">Persona</span>, del paquete 1».</div>
+
+  <table>
+    <thead><tr>
+      <th><span class="mod" aria-hidden="true">&nbsp;</span></th>
+      <th><span class="mod">private</span><span class="con">solo dentro de Persona</span></th>
+      <th><span class="mod nada">sin modificador</span><span class="con">solo dentro del paquete 1</span></th>
+      <th><span class="mod">protected</span><span class="con">paquete 1, o quien la extienda</span></th>
+      <th><span class="mod">public</span><span class="con">cualquier clase</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rot"><span class="pkg">package1.</span>Persona<small>declara el atributo</small></td>
+        <td colspan="4" class="base"><span class="ln"><span class="si">✓</span> nombre · this.nombre</span><span class="why">Dentro del cuerpo de la clase que declara el atributo ningún modificador restringe nada, ni siquiera <span class="m">private</span>.</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package1.</span>Registro<small>no la extiende</small></td>
+        <td><span class="ln"><span class="nn">✕</span> Persona p = ...; p.nombre</span><span class="why">estar en el paquete 1 no ayuda: private solo se puede usar dentro de Persona</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...; p.nombre</span><span class="why">Registro está en el paquete 1, y con eso alcanza: no hace falta que la extienda</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...; p.nombre</span><span class="why">protected acepta a quien esté en el paquete 1, y también a quien la extienda. A Registro le alcanza con estar en el paquete 1. Por eso para Registro protected y public dan el mismo acceso</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...; p.nombre</span><span class="why">public no exige nada: lo puede usar cualquier clase</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package2.</span>Empleado<small class="j">extends Persona</small></td>
+        <td><span class="ln"><span class="nn">✕</span> this.nombre</span><span class="why">el campo existe en cada Empleado, pero su nombre no se puede usar acá: para leerlo hace falta un getter accesible, y para asignarlo un setter</span></td>
+        <td><span class="ln"><span class="nn">✕</span> this.nombre</span><span class="why">extenderla no da acceso: sin modificador el atributo solo lo pueden usar las clases del paquete 1</span></td>
+        <td><span class="ln"><span class="si">✓</span> nombre · this.nombre</span><span class="ln"><span class="si">✓</span> Empleado e = ...; e.nombre</span><span class="ln"><span class="nn">✕</span> Persona p = ...; p.nombre</span><span class="why">desde el paquete 2, protected mira el tipo declarado de la referencia, no el objeto: por eso ((Persona) this).nombre tampoco compila</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...; p.nombre</span><span class="why">public no mira el tipo de la referencia: la línea que protected rechaza, con public compila</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package2.</span>Reporte<small>no la extiende</small></td>
+        <td><span class="ln"><span class="nn">✕</span> Persona p = ...; p.nombre</span><span class="why">private solo se puede usar dentro de Persona</span></td>
+        <td><span class="ln"><span class="nn">✕</span> Persona p = ...; p.nombre</span><span class="why">está en el paquete 2, no en el 1</span></td>
+        <td><span class="ln"><span class="nn">✕</span> Persona p = ...; p.nombre</span><span class="why">no está en el paquete 1 y no extiende a Persona, que son las dos únicas maneras de acceder a un protected</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...; p.nombre</span><span class="why">public no exige ni compartir paquete ni extenderla</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pie"><span class="it">Que el nombre no se pueda usar no significa que el campo no exista: un atributo <span class="m">private</span> de <span class="m">Persona</span> ocupa lugar en cada instancia de <span class="m">Empleado</span>.</span><span class="it">Cuando el acceso a un <span class="m">protected</span> viene de otro paquete, la referencia tiene que estar declarada <span class="m">Empleado</span>, o de una clase que extienda a <span class="m">Empleado</span>. No sirve otra clase que también extienda a <span class="m">Persona</span>.</span></div>
+</div></section>
+
+
+<section class="slide sig"><div class="pad">
+  <div class="grupo"><span class="gn">atributo</span><span class="par" aria-hidden="true"><i></i><i class="on"></i></span></div>
+  <header class="tit"><h2>Atributo: modificadores de no acceso</h2><div class="dek">Ninguno cambia <b>quién ve</b> el atributo: cambian <b>de quién es</b>, y <b>cuántas veces se puede asignar</b>.</div></header>
+
+  <table>
+    <thead><tr>
+      <th><span class="mod" aria-hidden="true">&nbsp;</span></th>
+      <th><span class="mod">static</span><span class="con">de la clase, no del objeto</span></th>
+      <th><span class="mod">final</span><span class="con">se asigna una sola vez</span></th>
+      <th><span class="mod">static final</span><span class="con">la constante</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rot q">Declaración<small>cómo se escribe</small></td>
+        <td><span class="ln"><span class="si">✓</span> static int contador = 0;</span><span class="why">un solo contador para toda la clase Persona, y no uno por cada objeto</span></td>
+        <td><span class="ln"><span class="si">✓</span> final String nombre;</span><span class="why">se puede declarar sin valor, pero entonces el constructor queda obligado a asignarlo</span></td>
+        <td><span class="ln"><span class="si">✓</span> static final int MAX = 3;</span><span class="why">por convención va en MAYÚSCULAS, y se asigna en la declaración o en un bloque static</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Lectura<small>cómo se lee el valor</small></td>
+        <td><span class="ln"><span class="si">✓</span> Persona.contador</span><span class="ln"><span class="si">✓</span> p.contador</span><span class="why">las dos compilan: la segunda parece del objeto y en realidad es de la clase</span></td>
+        <td><span class="ln"><span class="si">✓</span> p.nombre</span><span class="why">siempre devuelve lo mismo: cuando el constructor termina, el valor ya es definitivo</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona.MAX</span><span class="why">por el nombre de la clase, igual que cualquier static</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Asignación<small>cuándo se le puede escribir</small></td>
+        <td><span class="ln"><span class="si">✓</span> Persona.contador = 5;</span><span class="why">static no congela nada: si un objeto lo cambia, el cambio lo ven todos los demás</span></td>
+        <td><span class="ln"><span class="nn">✕</span> this.nombre = "otro";</span><span class="why">una sola asignación, en la declaración o en el constructor de Persona, nunca en las dos. Ni el constructor de Empleado puede asignarlo</span><span class="ln"><span class="si">✓</span> amigos.add("Ana");</span><span class="why">si el atributo es <span class="m">final List&lt;String&gt; amigos</span>, la lista se puede seguir llenando: final fija el atributo, no lo que hay adentro</span></td>
+        <td><span class="ln"><span class="nn">✕</span> Persona.MAX = 5;</span><span class="why">misma regla que final, salvo que el constructor no cuenta: se asigna en la declaración o en un bloque static, antes de que exista ningún objeto. Por eso sirve de constante</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Alcance<small>desde un método static de Persona</small></td>
+        <td><span class="ln"><span class="si">✓</span> contador++;</span><span class="why">contador es de la clase y existe aunque no haya ningún objeto, así que el método lo encuentra sin más</span></td>
+        <td><span class="ln"><span class="nn">✕</span> nombre</span><span class="ln"><span class="nn">✕</span> this.nombre</span><span class="why">nombre es de cada Persona, y en un método static no hay ninguna: por eso tampoco hay this. Lo que falta es un objeto, y con Persona p = ...; p.nombre sí compila. Que sea final no tiene nada que ver</span></td>
+        <td><span class="ln"><span class="si">✓</span> MAX</span><span class="why">tanto el método como el atributo son de la clase, así que se encuentran</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pie"><span class="it"><b>static no se multiplica con la herencia.</b> <span class="m">Empleado</span> no tiene su propio <span class="m">contador</span>: es la misma y única variable de <span class="m">Persona</span>, así que si un Empleado la incrementa, ya cambió para todos.</span><span class="it">Un <span class="m">static</span> tampoco necesita un objeto vivo: con <span class="m">Persona p = null</span>, la lectura <span class="m">p.contador</span> compila y corre sin NullPointerException, porque el compilador la reescribe a <span class="m">Persona.contador</span> antes de que haya nada que desreferenciar.</span><span class="it"><b>final fija el atributo, no lo que hay adentro.</b> Un número no tiene adentro: queda fijo y listo. Una lista sí: se puede seguir llenando, lo que no se puede es cambiarla por otra.</span><span class="it">Un atributo no admite <span class="m">abstract</span> ni <span class="m">synchronized</span>. Existen además <span class="m">transient</span>, que lo saca de la serialización, y <span class="m">volatile</span>, que ordena su lectura entre hilos.</span></div>
+</div></section>
+
+
+<section class="slide"><div class="pad">
+  <div class="grupo"><span class="gn">método</span><span class="par" aria-hidden="true"><i class="on"></i><i></i></span></div>
+  <header class="tit"><h2>Método: modificadores de acceso</h2><div class="dek">Qué habilita el acceso: <b>invocarlo y sobrescribirlo</b>.</div></header>
+
+
+  <table>
+    <thead><tr>
+      <th><span class="mod" aria-hidden="true">&nbsp;</span></th>
+      <th><span class="mod">private</span><span class="con">solo dentro de Persona</span></th>
+      <th><span class="mod nada">sin modificador</span><span class="con">solo dentro del paquete 1</span></th>
+      <th><span class="mod">protected</span><span class="con">paquete 1, o quien la extienda</span></th>
+      <th><span class="mod">public</span><span class="con">cualquier clase</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rot"><span class="pkg">package1.</span>Persona<small>declara el método</small></td>
+        <td colspan="4" class="base"><span class="ln"><span class="si">✓</span> saludar() · this.saludar()</span><span class="why">Dentro del cuerpo de <span class="m">Persona</span> ningún modificador impide invocarlo, ni siquiera <span class="m">private</span>. Sobrescribir, en cambio, solo lo puede hacer una clase que extienda a <span class="m">Persona</span>.</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package1.</span>Registro<small>no la extiende</small></td>
+        <td><span class="ln"><span class="nn">✕</span> Persona p = ...; p.saludar()</span><span class="why">estar en el paquete 1 no ayuda: private solo se puede usar dentro de Persona</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...; p.saludar()</span><span class="why">estar en el paquete 1 alcanza para invocarlo. Sobrescribirlo exigiría extenderla</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...; p.saludar()</span><span class="why">protected acepta a quien esté en el paquete 1, y también a quien la extienda. A Registro le alcanza con estar en el paquete 1. Por eso para Registro protected y public dan el mismo acceso</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...; p.saludar()</span><span class="why">public no exige nada: lo puede usar cualquier clase</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package2.</span>Empleado<small class="j">extends Persona</small></td>
+        <td><span class="ln"><span class="nn">✕</span> this.saludar()</span><span class="ln"><span class="si">✓</span> String saludar() { ... }</span><span class="why">declarar la misma firma compila, pero no sobrescribe nada: un método private no se hereda. ponerle @Override no compila, y una referencia Persona sigue ejecutando la versión de Persona</span></td>
+        <td><span class="ln"><span class="nn">✕</span> this.saludar()</span><span class="ln"><span class="si">✓</span> String saludar() { ... }</span><span class="why">mismo resultado que private, por otra razón: sin modificador el método solo lo pueden usar las clases del paquete 1, así que tampoco se hereda ni se sobrescribe</span></td>
+        <td><span class="ln"><span class="si">✓</span> saludar() · this.saludar()</span><span class="ln"><span class="si">✓</span> super.saludar()</span><span class="ln"><span class="si">✓</span> @Override String saludar()</span><span class="ln"><span class="nn">✕</span> Persona p = ...; p.saludar()</span><span class="why">desde el paquete 2, protected mira el tipo declarado de la referencia. <span class="m">super</span> es la excepción: su tipo es Persona y aun así compila. Ejecuta siempre la versión de Persona, aunque el objeto sea un Empleado</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...; p.saludar()</span><span class="ln"><span class="si">✓</span> @Override String saludar()</span><span class="why">con public decide el objeto y no la variable: si esa p apunta a un Empleado, corre la versión de Empleado. Eso es el despacho dinámico</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package2.</span>Reporte<small>no la extiende</small></td>
+        <td><span class="ln"><span class="nn">✕</span> Persona p = ...; p.saludar()</span><span class="why">private solo se puede usar dentro de Persona</span></td>
+        <td><span class="ln"><span class="nn">✕</span> Persona p = ...; p.saludar()</span><span class="why">está en el paquete 2, no en el 1</span></td>
+        <td><span class="ln"><span class="nn">✕</span> Persona p = ...; p.saludar()</span><span class="why">no está en el paquete 1 y no extiende a Persona, que son las dos únicas maneras de acceder a un protected</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...; p.saludar()</span><span class="why">public no exige ni compartir paquete ni extenderla</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pie"><span class="it"><b>Sobrescribir es volver a escribir el encabezado del método</b> en la clase que extiende. Un encabezado tiene tres partes, y cada una tiene su regla.</span><span class="it"><b>La firma</b> (el nombre más el tipo, la cantidad y el orden de los parámetros) tiene que ser idéntica: si cambia, ya no es sobrescritura sino sobrecarga.</span><span class="it"><b>El modificador</b> puede ser el mismo o más permisivo, nunca más restrictivo. El orden, de menos a más: <span class="m">private</span>, sin modificador, <span class="m">protected</span>, <span class="m">public</span>.</span><span class="it"><b>El tipo de retorno</b> puede ser el mismo o uno que lo extienda.</span></div>
+</div></section>
+
+
+<section class="slide sig"><div class="pad">
+  <div class="grupo"><span class="gn">método</span><span class="par" aria-hidden="true"><i></i><i class="on"></i></span></div>
+  <header class="tit"><h2>Método: modificadores de no acceso</h2><div class="dek">Ninguno cambia <b>quién puede invocarlo</b>: cambian <b>si hace falta un objeto</b>, <b>si se puede sobrescribir</b> y <b>si tiene cuerpo</b>.</div></header>
+
+  <table>
+    <thead><tr>
+      <th><span class="mod" aria-hidden="true">&nbsp;</span></th>
+      <th><span class="mod">static</span><span class="con">corre sin objeto</span></th>
+      <th><span class="mod">final</span><span class="con">no se puede sobrescribir</span></th>
+      <th><span class="mod">abstract</span><span class="con">sin cuerpo, obliga a implementarlo</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rot q">Declaración<small>cómo se escribe</small></td>
+        <td><span class="ln"><span class="si">✓</span> static String saludar() {...}</span><span class="why">pertenece a la clase Persona, no a cada Persona</span></td>
+        <td><span class="ln"><span class="si">✓</span> final String saludar() {...}</span><span class="why">trae cuerpo como cualquier método. Lo único que cambia es que nadie lo puede sobrescribir</span></td>
+        <td><span class="ln"><span class="si">✓</span> abstract String saludar();</span><span class="why">sin cuerpo, y termina en punto y coma. Es el único método de clase que no lleva llaves</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Invocación<small>cómo se llama</small></td>
+        <td><span class="ln"><span class="si">✓</span> Persona.saludar()</span><span class="ln"><span class="si">✓</span> p.saludar()</span><span class="why">las dos compilan: la segunda parece del objeto, y en realidad la resuelve el compilador por el tipo de la variable</span></td>
+        <td><span class="ln"><span class="si">✓</span> p.saludar()</span><span class="why">como cualquier método de instancia</span></td>
+        <td><span class="ln"><span class="si">✓</span> p.saludar()</span><span class="why">sobre una referencia Persona compila, y en ejecución corre la versión de la clase concreta que haya abajo</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Sobrescritura<small>en la clase que extiende</small></td>
+        <td><span class="ln"><span class="nn">✕</span> @Override String saludar()</span><span class="why">se puede redeclarar con la misma firma, pero tiene que volver a ser static, y eso es ocultar y no sobrescribir: sin despacho dinámico, decide el tipo de la variable</span></td>
+        <td><span class="ln"><span class="nn">✕</span> String saludar() {...}</span><span class="why">es exactamente lo que la palabra prohíbe, y es el opuesto de abstract</span></td>
+        <td><span class="ln"><span class="si">✓</span> @Override String saludar() {...}</span><span class="why">obligatorio en la primera clase concreta. Si lo deja sin implementar, esa clase también tiene que declararse abstract</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Cuerpo<small>qué se puede escribir adentro</small></td>
+        <td><span class="ln"><span class="nn">✕</span> this.nombre</span><span class="why">corre sin objeto, así que no tiene this ni llega a nada de instancia. Al revés sí: un método de instancia llama a uno static</span></td>
+        <td><span class="why">sin restricción: tiene this como cualquier método de instancia</span></td>
+        <td><span class="why">no tiene cuerpo: lo escribe la clase concreta que lo implementa</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Obligación<small>qué le impone a Persona</small></td>
+        <td><span class="why">ninguna</span></td>
+        <td><span class="why">ninguna</span></td>
+        <td><span class="ln"><span class="si">✓</span> abstract class Persona</span><span class="why">un solo método abstracto obliga a marcar la clase, y ahí new Persona() deja de compilar</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pie"><span class="it">Cada uno se combina con un modificador de acceso, pero <span class="m">abstract</span> no se combina con <span class="m">final</span>, con <span class="m">static</span> ni con <span class="m">private</span>: obliga a que otra clase lo sobrescriba, y esas palabras lo impiden.</span><span class="it">Existen además <span class="m">synchronized</span>, que deja pasar un hilo por vez, y <span class="m">native</span>, cuyo cuerpo está escrito en otro lenguaje.</span></div>
+</div></section>
+
+
+<section class="slide"><div class="pad">
+  <div class="grupo"><span class="gn">constructor</span><span class="par" aria-hidden="true"><i class="on"></i></span></div>
+  <header class="tit"><h2>Constructor: modificadores de acceso</h2><div class="dek">Un constructor <b>no se hereda ni se sobrescribe</b>, así que el acceso habilita dos usos: <b>crear un objeto con <span class="m">new</span></b>, y <b>llamar al constructor de Persona con <span class="m">super(...)</span></b> desde el constructor de la clase que la extiende.</div></header>
+
+
+  <table>
+    <thead><tr>
+      <th><span class="mod" aria-hidden="true">&nbsp;</span></th>
+      <th><span class="mod">private</span><span class="con">solo dentro de Persona</span></th>
+      <th><span class="mod nada">sin modificador</span><span class="con">solo dentro del paquete 1</span></th>
+      <th><span class="mod">protected</span><span class="con">paquete 1, o quien la extienda</span></th>
+      <th><span class="mod">public</span><span class="con">cualquier clase</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rot"><span class="pkg">package1.</span>Persona<small>declara el constructor</small></td>
+        <td colspan="4" class="base"><span class="ln"><span class="si">✓</span> new Persona(...) · this(...)</span><span class="why">Dentro del cuerpo de <span class="m">Persona</span> se crea un objeto con <span class="m">new</span> y se llama a otro constructor de la misma clase con <span class="m">this(...)</span>, sin importar el modificador.</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package1.</span>Registro<small>no la extiende</small></td>
+        <td><span class="ln"><span class="nn">✕</span> new Persona("Ana")</span><span class="why">estar en el paquete 1 no ayuda: private solo se puede usar dentro de Persona. Si todos los constructores lo son, ninguna otra clase la instancia</span></td>
+        <td><span class="ln"><span class="si">✓</span> new Persona("Ana")</span><span class="why">Registro está en el paquete 1, y con eso alcanza: no hace falta que la extienda</span></td>
+        <td><span class="ln"><span class="si">✓</span> new Persona("Ana")</span><span class="why">protected acepta a quien esté en el paquete 1, y también a quien la extienda. A Registro le alcanza con estar en el paquete 1. Por eso para Registro protected y public dan el mismo acceso</span></td>
+        <td><span class="ln"><span class="si">✓</span> new Persona("Ana")</span><span class="why">public no exige nada: lo puede usar cualquier clase</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package2.</span>Empleado<small class="j">extends Persona</small></td>
+        <td><span class="ln"><span class="nn">✕</span> super("Ana")</span><span class="why">el error aparece en el constructor de Empleado, que está obligado a llamar a un constructor accesible de Persona. Sin constructor accesible, la clase no se puede extender</span></td>
+        <td><span class="ln"><span class="nn">✕</span> super("Ana")</span><span class="why">mismo resultado que private, otra razón: sin modificador el constructor solo lo pueden usar las clases del paquete 1</span></td>
+        <td><span class="ln"><span class="si">✓</span> super("Ana")</span><span class="ln"><span class="nn">✕</span> new Persona("Ana")</span><span class="why">Cuando Empleado hace <span class="m">super("Ana")</span> no está creando una Persona: está inicializando la parte Persona del Empleado. Lo que no puede hacer es crear un objeto Persona separado</span></td>
+        <td><span class="ln"><span class="si">✓</span> super("Ana")</span><span class="ln"><span class="si">✓</span> new Persona("Ana")</span><span class="why">con public Empleado puede llamar al constructor de Persona con <span class="m">super(...)</span>, y además crear un objeto Persona separado</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package2.</span>Reporte<small>no la extiende</small></td>
+        <td><span class="ln"><span class="nn">✕</span> new Persona("Ana")</span><span class="why">private solo se puede usar dentro de Persona</span></td>
+        <td><span class="ln"><span class="nn">✕</span> new Persona("Ana")</span><span class="why">está en el paquete 2, no en el 1</span></td>
+        <td><span class="ln"><span class="nn">✕</span> new Persona("Ana")</span><span class="why">no está en el paquete 1 y no extiende a Persona, que son las dos únicas maneras de acceder a un protected</span></td>
+        <td><span class="ln"><span class="si">✓</span> new Persona("Ana")</span><span class="why">public no exige ni compartir paquete ni extenderla</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pie"><span class="it">Si <span class="m">Persona</span> no declara ningún constructor, Java le da uno sin parámetros, con la misma visibilidad que la clase.</span><span class="it">En cuanto se declara uno cualquiera, ese gratuito desaparece: si el único que queda pide parámetros, el constructor de <span class="m">Empleado</span> está obligado a escribir <span class="m">super(...)</span> con argumentos, y no puede omitirlo.</span><span class="it"><b>No admite ningún modificador de no acceso</b>: ni <span class="m">static</span>, ni <span class="m">final</span>, ni <span class="m">abstract</span>.</span></div>
+</div></section>
+
+
+<section class="slide"><div class="pad">
+  <div class="grupo"><span class="gn">clase</span><span class="par" aria-hidden="true"><i class="on"></i><i></i></span></div>
+  <header class="tit"><h2>Clase: modificadores de acceso</h2><div class="dek">Qué habilita el acceso: <b>escribir el nombre del tipo</b>, es decir declarar variables, parámetros y retornos de tipo <span class="m">Persona</span>, y escribir <span class="m">extends Persona</span>.</div></header>
+
+  <table>
+    <thead><tr>
+      <th><span class="mod" aria-hidden="true">&nbsp;</span></th>
+      <th><span class="mod">private</span><span class="con">solo dentro de Persona</span></th>
+      <th><span class="mod nada">sin modificador</span><span class="con">solo dentro del paquete 1</span></th>
+      <th><span class="mod">protected</span><span class="con">paquete 1, o quien la extienda</span></th>
+      <th><span class="mod">public</span><span class="con">cualquier clase</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rot"><span class="pkg">package1.</span>Persona<small>declara la clase</small></td>
+        <td rowspan="4" class="base"><span class="ln"><span class="nn">✕</span> private class Persona</span><span class="why">Sobre una clase de nivel superior no compila: <span class="m">private</span> significa «solo dentro de la clase que la contiene», y una clase de nivel superior no está contenida en ninguna. Sobre una clase anidada sí compila, y entonces solo la clase que la contiene puede nombrarla.</span></td>
+        <td><span class="ln"><span class="si">✓</span> class Persona</span><span class="why">El archivo puede llamarse de cualquier manera, y puede declarar varias clases sin modificador.</span></td>
+        <td rowspan="4" class="base"><span class="ln"><span class="nn">✕</span> protected class Persona</span><span class="why">Tampoco compila sobre una clase de nivel superior, por la misma razón. Sobre una clase anidada sí, y entonces la pueden nombrar el paquete 1 y las clases que extiendan a la que la contiene.</span></td>
+        <td><span class="ln"><span class="si">✓</span> public class Persona</span><span class="why">El archivo tiene que llamarse <span class="m">Persona.java</span>, y no puede declarar otro tipo público de nivel superior.</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package1.</span>Registro<small>no la extiende</small></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...;</span><span class="why">está en el paquete 1, así que puede escribir el nombre Persona</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...;</span><span class="why">public no exige ni compartir paquete ni extenderla</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package2.</span>Empleado<small class="j">extends Persona</small></td>
+        <td><span class="ln"><span class="nn">✕</span> Empleado extends Persona</span><span class="why">desde el paquete 2 no se puede escribir el nombre Persona, así que no se puede extender. La clase Empleado no llega a existir</span></td>
+        <td><span class="ln"><span class="si">✓</span> Empleado extends Persona</span><span class="why">puede extenderla y heredar de ella</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package2.</span>Reporte<small>no la extiende</small></td>
+        <td><span class="ln"><span class="nn">✕</span> Persona p = ...;</span><span class="why">desde el paquete 2 no se puede escribir el nombre Persona, así que no se puede declarar una variable de ese tipo</span></td>
+        <td><span class="ln"><span class="si">✓</span> Persona p = ...;</span><span class="why">public no exige ni compartir paquete ni extenderla</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+</div></section>
+
+
+<section class="slide sig"><div class="pad">
+  <div class="grupo"><span class="gn">clase</span><span class="par" aria-hidden="true"><i></i><i class="on"></i></span></div>
+  <header class="tit"><h2>Clase: modificadores de no acceso</h2><div class="dek">Ninguno cambia <b>quién puede nombrar la clase</b>: cambian <b>si se puede instanciar</b> y <b>si se puede extender</b>.</div></header>
+
+  <table>
+    <thead><tr>
+      <th><span class="mod" aria-hidden="true">&nbsp;</span></th>
+      <th><span class="mod">abstract</span><span class="con">no se puede instanciar</span></th>
+      <th><span class="mod">final</span><span class="con">no se puede extender</span></th>
+      <th><span class="mod">static</span><span class="con">solo si está anidada</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rot q">Declaración<small>cómo se escribe</small></td>
+        <td><span class="ln"><span class="si">✓</span> abstract class Persona</span><span class="why">si además es public, el archivo tiene que llamarse Persona.java</span></td>
+        <td><span class="ln"><span class="si">✓</span> final class Persona</span><span class="why">String es final, y por eso nadie la puede extender</span></td>
+        <td><span class="ln"><span class="nn">✕</span> static class Persona</span><span class="why">sobre una clase de nivel superior no compila, igual que private y protected. Solo tiene sentido anidada dentro de otra clase</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Instanciación<small>escribir new</small></td>
+        <td><span class="ln"><span class="nn">✕</span> new Persona("Ana")</span><span class="why">es el único efecto de la palabra. Todo lo demás sigue igual, incluidos sus constructores, que se siguen llamando con super(...)</span></td>
+        <td><span class="ln"><span class="si">✓</span> new Persona("Ana")</span><span class="why">final no toca la instanciación, solo la herencia</span></td>
+        <td><span class="ln"><span class="si">✓</span> new Externa.Anidada()</span><span class="why">una anidada static se crea sin una instancia de la que la contiene. Sin static hace falta una</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Herencia<small>escribir extends</small></td>
+        <td><span class="ln"><span class="si">✓</span> class Empleado extends Persona</span><span class="why">es para lo que existe: una abstracta solo sirve extendida</span></td>
+        <td><span class="ln"><span class="nn">✕</span> class Empleado extends Persona</span><span class="why">es exactamente lo que la palabra prohíbe</span></td>
+        <td><span class="ln"><span class="si">✓</span> class X extends Externa.Anidada</span><span class="why">static no dice nada sobre la herencia</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Obligación<small>qué le impone a quien la extiende</small></td>
+        <td><span class="ln"><span class="si">✓</span> @Override de cada abstracto</span><span class="why">la primera clase concreta está obligada a implementarlos todos. Si deja alguno afuera, tiene que declararse abstract ella también</span></td>
+        <td><span class="why">nada, porque no hay clase que la extienda</span></td>
+        <td><span class="why">nada: static solo cambia si hace falta una instancia de la clase que la contiene</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pie"><span class="it"><span class="m">abstract</span> y <span class="m">final</span> juntos no compilan: una obliga a extender, la otra lo prohíbe.</span><span class="it">Una clase abstracta <b>puede no tener ningún método abstracto</b> y sigue sin poder instanciarse. Al revés no: un solo método abstracto obliga a marcar la clase.</span><span class="it">Existen además <span class="m">sealed</span> y <span class="m">non-sealed</span>, que fijan la lista cerrada de quién puede extender, y <span class="m">strictfp</span>, redundante desde Java 17.</span></div>
+</div></section>
+
+
+<section class="slide"><div class="pad">
+  <div class="grupo"><span class="gn">interfaz</span><span class="par" aria-hidden="true"><i class="on"></i><i></i></span></div>
+  <header class="tit"><h2>Interfaz: modificadores de acceso</h2><div class="dek">Qué habilita el acceso: <b>nombrar la interfaz e implementarla</b>. Sus miembros no lo deciden: una interfaz <b>publica todo lo que declara</b>.</div><div class="ley"><span class="rd">=</span> compila, pero el modificador ya rige sin escribirlo</div></header>
+
+  <table>
+    <thead><tr>
+      <th><span class="mod" aria-hidden="true">&nbsp;</span></th>
+      <th><span class="mod">private</span><span class="con">solo dentro de la interfaz</span></th>
+      <th><span class="mod nada">sin modificador</span><span class="con">público, salvo al declararla</span></th>
+      <th><span class="mod">protected</span><span class="con">no existe acá</span></th>
+      <th><span class="mod">public</span><span class="con">cualquier clase</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rot"><span class="pkg">package1.</span>Volador<small class="j">interface</small></td>
+        <td><span class="ln"><span class="nn">✕</span> private interface Volador</span><span class="why">una interfaz de nivel superior no está contenida en nada, igual que una clase. Anidada dentro de una clase sí compila</span></td>
+        <td><span class="ln"><span class="si">✓</span> interface Volador</span><span class="why">solo el paquete 1 puede nombrar a Volador, y por lo tanto implementarla. Sobre la declaración, «sin modificador» sí restringe</span></td>
+        <td rowspan="5" class="base"><span class="ln"><span class="nn">✕</span> protected interface Volador</span><span class="ln"><span class="nn">✕</span> protected String volar();</span><span class="ln"><span class="nn">✕</span> protected String volar() {...}</span><span class="why">Nunca compila, y por dos razones distintas. Dentro de <span class="m">Volador</span>, porque una interfaz publica todo lo que declara y <span class="m">protected</span> es lo contrario de publicar; sobre la declaración de nivel superior, además, por el mismo motivo que la clase. En <span class="m">Avion</span>, porque reduciría la visibilidad de un método que en la interfaz es público. Una interfaz <b>anidada dentro de una clase</b> sí lo admite.</span></td>
+        <td><span class="ln"><span class="si">✓</span> public interface Volador</span><span class="why">el archivo se llama Volador.java, y no puede haber otro tipo público de nivel superior</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">Volador.</span>MAX<small>una constante</small></td>
+        <td><span class="ln"><span class="nn">✕</span> private int MAX = 3;</span><span class="why">un campo de interfaz solo admite public, static y final: una constante escondida no tendría a quién servir</span></td>
+        <td><span class="ln"><span class="si">✓</span> int MAX = 3;</span><span class="why">queda public static final: visible para todos, y una sola para toda la interfaz</span></td>
+        <td><span class="ln"><span class="rd">=</span> public static final int MAX = 3;</span><span class="why">sobran: un campo de interfaz ya es public static final</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">Volador.</span>volar()<small>método abstracto</small></td>
+        <td><span class="ln"><span class="nn">✕</span> private String volar();</span><span class="why">sin cuerpo no compila: un método private de interfaz está obligado a traerlo</span></td>
+        <td><span class="ln"><span class="si">✓</span> String volar();</span><span class="why">queda public abstract: en una interfaz, «sin modificador» no significa «solo el paquete 1», significa público</span></td>
+        <td><span class="ln"><span class="rd">=</span> public abstract String volar();</span><span class="why">redundante: los métodos de una interfaz son públicos por definición</span></td>
+      </tr>
+      <tr class="corte">
+        <td class="rot"><span class="pkg">Volador.</span>bajar()<small class="j">default / static</small></td>
+        <td><span class="ln"><span class="si">✓</span> private void log() {...}</span><span class="why">solo con cuerpo, y desde Java 9: es el auxiliar que llaman los default. private default no existe, se excluyen</span></td>
+        <td><span class="ln"><span class="si">✓</span> default void bajar() {...}</span><span class="why">público, como todo lo demás. La clase que implementa se queda con esta versión o la sobrescribe</span></td>
+        <td><span class="ln"><span class="rd">=</span> public default void bajar() {...}</span><span class="why">redundante, igual que sobre el método abstracto</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">package2.</span>Avion<small class="j">implements Volador</small></td>
+        <td><span class="ln"><span class="nn">✕</span> private String volar() {...}</span><span class="why">reduce la visibilidad de un método que en Volador es público, y eso no compila nunca</span></td>
+        <td><span class="ln"><span class="nn">✕</span> String volar() {...}</span><span class="why">también la reduce: copiar la firma de la interfaz tal cual, sin public, no compila</span></td>
+        <td><span class="ln"><span class="si">✓</span> public String volar() {...}</span><span class="why">la única que compila: implementar un método de interfaz obliga a escribir public, siempre</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pie"><span class="it">Una interfaz <b>no tiene constructores</b>: no se declara ninguno, y <span class="m">new Volador()</span> no compila con ningún modificador.</span><span class="it">Pero <b>sí es un tipo</b>: para escribir <span class="m">Volador v = new Avion(...)</span> hay que poder nombrarla, y eso lo decide el modificador de su declaración.</span></div>
+</div></section>
+
+
+<section class="slide sig"><div class="pad">
+  <div class="grupo"><span class="gn">interfaz</span><span class="par" aria-hidden="true"><i></i><i class="on"></i></span></div>
+  <header class="tit"><h2>Interfaz: modificadores de no acceso</h2><div class="dek">En una interfaz casi todos son <b>implícitos</b>: rigen sin que los escribas, y escribirlos es redundante o directamente no compila.</div><div class="ley"><span class="rd">=</span> compila, pero el modificador ya rige sin escribirlo</div></header>
+
+  <table>
+    <thead><tr>
+      <th><span class="mod" aria-hidden="true">&nbsp;</span></th>
+      <th><span class="mod">abstract</span><span class="con">sin cuerpo</span></th>
+      <th><span class="mod">static</span><span class="con">de la interfaz, no del objeto</span></th>
+      <th><span class="mod">default</span><span class="con">trae cuerpo, y se hereda</span></th>
+      <th><span class="mod">final</span><span class="con">no se puede sobrescribir</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rot"><span class="pkg">package1.</span>Volador<small class="j">interface</small></td>
+        <td><span class="ln"><span class="rd">=</span> abstract interface Volador</span><span class="why">compila y sobra: toda interfaz es abstracta</span></td>
+        <td><span class="ln"><span class="rd">=</span> static interface Anidada</span><span class="why">solo anidada, y ahí también sobra: una interfaz dentro de una clase ya es static</span></td>
+        <td><span class="ln"><span class="nn">✕</span> default interface Volador</span><span class="why">default es solo para métodos de interfaz</span></td>
+        <td><span class="ln"><span class="nn">✕</span> final interface Volador</span><span class="why">una interfaz existe para ser implementada, y final lo prohíbe</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">Volador.</span>MAX<small>una constante</small></td>
+        <td><span class="ln"><span class="nn">✕</span> abstract int MAX = 3;</span><span class="why">ningún campo es abstracto, ni en una interfaz ni en una clase</span></td>
+        <td><span class="ln"><span class="si">✓</span> int MAX = 3;</span><span class="why">implícito: queda static. En una interfaz no hay campos de instancia</span></td>
+        <td><span class="ln"><span class="nn">✕</span> default int MAX = 3;</span><span class="why">default es solo para métodos de interfaz</span></td>
+        <td><span class="ln"><span class="si">✓</span> int MAX = 3;</span><span class="why">también implícito: un campo de interfaz es public static final aunque no lo escribas</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">Volador.</span>volar()<small>sin cuerpo</small></td>
+        <td><span class="ln"><span class="si">✓</span> String volar();</span><span class="why">implícito. Escribir public abstract compila y sobra</span></td>
+        <td><span class="ln"><span class="nn">✕</span> static String volar();</span><span class="why">un método static de interfaz está obligado a traer cuerpo</span></td>
+        <td><span class="ln"><span class="nn">✕</span> default String volar();</span><span class="why">default significa «traigo cuerpo»: sin cuerpo se contradice</span></td>
+        <td><span class="ln"><span class="nn">✕</span> final String volar();</span><span class="why">un método de interfaz nunca es final: existe para que alguien lo implemente</span></td>
+      </tr>
+      <tr>
+        <td class="rot"><span class="pkg">Volador.</span>bajar()<small>con cuerpo</small></td>
+        <td><span class="ln"><span class="nn">✕</span> abstract default String bajar()</span><span class="why">se excluyen: uno dice que no trae cuerpo, el otro que sí</span></td>
+        <td><span class="ln"><span class="si">✓</span> static String ayuda() {...}</span><span class="why">se invoca Volador.ayuda(), y no se hereda: quien implementa no lo ve como propio</span></td>
+        <td><span class="ln"><span class="si">✓</span> default String bajar() {...}</span><span class="why">se hereda, y quien implementa se lo queda o lo sobrescribe</span></td>
+        <td><span class="ln"><span class="nn">✕</span> final default String bajar()</span><span class="why">no puede ser final, justamente porque se puede sobrescribir</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pie"><span class="it">Lo que rige sin estar escrito: un campo es <span class="m">public static final</span>, y un método sin cuerpo es <span class="m">public abstract</span>.</span><span class="it">Una interfaz no tiene constructor ni estado de instancia, así que <span class="m">transient</span>, <span class="m">volatile</span> y <span class="m">synchronized</span> no aparecen nunca.</span></div>
+</div></section>
+
+
+<section class="slide"><div class="pad">
+  <div class="grupo"><span class="gn">teoría</span></div>
+  <header class="tit"><h2>Del concepto al código</h2></header>
+
+  <table class="conc">
+    <thead><tr>
+      <th><span class="mod" aria-hidden="true">&nbsp;</span></th>
+      <th><span class="mod nada">qué es</span><span class="con">la definición de la materia</span></th>
+      <th><span class="mod nada">para qué sirve</span><span class="con">el beneficio que busca</span></th>
+      <th><span class="mod nada">cómo se escribe</span><span class="con">el código que lo logra</span></th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="rot q">Abstracción</td>
+        <td><span class="why">quedarse con lo que el problema necesita: importa más lo que las cosas hacen que lo que tienen</span></td>
+        <td><span class="why">manejar la complejidad: cuantos menos detalles representa el modelo, más fácil es entenderlo y mantenerlo</span></td>
+        <td><span class="ln">abstract class Persona</span><span class="ln">abstract String saludar();</span><span class="ln">interface Volador</span><span class="why">la interfaz dice el qué; la clase que la implementa, el cómo. Ninguna se puede instanciar</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Encapsulamiento</td>
+        <td><span class="why">los datos y las operaciones relacionadas con esos datos, en la misma entidad de software</span></td>
+        <td><span class="why">tener todo en el mismo lugar, y no las operaciones por un lado y los datos por otro, como en la programación estructurada. El ocultamiento es el que le da valor</span></td>
+        <td><span class="ln">String nombre;</span><span class="ln">String decirNombre() {...}</span><span class="why">ningún modificador lo logra: alcanza con que vivan dentro de la misma clase</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Ocultamiento<small>de información</small></td>
+        <td><span class="why">una barrera delante de esos datos para controlar cómo se accede, y no para que nadie los vea</span></td>
+        <td><span class="why">la clase decide bajo qué reglas se modifica su estado, y puede cambiar su implementación sin afectar a quien la usa</span></td>
+        <td><span class="ln">private String nombre;</span><span class="ln">public String decirNombre() {...}</span><span class="why">el atributo no se nombra desde afuera, y el método es la única puerta. Con public no hay control</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Cohesión<small>y acoplamiento</small></td>
+        <td><span class="why">qué tan bien definidas están las responsabilidades de cada clase (cohesión) y qué tan atadas están entre sí (acoplamiento): cuando una sube, la otra baja</span></td>
+        <td><span class="why">que un cambio en una clase no obligue a modificar las demás. El objetivo no es acoplamiento cero, sino el mínimo necesario</span></td>
+        <td><span class="ln">void saludar() {...}</span><span class="ln">String saludar() {...}</span><span class="why">la primera acopla Persona a la consola: decide por quien la llame. La segunda no</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Composición<small>y agregación</small></td>
+        <td><span class="why">las dos son «tiene un», y se distinguen por su ordinalidad, la fuerza de esa relación: en la composición la parte no existe sin el todo; en la agregación, cada una existe sola</span></td>
+        <td><span class="why">que el código no deje crear por separado una parte que en el dominio no existe sin el todo</span></td>
+        <td><span class="ln">private class Dientes {...}<span class="cm">  // interna y privada</span></span><span class="ln">this.dientes = new Dientes();<span class="cm">  // y la crea el todo</span></span><span class="ln">private Material material;<span class="cm">  // suelta: agregación</span></span><span class="why">las dos de arriba van juntas: si los dientes entran por setter o por constructor, ya es agregación. Ante la duda, agregación: el 99% lo es</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Herencia</td>
+        <td><span class="why">la relación «es un»: una clase del orden jerárquico inferior obtiene los atributos y las operaciones de las clases que tiene arriba</span></td>
+        <td><span class="why">reutilizar código, no escribir menos: lo probado en la superclase no se vuelve a probar en cada subclase. Es mantenibilidad</span></td>
+        <td><span class="ln">class Empleado extends Persona</span><span class="ln">protected String nombre;</span><span class="why">protected es el único pensado para quien extiende: le abre el miembro en otro paquete</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Contrato<small>la interfaz</small></td>
+        <td><span class="why">el compromiso de ofrecer ciertas operaciones: dice qué hay que saber hacer, y no cómo se hace</span></td>
+        <td><span class="why">dar comportamiento común a clases de jerarquías distintas, sin contaminar con él a las que no lo necesitan. Habilita el polimorfismo</span></td>
+        <td><span class="ln">interface Volador { String volar(); }</span><span class="ln">class Avion extends Maquina implements Volador</span><span class="why">la clase da el estado; la interfaz, el contrato. Se extiende una sola clase y se implementan todas las interfaces que hagan falta</span></td>
+      </tr>
+      <tr>
+        <td class="rot q">Polimorfismo</td>
+        <td><span class="why">la capacidad de un objeto de tomar otras formas</span></td>
+        <td><span class="why">escribir una sola vez el código que usa objetos de clases distintas: como trabaja sobre el contrato, sumar una clase nueva no obliga a modificarlo. Flexibilidad y mantenibilidad</span></td>
+        <td><span class="ln">Persona p = new Empleado();<span class="cm">  // clase: dynamic binding</span></span><span class="ln">Volador item = new Avion();<span class="cm">  // interfaz: polimorfismo</span></span><span class="why">los dos corren la versión del objeto, no la del tipo. La diferencia la hace el contrato</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pie"><span class="it"><b><span class="m">final</span>, <span class="m">private</span> y <span class="m">static</span> no construyen ningún concepto:</b> aparecen apagándolos. Un método final no se puede sobrescribir, uno private no se ve desde afuera, y uno static se puede redeclarar pero oculta en vez de sobrescribir.</span><span class="it"><b>La sobrecarga no la decide ningún modificador:</b> depende de la cantidad, el tipo y el orden de los parámetros, y se resuelve en compilación. La sobrescritura sí depende de ellos, y se resuelve en ejecución.</span><span class="it">Las definiciones de <b>encapsulamiento</b> y <b>ocultamiento</b> son las de la materia, que sigue a Wirfs-Brock. Buena parte de la bibliografía las usa al revés y llama encapsulamiento a ocultar los detalles.</span></div>
+</div></section>
+</div>
+<script>
+(function(){
+  var root=document.documentElement, bar=document.getElementById('bar'), b=document.getElementById('mode');
+  function paint(){var l=root.getAttribute('data-theme')==='light';b.textContent=l?'☾︎':'☀︎';}
+  b.addEventListener('click',function(){
+    var toLight=root.getAttribute('data-theme')!=='light';
+    if(toLight)root.setAttribute('data-theme','light');else root.removeAttribute('data-theme');
+    try{localStorage.setItem('manual-theme',toLight?'light':'dark')}catch(e){}
+    paint();
+  });
+  paint();
+  function onScroll(){var h=root, max=h.scrollHeight-h.clientHeight;
+    bar.style.width=(max>0?(h.scrollTop/max)*100:0)+'%';}
+  document.addEventListener('scroll',onScroll,{passive:true});onScroll();
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  // Red de seguridad: ninguna lamina puede recortar contenido, y cada una se
+  // encaja sola. Al bajar la escala el pad se ensancha y el texto reflowea mas
+  // corto, asi que no hay formula: se prueban escalas y se toma la mayor que entra.
+  // flex:none es imprescindible, si no el contenedor flex le devuelve la altura.
+  function probar(pad,k){
+    pad.style.flex='none';
+    pad.style.width=(100/k)+'%';
+    pad.style.height='auto';
+    pad.style.transform='none';
+  }
+  function encajar(){
+    slides.forEach(function(s){
+      var pad=s.firstElementChild;
+      pad.style.flex='';pad.style.transform='';pad.style.width='';pad.style.height='';
+      if(pad.scrollHeight<=s.clientHeight+1&&pad.scrollWidth<=s.clientWidth+1)return;
+      var k=1;
+      for(var i=0;i<30;i++){
+        k-=0.02;
+        probar(pad,k);
+        if(pad.scrollHeight*k<=s.clientHeight+1&&pad.scrollWidth*k<=s.clientWidth+1)break;
+      }
+      pad.style.flex='none';
+      pad.style.width=(100/k)+'%';
+      pad.style.height=(100/k)+'%';
+      pad.style.transform='scale('+k+')';
+    });
+  }
+
+  window.addEventListener('load',encajar);
+  window.addEventListener('resize',encajar);
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(encajar);
+  encajar();
+
+  function ir(d){
+    var y=window.scrollY+8,i=0;
+    for(var k=0;k<slides.length;k++){if(slides[k].offsetTop<=y)i=k;}
+    var t=Math.min(Math.max(i+d,0),slides.length-1);
+    window.scrollTo({top:slides[t].offsetTop-24,behavior:'smooth'});
+  }
+  window.addEventListener('beforeprint',encajar);
+
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey)return;
+    var t=e.target; if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'))return;
+    if(e.key==='ArrowDown'||e.key==='ArrowRight'||e.key===' '){e.preventDefault();ir(1);}
+    else if(e.key==='ArrowUp'||e.key==='ArrowLeft'){e.preventDefault();ir(-1);}
+    else if(e.key==='p'||e.key==='P'){e.preventDefault();window.print();}
+  });
+})();
+</script>
+<a href="../../index.html#laboratorio-i" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

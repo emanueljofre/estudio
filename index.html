@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cursada">
+<title>Biblioteca de cursada</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: un estante por materia; arriba buscador y selector de materia fijos, abajo filas tocables (44px+) agrupadas por tipo de material. */
+:root {
+  --bg: #f2f3ef; --surface: #ffffff; --ink: #1c2330; --muted: #5d6573; --rule: #d8dcd3;
+  --accent: #2c56c9; --nuevo: #c0561a;
+  --m1: #2c56c9; --m2: #2a8257; --m3: #b8621a; --m4: #7647bd; --m5: #1d8291; --m6: #ad3f63;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --sans: "IBM Plex Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12151b; --surface: #1a1e26; --ink: #e5e8ed; --muted: #9aa2af; --rule: #2b313c;
+  --accent: #86a6ff; --nuevo: #f0955a;
+  --m1: #86a6ff; --m2: #6fc79a; --m3: #eba264; --m4: #b796f0; --m5: #6cc6d3; --m6: #ec8aaa;
+  color-scheme: dark;
+} }
+:root[data-theme="dark"] {
+  --bg: #12151b; --surface: #1a1e26; --ink: #e5e8ed; --muted: #9aa2af; --rule: #2b313c;
+  --accent: #86a6ff; --nuevo: #f0955a;
+  --m1: #86a6ff; --m2: #6fc79a; --m3: #eba264; --m4: #b796f0; --m5: #6cc6d3; --m6: #ec8aaa;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding-top: env(safe-area-inset-top, 0px); background: var(--bg); color: var(--ink); font: 16px/1.45 var(--sans); -webkit-text-size-adjust: 100%; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 16px; }
+header.top { padding-block: 28px 8px; }
+header.top h1 { font: 650 clamp(1.7rem, 4vw, 2.3rem)/1.1 var(--serif); margin: 0; text-wrap: balance; }
+header.top p { margin: 6px 0 0; color: var(--muted); font-size: .9rem; }
+
+.barra { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  padding-block: 12px 10px; border-bottom: 1px solid var(--rule); display: grid; gap: 10px; }
+.buscar { width: 100%; font: 400 1rem var(--sans); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--rule); border-radius: 10px; padding: 11px 14px; min-height: 44px; }
+.chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 14px;
+  border-radius: 999px; border: 1px solid var(--rule); background: var(--surface); color: var(--ink);
+  font: 500 .9rem var(--sans); cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--muted)); flex: none; }
+
+main { padding-block: 8px 64px; display: grid; gap: 34px; }
+.recientes h2, .materia > summary h2 { margin: 0; }
+.recientes { padding-top: 18px; }
+.eyebrow { font: 600 .72rem var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+.rec-lista { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.rec { display: grid; gap: 2px; padding: 10px 12px; min-height: 44px; border: 1px solid var(--rule); border-radius: 10px;
+  background: var(--surface); text-decoration: none; border-left: 3px solid var(--c); min-width: 0; }
+.rec b { font-weight: 500; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rec span { color: var(--muted); font-size: .8rem; }
+
+.materia > summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  padding-bottom: 10px; border-bottom: 2px solid var(--c); }
+.materia > summary::-webkit-details-marker { display: none; }
+.materia > summary h2 { font: 650 1.5rem/1.15 var(--serif); }
+.estado { font: 600 .72rem var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--c); }
+.cuenta { margin-left: auto; color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.materia > summary .flecha { color: var(--muted); transition: transform .15s; }
+.materia[open] > summary .flecha { transform: rotate(90deg); }
+
+.seccion { margin-top: 18px; }
+.seccion h3 { font: 600 .78rem var(--sans); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.filas { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; overflow: hidden; }
+.fila { display: flex; align-items: center; gap: 12px; padding: 8px 12px; min-height: 52px; border-top: 1px solid var(--rule); }
+.fila:first-child { border-top: 0; }
+.u { flex: none; width: 3.2em; font: 500 .82rem var(--mono); color: var(--c); font-variant-numeric: tabular-nums; }
+.t { flex: 1; min-width: 0; font-weight: 500; text-decoration: none; }
+a.t { padding-block: 6px; }
+.acciones { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.btn { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 8px;
+  border: 1px solid var(--rule); text-decoration: none; font: 500 .86rem var(--sans); color: var(--ink); white-space: nowrap; }
+.btn.prin { border-color: var(--c); color: var(--c); }
+.btn small { font: 500 .66rem var(--mono); color: var(--muted); }
+.nuevo { font: 600 .66rem var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--nuevo); margin-left: 6px; }
+@media (hover: hover) { .btn:hover, .rec:hover, .chip:hover { border-color: var(--c, var(--accent)); } a.t:hover { color: var(--c); } }
+@media (max-width: 560px) {
+  .fila { flex-wrap: wrap; row-gap: 4px; }
+  .t { flex-basis: calc(100% - 4.2em); }
+  .acciones { width: 100%; justify-content: flex-start; padding-left: calc(3.2em + 12px); }
+}
+.vacio { color: var(--muted); padding: 24px 0; }
+footer { color: var(--muted); font-size: .8rem; padding-bottom: 32px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <h1>Biblioteca de cursada</h1>
+    <p id="sub">Licenciatura en IA, Universidad de Palermo</p>
+  </header>
+  <div class="barra">
+    <input id="q" class="buscar" type="search" placeholder="Buscar por tema, unidad o materia" autocomplete="off" aria-label="Buscar">
+    <div id="chips" class="chips" role="toolbar" aria-label="Materias"></div>
+  </div>
+  <main id="main"></main>
+  <footer id="pie"></footer>
+</div>
+
+<script>
+const DATOS = {"generado": "2026-10-20 20:34", "materias": [{"id": "algebra-lineal", "nombre": "Álgebra Lineal", "estado": "curso", "periodo": null, "secciones": {"cheatsheets": [{"u": "U01", "t": "Divisibilidad en ℤ", "v": [{"l": "Teoría", "h": "algebra-lineal/cheatsheets/unidad-01-numeros-enteros.html", "pdf": false, "n": false, "m": 1789317050}, {"l": "Ejercicios", "h": "algebra-lineal/cheatsheets/unidad-01-numeros-enteros-ejercicios.html", "pdf": false, "n": false, "m": 1789317050}]}, {"u": "U02", "t": "Ecuaciones diofánticas y congruencias", "v": [{"l": "Teoría", "h": "algebra-lineal/cheatsheets/unidad-02-diofanticas-y-congruencias.html", "pdf": false, "n": false, "m": 1789317050}, {"l": "Ejercicios", "h": "algebra-lineal/cheatsheets/unidad-02-diofanticas-y-congruencias-ejercicios.html", "pdf": false, "n": false, "m": 1789317050}]}, {"u": "U03", "t": "Inducción matemática", "v": [{"l": "Teoría", "h": "algebra-lineal/cheatsheets/unidad-03-induccion-matematica.html", "pdf": false, "n": false, "m": 1789317050}, {"l": "Ejercicios", "h": "algebra-lineal/cheatsheets/unidad-03-induccion-matematica-ejercicios.html", "pdf": false, "n": false, "m": 1789317050}]}, {"u": "U04", "t": "Vectores en R² y R³", "v": [{"l": "Teoría", "h": "algebra-lineal/cheatsheets/unidad-04-vectores-en-r2-y-r3.html", "pdf": false, "n": false, "m": 1789330967}, {"l": "Ejercicios", "h": "algebra-lineal/cheatsheets/unidad-04-vectores-en-r2-y-r3-ejercicios.html", "pdf": false, "n": false, "m": 1789317050}]}, {"u": "U05", "t": "Rectas y planos en R³", "v": [{"l": "Teoría", "h": "algebra-lineal/cheatsheets/unidad-05-rectas-y-planos-en-r3.html", "pdf": false, "n": false, "m": 1789557213}, {"l": "Ejercicios", "h": "algebra-lineal/cheatsheets/unidad-05-rectas-y-planos-en-r3-ejercicios.html", "pdf": false, "n": false, "m": 1790528081}]}, {"u": "U07", "t": "Espacios y subespacios", "v": [{"l": "Teoría", "h": "algebra-lineal/cheatsheets/unidad-07-espacios-y-subespacios.html", "pdf": false, "n": false, "m": 1790597066}, {"l": "Ejercicios", "h": "algebra-lineal/cheatsheets/unidad-07-espacios-y-subespacios-ejercicios.html", "pdf": false, "n": false, "m": 1791125025}]}, {"u": "U08", "t": "Combinaciones entre vectores", "v": [{"l": "Teoría", "h": "algebra-lineal/cheatsheets/unidad-08-combinaciones-entre-vectores.html", "pdf": false, "n": false, "m": 1791208932}, {"l": "Ejercicios", "h": "algebra-lineal/cheatsheets/unidad-08-combinaciones-entre-vectores-ejercicios.html", "pdf": false, "n": false, "m": 1791227646}]}, {"u": "P1", "t": "Fórmulas · Parcial 1", "v": [{"l": "Teoría", "h": "algebra-lineal/cheatsheets/parcial-1-solo-formulas.html", "pdf": false, "n": false, "m": 1789332958}]}, {"u": "P1", "t": "Propiedades, teoremas y fórmulas · Parcial 1", "v": [{"l": "Teoría", "h": "algebra-lineal/cheatsheets/parcial-1-propiedades-teoremas-y-formulas.html", "pdf": false, "n": false, "m": 1789330967}]}], "repasos": [{"u": "", "t": "Tres raíces, cinco unidades, un molde · Repaso integrador", "v": [{"l": "Enunciado", "h": "algebra-lineal/repasos/repaso-unidades-01-05.html", "pdf": false, "n": false, "m": 1788818338}]}], "examenes": [{"u": "", "t": "Clave del parcial de abril 2024", "v": [{"l": "Resuelto", "h": "algebra-lineal/examenes/parcial-2024-1-solucion.html", "pdf": false, "n": false, "m": 1789312953}]}, {"u": "", "t": "Clave del parcial de abril 2026", "v": [{"l": "Resuelto", "h": "algebra-lineal/examenes/parcial-2026-1-solucion.html", "pdf": false, "n": false, "m": 1789580441}]}, {"u": "", "t": "Clave del simulacro 2c 2026", "v": [{"l": "Resuelto", "h": "algebra-lineal/examenes/simulacro-2026-2-solucion.html", "pdf": false, "n": false, "m": 1789312953}]}, {"u": "", "t": "Clave del simulacro anterior", "v": [{"l": "Resuelto", "h": "algebra-lineal/examenes/simulacro-anterior-solucion.html", "pdf": false, "n": false, "m": 1789312953}]}, {"u": "", "t": "Primer parcial, Tema A", "v": [{"l": "Enunciado", "h": "algebra-lineal/examenes/simulacros/parcial-1-a.html", "pdf": false, "n": false, "m": 1788818337}, {"l": "Resuelto", "h": "algebra-lineal/examenes/simulacros/parcial-1-a-clave.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "", "t": "Primer parcial, Tema B", "v": [{"l": "Enunciado", "h": "algebra-lineal/examenes/simulacros/parcial-1-b.html", "pdf": false, "n": false, "m": 1788818338}, {"l": "Resuelto", "h": "algebra-lineal/examenes/simulacros/parcial-1-b-clave.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "", "t": "Primer parcial, Tema C", "v": [{"l": "Enunciado", "h": "algebra-lineal/examenes/simulacros/parcial-1-c.html", "pdf": false, "n": false, "m": 1788818338}, {"l": "Resuelto", "h": "algebra-lineal/examenes/simulacros/parcial-1-c-clave.html", "pdf": false, "n": false, "m": 1788818338}]}], "ejercicios": [{"u": "U02", "t": "Actividad: ecuaciones diofánticas · Resolución", "v": [{"l": "Abrir", "h": "algebra-lineal/unidad-02-ecuaciones-diofanticas-lineales-y-de-congruencias/ejercicios/actividad-ecuaciones-diofanticas-resolucion.html", "pdf": false, "n": false, "m": 1788818338}]}]}}, {"id": "ingenieria-de-software", "nombre": "Ingeniería de Software", "estado": "curso", "periodo": null, "secciones": {"cheatsheets": [{"u": "U01", "t": "Conceptos de ingeniería de software", "v": [{"l": "Teoría", "h": "ingenieria-de-software/cheatsheets/unidad-01-conceptos-de-isw.html", "pdf": false, "n": false, "m": 1788818338}]}, {"u": "U02", "t": "Modelos de ciclos de vida", "v": [{"l": "Teoría", "h": "ingenieria-de-software/cheatsheets/unidad-02-ciclos-de-vida.html", "pdf": false, "n": false, "m": 1788818338}]}, {"u": "U03", "t": "Metodologías ágiles y requerimientos", "v": [{"l": "Teoría", "h": "ingenieria-de-software/cheatsheets/unidad-03-agilidad-y-requerimientos.html", "pdf": false, "n": false, "m": 1788818338}]}, {"u": "U04", "t": "Modelado de procesos de negocio", "v": [{"l": "Teoría", "h": "ingenieria-de-software/cheatsheets/unidad-04-procesos-de-negocio.html", "pdf": false, "n": false, "m": 1788818338}]}, {"u": "U06", "t": "Ingeniería de requerimientos", "v": [{"l": "Teoría", "h": "ingenieria-de-software/cheatsheets/unidad-06-ingenieria-de-requerimientos.html", "pdf": false, "n": false, "m": 1788818338}]}, {"u": "U07", "t": "Especificación y casos de uso", "v": [{"l": "Teoría", "h": "ingenieria-de-software/cheatsheets/unidad-07-especificacion-y-casos-de-uso.html", "pdf": false, "n": false, "m": 1789996627}]}, {"u": "U09", "t": "Pruebas de los requerimientos", "v": [{"l": "Teoría", "h": "ingenieria-de-software/cheatsheets/unidad-09-pruebas-de-requerimientos.html", "pdf": false, "n": false, "m": 1791229575}]}, {"u": "U10", "t": "Diagramas de secuencia", "v": [{"l": "Teoría", "h": "ingenieria-de-software/cheatsheets/unidad-10-diagramas-de-secuencia.html", "pdf": false, "n": false, "m": 1791231414}]}], "repasos": [{"u": "", "t": "Primer parcial: todo lo que se pregunta", "v": [{"l": "Enunciado", "h": "ingenieria-de-software/repasos/repaso-unidades-01-06.html", "pdf": false, "n": false, "m": 1788818338}]}], "examenes": [{"u": "", "t": "Primer parcial, simulacro", "v": [{"l": "Enunciado", "h": "ingenieria-de-software/examenes/simulacros/parcial-1.html", "pdf": false, "n": false, "m": 1788818338}, {"l": "Resuelto", "h": "ingenieria-de-software/examenes/simulacros/parcial-1-clave.html", "pdf": false, "n": false, "m": 1788818338}]}], "trabajos-practicos": [{"u": "", "t": "TP 1 decisiones", "v": [{"l": "Abrir", "h": "ingenieria-de-software/trabajos-practicos/tp-1-decisiones.pdf", "pdf": true, "n": false, "m": 1788213274}]}, {"u": "", "t": "TP 1 resolución", "v": [{"l": "Abrir", "h": "ingenieria-de-software/trabajos-practicos/tp-1-resolucion.pdf", "pdf": true, "n": false, "m": 1788036462}]}, {"u": "", "t": "TP 2 resolución", "v": [{"l": "Abrir", "h": "ingenieria-de-software/trabajos-practicos/tp-2-resolucion.pdf", "pdf": true, "n": false, "m": 1789950233}]}, {"u": "", "t": "TP 2 resolución v2", "v": [{"l": "Abrir", "h": "ingenieria-de-software/trabajos-practicos/tp-2-resolucion-v2.pdf", "pdf": true, "n": false, "m": 1790291127}]}, {"u": "", "t": "TP grupal", "v": [{"l": "Abrir", "h": "ingenieria-de-software/trabajos-practicos/tp-grupal.pdf", "pdf": true, "n": true, "m": 1792535778}]}]}}, {"id": "laboratorio-i", "nombre": "Laboratorio I", "estado": "curso", "periodo": null, "secciones": {"cheatsheets": [{"u": "U01", "t": "Introducción a la POO", "v": [{"l": "Teoría", "h": "laboratorio-i/cheatsheets/unidad-01-introduccion-a-la-poo.html", "pdf": false, "n": false, "m": 1788818338}]}, {"u": "U02", "t": "Constructores y relaciones entre clases", "v": [{"l": "Teoría", "h": "laboratorio-i/cheatsheets/unidad-02-constructores-y-relaciones.html", "pdf": false, "n": false, "m": 1788818338}]}, {"u": "U03", "t": "Herencia y polimorfismo", "v": [{"l": "Teoría", "h": "laboratorio-i/cheatsheets/unidad-03-herencia-y-polimorfismo.html", "pdf": false, "n": false, "m": 1788818338}]}, {"u": "U04", "t": "Clases abstractas e interfaces", "v": [{"l": "Teoría", "h": "laboratorio-i/cheatsheets/unidad-04-abstractas-e-interfaces.html", "pdf": false, "n": false, "m": 1788818338}]}, {"u": "U05", "t": "Colecciones", "v": [{"l": "Teoría", "h": "laboratorio-i/cheatsheets/unidad-05-colecciones.html", "pdf": false, "n": false, "m": 1790527181}]}, {"u": "U06", "t": "Excepciones", "v": [{"l": "Teoría", "h": "laboratorio-i/cheatsheets/unidad-06-excepciones.html", "pdf": false, "n": false, "m": 1790527955}]}, {"u": "U07", "t": "Comparación y entrada/salida", "v": [{"l": "Teoría", "h": "laboratorio-i/cheatsheets/unidad-07-comparacion-y-entrada-salida.html", "pdf": false, "n": false, "m": 1790528028}]}, {"u": "U08", "t": "JDBC, DAO y capas", "v": [{"l": "Teoría", "h": "laboratorio-i/cheatsheets/unidad-08-jdbc-dao-y-capas.html", "pdf": false, "n": false, "m": 1791202278}]}], "repasos": [{"u": "", "t": "Modificadores en Java", "v": [{"l": "Enunciado", "h": "laboratorio-i/repasos/modificadores.html", "pdf": false, "n": false, "m": 1789161627}]}, {"u": "", "t": "POO en Java · Manual del primer parcial", "v": [{"l": "Enunciado", "h": "laboratorio-i/repasos/repaso-unidades-01-04.html", "pdf": false, "n": false, "m": 1788903276}]}], "trabajos-practicos": [{"u": "", "t": "TP 3 consigna", "v": [{"l": "Abrir", "h": "laboratorio-i/trabajos-practicos/tp-3-consigna.pdf", "pdf": true, "n": false, "m": 1788818338}]}]}}, {"id": "analisis-matematico-ii", "nombre": "Análisis Matemático II", "estado": "final", "periodo": null, "secciones": {"cheatsheets": [{"u": "U01", "t": "Aplicación de las derivadas", "v": [{"l": "Teoría", "h": "analisis-matematico-ii/cheatsheets/unidad-01-aplicacion-de-derivadas.html", "pdf": false, "n": false, "m": 1788818338}]}, {"u": "U02", "t": "Estudio completo de funciones", "v": [{"l": "Teoría", "h": "analisis-matematico-ii/cheatsheets/unidad-02-estudio-completo-de-funciones.html", "pdf": false, "n": false, "m": 1788818338}]}, {"u": "U03", "t": "Integrales indefinidas", "v": [{"l": "Teoría", "h": "analisis-matematico-ii/cheatsheets/unidad-03-integrales-indefinidas.html", "pdf": false, "n": false, "m": 1788818338}]}]}}, {"id": "algebra", "nombre": "Álgebra", "estado": "archivo", "periodo": "2026-C1", "secciones": {"cheatsheets": [{"u": "U01", "t": "Operaciones Lógicas", "v": [{"l": "Teoría", "h": "archivo/2026-c1/algebra/cheatsheets/unidad-01-operaciones-logicas.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U02", "t": "Razonamientos", "v": [{"l": "Teoría", "h": "archivo/2026-c1/algebra/cheatsheets/unidad-02-razonamientos.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U03", "t": "Conjuntos", "v": [{"l": "Teoría", "h": "archivo/2026-c1/algebra/cheatsheets/unidad-03-conjuntos.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U04", "t": "Problemas de Conteo", "v": [{"l": "Teoría", "h": "archivo/2026-c1/algebra/cheatsheets/unidad-04-conteo.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U05", "t": "Relaciones", "v": [{"l": "Teoría", "h": "archivo/2026-c1/algebra/cheatsheets/unidad-05-relaciones.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U07", "t": "Números Complejos (forma binómica)", "v": [{"l": "Teoría", "h": "archivo/2026-c1/algebra/cheatsheets/unidad-07-numeros-complejos.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U08", "t": "Números Complejos (forma polar)", "v": [{"l": "Teoría", "h": "archivo/2026-c1/algebra/cheatsheets/unidad-08-numeros-complejos-polar.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U09", "t": "Matrices y Determinantes", "v": [{"l": "Teoría", "h": "archivo/2026-c1/algebra/cheatsheets/unidad-09-matrices.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U10", "t": "Determinantes", "v": [{"l": "Teoría", "h": "archivo/2026-c1/algebra/cheatsheets/unidad-10-determinantes.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U11", "t": "Sistemas de Ecuaciones Lineales", "v": [{"l": "Teoría", "h": "archivo/2026-c1/algebra/cheatsheets/unidad-11-sistemas-de-ecuaciones-lineales.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "", "t": "Notación y Símbolos", "v": [{"l": "Teoría", "h": "archivo/2026-c1/algebra/cheatsheets/glosario-notacion.html", "pdf": false, "n": false, "m": 1788818337}]}], "examenes": [{"u": "", "t": "Ejercicios conjuntos", "v": [{"l": "Enunciado", "h": "archivo/2026-c1/algebra/examenes/ejercicios-conjuntos.pdf", "pdf": true, "n": false, "m": 1780660589}]}, {"u": "", "t": "Final modelo 2026 1", "v": [{"l": "Enunciado", "h": "archivo/2026-c1/algebra/examenes/final-modelo-2026-1.pdf", "pdf": true, "n": false, "m": 1782817128}, {"l": "Resuelto", "h": "archivo/2026-c1/algebra/examenes/final-modelo-2026-1-solucion.pdf", "pdf": true, "n": false, "m": 1782817578}]}, {"u": "", "t": "Final modelo 2026 2", "v": [{"l": "Enunciado", "h": "archivo/2026-c1/algebra/examenes/final-modelo-2026-2.pdf", "pdf": true, "n": false, "m": 1782819501}, {"l": "Resuelto", "h": "archivo/2026-c1/algebra/examenes/final-modelo-2026-2-solucion.pdf", "pdf": true, "n": false, "m": 1782819781}]}, {"u": "", "t": "Parcial 2 modelo", "v": [{"l": "Enunciado", "h": "archivo/2026-c1/algebra/examenes/parcial-2-modelo.pdf", "pdf": true, "n": false, "m": 1780660184}, {"l": "Resuelto", "h": "archivo/2026-c1/algebra/examenes/parcial-2-modelo-resuelto.html", "pdf": false, "n": false, "m": 1780961787}, {"l": "Resuelto", "h": "archivo/2026-c1/algebra/examenes/parcial-2-modelo-solucion.pdf", "pdf": true, "n": false, "m": 1780660191}]}, {"u": "", "t": "Parcial modelo", "v": [{"l": "Enunciado", "h": "archivo/2026-c1/algebra/examenes/parcial-modelo.pdf", "pdf": true, "n": false, "m": 1779842384}, {"l": "Resuelto", "h": "archivo/2026-c1/algebra/examenes/parcial-modelo-resuelto.html", "pdf": false, "n": false, "m": 1780960873}, {"l": "Resuelto", "h": "archivo/2026-c1/algebra/examenes/parcial-modelo-solucion.pdf", "pdf": true, "n": false, "m": 1779842391}]}, {"u": "", "t": "Recuperatorio 1º Parcial (Ing. 2023) · Resuelto", "v": [{"l": "Resuelto", "h": "archivo/2026-c1/algebra/examenes/recuperatorio-1oparcial-ing-23-resuelto.html", "pdf": false, "n": false, "m": 1780962295}]}, {"u": "", "t": "Resumen permitido", "v": [{"l": "Enunciado", "h": "archivo/2026-c1/algebra/examenes/resumen-permitido.pdf", "pdf": true, "n": false, "m": 1780660597}]}, {"u": "", "t": "Resumen permitido 2do parcial", "v": [{"l": "Enunciado", "h": "archivo/2026-c1/algebra/examenes/resumen-permitido-2do-parcial.pdf", "pdf": true, "n": false, "m": 1780660665}]}]}}, {"id": "arquitectura-de-computadores", "nombre": "Arquitectura de Computadores", "estado": "archivo", "periodo": "2026-C1", "secciones": {"cheatsheets": [{"u": "U01", "t": "Reseña histórica de la computación", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-01-resena-historica.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U02", "t": "Sistemas Numéricos", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-02-sistemas-numericos.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U03", "t": "Números Reales y Códigos", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-03-numeros-reales-y-codigos.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U04", "t": "El Computador", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-04-el-computador.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U05", "t": "Unidad Aritmético-Lógica", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-05-unidad-aritmeticologica.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U06", "t": "Memorias Físicas", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-06-memorias-fisicas.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U07", "t": "Memoria Caché y Memoria Virtual", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-07-cache-y-memoria-virtual.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U08", "t": "Unidad de Control", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-08-unidad-de-control.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U09", "t": "Paralelismo y Procesadores de Alta Prestación", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-09-paralelismo-y-procesadores.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U10", "t": "Buses", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-10-buses.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U11", "t": "Entrada / Salida", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-11-entrada-salida.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U12", "t": "Interrupciones y Excepciones", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-12-interrupciones-y-excepciones.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "U14", "t": "Programación en Lenguaje Ensamblador", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/unidad-14-programacion-en-lenguaje-ensamblador.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "INT", "t": "Ciclo de Instrucción (fetch–decode–execute)", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/integrador-ciclo-de-instruccion.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "INT", "t": "Línea de Tiempo de Procesadores", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/integrador-linea-de-tiempo-procesadores.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "INT", "t": "Mapa Conceptual (Novak)", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/integrador-mapa-conceptual.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "INT", "t": "Mapa Maestro de Bloques", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/integrador-mapa-de-bloques.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "INT", "t": "Matriz de Conceptos Transversales", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/integrador-matriz-transversal.html", "pdf": false, "n": false, "m": 1788818337}]}, {"u": "INT", "t": "Pirámide de Jerarquía de Memoria", "v": [{"l": "Teoría", "h": "archivo/2026-c1/arquitectura-de-computadores/cheatsheets/integrador-piramide-de-memoria.html", "pdf": false, "n": false, "m": 1788818337}]}], "repasos": [{"u": "", "t": "Repaso de Examen · Módulos 8–12", "v": [{"l": "Enunciado", "h": "archivo/2026-c1/arquitectura-de-computadores/repasos/repaso-examen-modulos-08-12.html", "pdf": false, "n": false, "m": 1788818337}]}], "trabajos-practicos": [{"u": "", "t": "TP 2", "v": [{"l": "Abrir", "h": "archivo/2026-c1/arquitectura-de-computadores/trabajos-practicos/tp-2.pdf", "pdf": true, "n": false, "m": 1781522941}]}, {"u": "", "t": "TP 2 emanuel jofre", "v": [{"l": "Abrir", "h": "archivo/2026-c1/arquitectura-de-computadores/trabajos-practicos/tp-2-emanuel-jofre.pdf", "pdf": true, "n": false, "m": 1781522975}]}, {"u": "", "t": "TP 2 pro", "v": [{"l": "Abrir", "h": "archivo/2026-c1/arquitectura-de-computadores/trabajos-practicos/tp-2-pro.pdf", "pdf": true, "n": false, "m": 1781522941}]}]}}]};
+const SECCIONES = [
+  ["cheatsheets", "Cheatsheets por unidad"],
+  ["ejercicios", "Ejercicios resueltos"],
+  ["repasos", "Repasos"],
+  ["examenes", "Exámenes y simulacros"],
+  ["trabajos-practicos", "Trabajos prácticos"],
+];
+const ESTADO = { curso: "En curso", final: "Final pendiente", archivo: "Archivo" };
+const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+const leer = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch (e) { return d; } };
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+const materias = DATOS.materias.map((m, i) => ({ ...m, color: `var(--m${(i % 6) + 1})` }));
+let filtro = leer("biblio-materia", "todo");
+const ancla = decodeURIComponent(location.hash.slice(1));
+if (materias.some(m => m.id === ancla)) filtro = ancla;
+if (filtro !== "todo" && !materias.some(m => m.id === filtro)) filtro = "todo";
+
+function chips() {
+  const el = document.getElementById("chips");
+  const items = [{ id: "todo", nombre: "Todo" }, ...materias];
+  el.innerHTML = items.map(m => `<button class="chip" type="button" data-id="${m.id}" aria-pressed="${filtro === m.id}" style="--c:${m.color || "var(--ink)"}">${m.color ? '<span class="dot"></span>' : ""}${esc(m.nombre)}</button>`).join("");
+  el.onclick = e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    filtro = b.dataset.id; guardar("biblio-materia", filtro);
+    history.replaceState(null, "", filtro === "todo" ? location.pathname : "#" + filtro);
+    chips(); render();
+  };
+}
+
+function fila(m, g) {
+  const nuevo = g.v.some(v => v.n) ? '<span class="nuevo">nuevo</span>' : "";
+  const u = `<span class="u">${g.u || ""}</span>`;
+  if (g.v.length === 1) {
+    const v = g.v[0];
+    return `<li class="fila">${u}<a class="t" href="${v.h}" data-t="${esc(g.t)}">${esc(g.t)}${nuevo}</a><span class="acciones">${v.pdf ? '<span class="btn"><small>PDF</small></span>' : ""}</span></li>`;
+  }
+  const btns = g.v.map((v, i) => `<a class="btn${i === 0 ? " prin" : ""}" href="${v.h}" data-t="${esc(g.t + " · " + v.l)}">${v.l}${v.pdf ? " <small>PDF</small>" : ""}</a>`).join("");
+  return `<li class="fila">${u}<span class="t">${esc(g.t)}${nuevo}</span><span class="acciones">${btns}</span></li>`;
+}
+
+function render() {
+  const q = norm(document.getElementById("q").value.trim());
+  const main = document.getElementById("main");
+  let html = "";
+  const rec = leer("biblio-recientes", []).filter(r => materias.some(m => m.id === r.m));
+  if (!q && filtro === "todo" && rec.length) {
+    html += `<section class="recientes"><p class="eyebrow">Abiertos hace poco</p><div class="rec-lista">${rec.map(r => {
+      const m = materias.find(x => x.id === r.m);
+      return `<a class="rec" href="${r.h}" data-t="${esc(r.t)}" style="--c:${m.color}"><b>${esc(r.t)}</b><span>${esc(m.nombre)}</span></a>`;
+    }).join("")}</div></section>`;
+  }
+  let total = 0;
+  for (const m of materias) {
+    if (filtro !== "todo" && filtro !== m.id) continue;
+    let cuerpo = "", n = 0;
+    for (const [clave, titulo] of SECCIONES) {
+      const grupos = (m.secciones[clave] || []).filter(g => !q || norm(`${g.t} ${g.u} ${m.nombre} ${titulo}`).includes(q));
+      if (!grupos.length) continue;
+      n += grupos.length;
+      cuerpo += `<div class="seccion"><h3>${titulo}</h3><ul class="filas">${grupos.map(g => fila(m, g)).join("")}</ul></div>`;
+    }
+    if (!n) continue;
+    total += n;
+    const abierto = q || filtro === m.id || m.estado !== "archivo" ? " open" : "";
+    const estado = m.estado === "archivo" ? `Archivo ${m.periodo}` : ESTADO[m.estado];
+    html += `<details class="materia" data-m="${m.id}" style="--c:${m.color}"${abierto}><summary><span class="flecha">▸</span><h2>${esc(m.nombre)}</h2><span class="estado">${estado}</span><span class="cuenta">${n} ${n === 1 ? "tema" : "temas"}</span></summary>${cuerpo}</details>`;
+  }
+  if (!total) html += `<p class="vacio">Nada coincide con «${esc(document.getElementById("q").value)}». Probá con otra palabra o elegí «Todo».</p>`;
+  main.innerHTML = html;
+}
+
+document.getElementById("q").addEventListener("input", render);
+document.getElementById("main").addEventListener("click", e => {
+  const a = e.target.closest("a[href]"); if (!a) return;
+  const det = a.closest("[data-m]");
+  const m = det ? det.dataset.m : (leer("biblio-recientes", []).find(r => r.h === a.getAttribute("href")) || {}).m;
+  if (!m) return;
+  const rec = leer("biblio-recientes", []).filter(r => r.h !== a.getAttribute("href"));
+  rec.unshift({ h: a.getAttribute("href"), t: a.dataset.t, m });
+  guardar("biblio-recientes", rec.slice(0, 6));
+});
+const archivos = materias.reduce((s, m) => s + Object.values(m.secciones).flat().reduce((t, g) => t + g.v.length, 0), 0);
+document.getElementById("pie").textContent = `${archivos} archivos de ${materias.length} materias. Actualizado el ${DATOS.generado}.`;
+chips();
+render();
+</script>
+</body>
+</html>

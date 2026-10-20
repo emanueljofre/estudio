@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notación y Símbolos — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  /* layout */
+  .grid   { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* header */
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px; margin: 1.2rem auto 0; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  /* intro */
+  .intro {
+    max-width: 1400px; margin: 0 auto 1rem; background: var(--surface);
+    border: 1px solid var(--border); border-left: 3px solid var(--accent2);
+    border-radius: 6px; padding: 0.9rem 1.1rem; font-family: var(--mono);
+    font-size: 0.72rem; color: var(--muted); line-height: 1.6;
+  }
+  .intro strong { color: #fff; }
+  .intro .k { color: var(--accent2); }
+
+  /* section label */
+  .section-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--accent);
+    margin: 2.5rem auto 1rem; max-width: 1400px;
+    display: flex; align-items: center; gap: 0.8rem; scroll-margin-top: 1rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .u-tag {
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.1em;
+    color: var(--muted); border: 1px solid var(--border); border-radius: 3px;
+    padding: 0.12rem 0.4rem; text-transform: none;
+  }
+
+  /* card */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden;
+  }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+  .card-title {
+    font-size: 0.7rem; font-family: var(--mono); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  /* op def */
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule {
+    font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.5rem;
+    padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border); border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  /* formula */
+  .formula {
+    font-family: var(--mono); font-size: 0.82rem; color: #fff;
+    background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 5px; padding: 0.5rem 0.7rem; text-align: center; margin: 0.5rem 0;
+  }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+
+  /* proplist */
+  .proplist { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.35rem; }
+  .proplist div { padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div { background: rgba(16,185,129,0.06); }
+
+  /* notes */
+  .note { font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem; padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.06); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  /* matrix */
+  .matrix { display: inline-grid; gap: 0.15rem 0.55rem; font-family: var(--mono); font-size: 0.8rem; color: var(--text); padding: 0.3rem 0.65rem; position: relative; }
+  .matrix::before, .matrix::after { content: ''; position: absolute; top: 0; bottom: 0; width: 7px; border: 1.5px solid var(--accent2); }
+  .matrix::before { left: 0; border-right: none; }
+  .matrix::after  { right: 0; border-left: none; }
+  .matrix span { text-align: center; }
+  .matrix .hl { color: var(--accent3); font-weight: 700; }
+  .matrix .pos { color: var(--accent4); font-weight: 700; }
+  .matrix .neg { color: #f87171; font-weight: 700; }
+  .matrix .z  { color: #475569; }
+  .mwrap { display: flex; justify-content: center; align-items: center; gap: 0.6rem; margin: 0.6rem 0; flex-wrap: wrap; }
+  .mwrap .eq { font-family: var(--mono); color: var(--muted); font-size: 0.95rem; }
+
+  /* versus */
+  .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+  .vs-side { padding: 0.8rem; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.35rem; }
+  .vs-side h4 { font-family: var(--display); font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+  .vs-side .sy { color: var(--accent2); font-size: 0.95rem; font-weight: 700; }
+  .vs-mid { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.85rem; font-weight: 700; color: var(--accent3); padding: 0 0.7rem; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .vs-row { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .vs-row:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .versus { grid-template-columns: 1fr; }
+    .vs-mid { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0.4rem; text-align: center; }
+  }
+
+  /* glossary table */
+  .tblwrap { overflow-x: auto; }
+  .gloss { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.72rem; min-width: 540px; }
+  .gloss th { text-align: left; padding: 0.45rem 0.7rem; background: rgba(255,255,255,0.05); border-bottom: 1px solid var(--border); color: var(--muted); font-size: 0.55rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  .gloss td { padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+  .gloss tr:last-child td { border-bottom: none; }
+  .gloss tr:hover td { background: rgba(255,255,255,0.02); }
+  .gloss td.sym { color: var(--accent2); font-weight: 700; white-space: nowrap; font-size: 0.84rem; width: 1%; }
+  .gloss td.sym.t { color: #fff; font-size: 0.74rem; }
+  .gloss td.def { color: var(--muted); min-width: 240px; }
+  .gloss td.def b, .gloss td.def strong { color: #fff; font-weight: 700; }
+  .gloss td.ex { color: #64748b; font-size: 0.68rem; white-space: nowrap; }
+  .gloss td.ex .gx { color: #94a3b8; }
+  .dbl {
+    color: var(--accent3); font-size: 0.52rem; border: 1px solid rgba(245,158,11,0.4);
+    border-radius: 3px; padding: 0 0.28rem; margin-left: 0.35rem; white-space: nowrap;
+    text-decoration: none; vertical-align: middle;
+  }
+  .vtrue { color: #4ade80; } .vfalse { color: #f87171; } .vop { color: #fbbf24; }
+
+  /* nested sets svg helper already inline */
+
+  /* toc + progress */
+  .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .toc-rail { position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem; }
+  .toc-rail a { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; font-family: var(--mono); font-size: 0.55rem; color: var(--muted); padding: 0.12rem 0.25rem; border-radius: 3px; }
+  .toc-rail a .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; transition: all 0.2s; }
+  .toc-rail a .lbl { opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap; }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  footer { text-align: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1 { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .versus, .gloss, .matrix { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .note, .intro, .proplist div { background: #f4f4f6 !important; color: #222; }
+    .gloss td.def { color: #333; }
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<nav class="toc-rail">
+  <a href="#s01"><span class="dot"></span><span class="lbl">01 · Lógica</span></a>
+  <a href="#s02"><span class="dot"></span><span class="lbl">02 · Razonamientos</span></a>
+  <a href="#s03"><span class="dot"></span><span class="lbl">03 · Conjuntos</span></a>
+  <a href="#s04"><span class="dot"></span><span class="lbl">04 · Conteo</span></a>
+  <a href="#s05"><span class="dot"></span><span class="lbl">05 · Relaciones</span></a>
+  <a href="#s06"><span class="dot"></span><span class="lbl">06 · Complejos</span></a>
+  <a href="#s07"><span class="dot"></span><span class="lbl">07 · Complejos polar</span></a>
+  <a href="#s08"><span class="dot"></span><span class="lbl">08 · Matrices</span></a>
+  <a href="#s09"><span class="dot"></span><span class="lbl">09 · Determinantes</span></a>
+  <a href="#s10"><span class="dot"></span><span class="lbl">10 · Sistemas</span></a>
+  <a href="#s11"><span class="dot"></span><span class="lbl">11 · Transversales</span></a>
+  <a href="#s12"><span class="dot"></span><span class="lbl">12 · Confundibles</span></a>
+</nav>
+
+<header>
+  <div class="badge">Álgebra · Glosario integrador — Símbolos y notación</div>
+  <h1>Notación y Símbolos</h1>
+  <p class="subtitle">qué significa cada cosa · z̄ · Re(z) · |z| · ⊆ · ∴ · Δ · aᵢⱼ · Aᵀ · cis θ</p>
+  <div class="divider"></div>
+</header>
+
+<div class="intro">
+  <strong>Diccionario de referencia de toda la materia</strong> (10 unidades). No es un machete de examen: es el lugar donde buscar <span class="k">qué significa un símbolo o término</span> cuando lo ves y no lo reconocés. Cada entrada trae <strong>símbolo · significado en 1 línea · ejemplo</strong>. Los símbolos con <span class="dbl">⚠ doble</span> sentido (|A|, R, Δ, Aᶜ) cambian de significado según el contexto → ver <a href="#s12" style="color:var(--accent2)">§12 Confundibles</a>.
+</div>
+
+<!-- ============ 01 LÓGICA ============ -->
+<div class="section-label" id="s01">01 — Lógica proposicional <span class="u-tag">Unidad 1</span></div>
+<div class="card purple" style="max-width:1400px;margin:0 auto">
+  <div class="tblwrap">
+    <table class="gloss">
+      <thead><tr><th>Símbolo / término</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td class="sym">p, q, r, s</td><td class="def"><b>Proposiciones</b> (variables proposicionales). Letras que nombran oraciones declarativas con valor V o F.</td><td class="ex">p = "7 es primo"</td></tr>
+        <tr><td class="sym">v(p)</td><td class="def"><b>Valor de verdad</b> de p. Devuelve V o F.</td><td class="ex">v(p) = <span class="vtrue">V</span></td></tr>
+        <tr><td class="sym">V · F</td><td class="def"><b>Verdadero / Falso</b>. Los dos únicos valores de la lógica bivalente.</td><td class="ex">V = 1, F = 0</td></tr>
+        <tr><td class="sym">¬p · ~p · −p</td><td class="def"><b>Negación</b> (NOT). Invierte el valor de p. Conectivo <i>unario/monádico</i> (opera 1 proposición).</td><td class="ex">p = V → ¬p = <span class="vfalse">F</span></td></tr>
+        <tr><td class="sym">∧ · ·</td><td class="def"><b>Conjunción</b> (AND, "y"). V solo si <b>ambas</b> son V. También: "pero", "aunque", "sin embargo".</td><td class="ex">p ∧ q</td></tr>
+        <tr><td class="sym">∨ · +</td><td class="def"><b>Disyunción inclusiva</b> (OR, "o"). F solo si ambas son F (admite las dos verdaderas).</td><td class="ex">p ∨ q</td></tr>
+        <tr><td class="sym">→</td><td class="def"><b>Condicional / implicación material</b> ("si p entonces q"). F solo si p=V y q=F. p = <i>antecedente</i>, q = <i>consecuente</i>. Equiv: ¬p ∨ q.</td><td class="ex">antecedente F → siempre V</td></tr>
+        <tr><td class="sym">↔</td><td class="def"><b>Bicondicional / doble implicación</b> ("p si y solo si q"). V cuando p y q tienen el <b>mismo</b> valor.</td><td class="ex">(¬p∨q) ∧ (¬q∨p)</td></tr>
+        <tr><td class="sym">⊻ · ⊕</td><td class="def"><b>Disyunción excluyente</b> (XOR). V cuando p y q <b>difieren</b>. "p o q pero no ambos".</td><td class="ex">"a menos que", "salvo que"</td></tr>
+        <tr><td class="sym">≡</td><td class="def"><b>Equivalencia lógica</b>. Dos proposiciones con la misma tabla de verdad (mismo valor en todas las filas).</td><td class="ex">¬(p∧q) ≡ ¬p∨¬q</td></tr>
+        <tr><td class="sym">⟹ <span class="vop">(⇒)</span></td><td class="def"><b>Implicación</b> (condicional tautológico). Aparece <b>solo</b> cuando un p→q resulta tautología. No es lo mismo que →.</td><td class="ex">en las leyes lógicas</td></tr>
+        <tr><td class="sym">⟺ <span class="vop">(⇔)</span></td><td class="def"><b>Equivalencia</b> (bicondicional tautológico). Aparece solo cuando p↔q es tautología. El símbolo de las leyes.</td><td class="ex">De Morgan, absorción…</td></tr>
+        <tr><td class="sym">2ⁿ</td><td class="def"><b>Cantidad de filas</b> de la tabla de verdad. n = nº de proposiciones simples.</td><td class="ex">3 props → 2³ = 8 filas</td></tr>
+        <tr><td class="sym">( ) · [ ]</td><td class="def"><b>Agrupación</b>. Alteran la precedencia. Orden de ligación: 1º ¬ · 2º ∧ ∨ · 3º → · 4º ↔ ⊻.</td><td class="ex">¬(p∧q) ≠ ¬p∧q</td></tr>
+        <tr><td class="sym t">Tautología</td><td class="def">Proposición compuesta <b>siempre V</b> (toda la columna resultado en V).</td><td class="ex">(p∧¬q)→(q∨p)</td></tr>
+        <tr><td class="sym t">Contradicción</td><td class="def">Proposición compuesta <b>siempre F</b>.</td><td class="ex">p ∧ ¬p</td></tr>
+        <tr><td class="sym t">Contingencia</td><td class="def">Tiene <b>algún V y algún F</b> (ni tautología ni contradicción).</td><td class="ex">p → (q∧p)</td></tr>
+        <tr><td class="sym t">Simple · compuesta</td><td class="def"><b>Simple</b>: no se descompone en otras. <b>Compuesta</b>: combinación de simples vía conectivos.</td><td class="ex">p · vs · p∧q</td></tr>
+        <tr><td class="sym t">Leyes lógicas</td><td class="def">Equivalencias para simplificar: idempotencia, doble negación, asociativa, conmutativa, <b>absorción</b> (p∨(p∧q)⟺p), distributiva, <b>De Morgan</b>, neutro, dominación, contrarrecíproca.</td><td class="ex">¬(p∧q)⟺¬p∨¬q</td></tr>
+        <tr><td class="sym t">Implicaciones asociadas</td><td class="def">De p→q: <b>directa</b> (p→q), <b>recíproca</b> (q→p), <b>contraria</b> (¬p→¬q), <b>contrarrecíproca</b> (¬q→¬p). Directa ≡ contrarrecíproca.</td><td class="ex">las 4 = conjugadas</td></tr>
+        <tr><td class="sym t">Causal · formal · material</td><td class="def">Tipos de implicación: <b>causal</b> (causa-efecto), <b>formal</b> (se deduce; la matemática siempre es formal), <b>material</b> (sin relación real).</td><td class="ex">"si 2+3=5 entonces llueve"</td></tr>
+        <tr><td class="sym t">Suficiente · necesaria</td><td class="def">En p→q: p es <b>suficiente</b> para q; q es <b>necesario</b> para p. Necesaria Y suficiente → bicondicional ↔.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Serie · paralelo</td><td class="def">Circuito eléctrico: <b>serie</b> = conjunción (∧), <b>paralelo</b> = disyunción (∨). Solo ¬, ∧, ∨ tienen compuerta propia.</td><td class="ex">NOT · AND · OR</td></tr>
+        <tr><td class="sym t">1º · 2º miembro</td><td class="def">En p ⟺ q, p es el <b>primer miembro</b> y q el <b>segundo</b>.</td><td class="ex"></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ 02 RAZONAMIENTOS ============ -->
+<div class="section-label" id="s02">02 — Razonamientos y cuantificadores <span class="u-tag">Unidad 2</span></div>
+<div class="card cyan" style="max-width:1400px;margin:0 auto">
+  <div class="tblwrap">
+    <table class="gloss">
+      <thead><tr><th>Símbolo / término</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td class="sym">p₁, p₂, …, pₙ</td><td class="def"><b>Premisas</b>. Proposiciones de las que se afirma que deriva la conclusión.</td><td class="ex"></td></tr>
+        <tr><td class="sym">c</td><td class="def"><b>Conclusión</b>. La proposición que se deriva de las premisas.</td><td class="ex"></td></tr>
+        <tr><td class="sym">∴</td><td class="def"><b>"Por lo tanto"</b> (símbolo de conclusión). Precede a la conclusión. También: "luego", "en consecuencia".</td><td class="ex">p₁, p₂ ∴ c</td></tr>
+        <tr><td class="sym">(p₁∧…∧pₙ)→c</td><td class="def"><b>Forma condicional</b> de un razonamiento. Antecedente = conjunción de premisas; consecuente = conclusión.</td><td class="ex">válido ⟺ es tautología</td></tr>
+        <tr><td class="sym t">Razonamiento válido</td><td class="def">Si <b>todas</b> las premisas son V, la conclusión es necesariamente V. (Un razonamiento es <b>válido o no</b>, nunca "verdadero/falso".)</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Deductivo</td><td class="def">Las premisas ofrecen fundamentos <b>concluyentes</b> para la conclusión.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Métodos de validez</td><td class="def">(1) tabla de verdad; (2) <b>directo</b> (asumir premisas V, deducir c=V); (3) <b>reducción al absurdo</b> (premisas V + c=F → contradicción); (4) reglas de inferencia.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Modus Ponens</td><td class="def">Regla de inferencia: <b>p→q, p ∴ q</b>.</td><td class="ex">afirma el antecedente</td></tr>
+        <tr><td class="sym t">Modus Tollens</td><td class="def">Regla de inferencia: <b>p→q, ¬q ∴ ¬p</b>.</td><td class="ex">niega el consecuente</td></tr>
+        <tr><td class="sym t">Silogismo hipotético</td><td class="def"><b>p→q, q→r ∴ p→r</b> (encadena implicaciones).</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Silogismo disyuntivo</td><td class="def"><b>p∨q, ¬p ∴ q</b>.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Simplif. · adición · conj.</td><td class="def"><b>Simplificación</b>: p∧q ∴ p. <b>Adición</b>: p ∴ p∨q. <b>Conjunción</b>: p, q ∴ p∧q.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Dilemas</td><td class="def"><b>Constructivo</b>: p→q, r→s, p∨r ∴ q∨s. <b>Destructivo</b>: p→q, r→s, ¬q∨¬s ∴ ¬p∨¬r.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Teorema</td><td class="def">Razonamiento válido donde las premisas son la <b>hipótesis (H)</b> y la conclusión la <b>tesis (T)</b>. Directo (H→T) o indirecto (¬T→¬H).</td><td class="ex"></td></tr>
+        <tr><td class="sym">p(x) · E(x)</td><td class="def"><b>Función proposicional</b>. Expresión con variable(s); NO es proposición hasta asignar valor o cuantificar.</td><td class="ex">p(x)="x es par"; p(4)=V</td></tr>
+        <tr><td class="sym t">Ejemplificación</td><td class="def">Pasar de función proposicional a proposición sustituyendo la variable por un valor concreto.</td><td class="ex">E(x)="x impar", E(5)=V</td></tr>
+        <tr><td class="sym t">Conjunto de verdad</td><td class="def">Todos los elementos que hacen <b>V</b> a p(x).</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Variable ligada · libre</td><td class="def"><b>Ligada</b>: bajo el alcance de un cuantificador. <b>Libre</b>: no cuantificada.</td><td class="ex"></td></tr>
+        <tr><td class="sym">∀</td><td class="def"><b>Cuantificador universal</b> ("para todo"). V si TODOS cumplen p(x). Basta 1 contraejemplo para que sea F. Lee: todo, cualquiera, los.</td><td class="ex">∀x∈ℝ: x²≥0 → V</td></tr>
+        <tr><td class="sym">∃</td><td class="def"><b>Cuantificador existencial</b> ("existe"). V si AL MENOS UNO cumple. Lee: existe, hay, algún, ciertos.</td><td class="ex">∃x∈ℝ: x²=4 (x=2)</td></tr>
+        <tr><td class="sym">∃!</td><td class="def"><b>Existencial único</b> ("existe un único"). Hay exactamente uno que cumple.</td><td class="ex">"existe un único y"</td></tr>
+        <tr><td class="sym">/ · :</td><td class="def"><b>"Tal que"</b>. Separa la variable de la condición. ∃ usa "/"; ∀ usa ":".</td><td class="ex">∃x / x∈A · ∀x: p(x)</td></tr>
+        <tr><td class="sym t">Negar cuantificadores</td><td class="def">¬[∀x: p(x)] ⟺ ∃x / ¬p(x). ¬[∃x / p(x)] ⟺ ∀x: ¬p(x). El cuantificador se intercambia y la ¬ pasa al predicado.</td><td class="ex">¬∀ ⟹ ∃¬</td></tr>
+        <tr><td class="sym t">Orden de cuantificadores</td><td class="def">Importa si son distintos: <b>∀x∃y ≠ ∃y∀x</b>. Si son iguales (∀∀ o ∃∃), el orden es indistinto.</td><td class="ex"></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ 03 CONJUNTOS ============ -->
+<div class="section-label" id="s03">03 — Conjuntos <span class="u-tag">Unidad 3</span></div>
+<div class="grid grid-2" style="margin-bottom:1.2rem">
+  <div class="card amber">
+    <div class="card-title">⬭ Operaciones en el diagrama de Venn</div>
+    <svg viewBox="0 0 420 180" width="100%" style="display:block;margin:0.2rem auto;max-width:420px">
+      <rect x="20" y="18" width="380" height="130" rx="4" fill="none" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="34" y="36" font-family="JetBrains Mono,monospace" font-size="11" fill="#94a3b8">U / R</text>
+      <circle cx="170" cy="90" r="62" fill="rgba(124,58,237,0.18)" stroke="#7c3aed" stroke-width="1.5"/>
+      <circle cx="250" cy="90" r="62" fill="rgba(6,182,212,0.16)" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="130" y="95" font-family="JetBrains Mono,monospace" font-size="15" fill="#a78bfa" text-anchor="middle">A</text>
+      <text x="290" y="95" font-family="JetBrains Mono,monospace" font-size="15" fill="#06b6d4" text-anchor="middle">B</text>
+      <text x="210" y="95" font-family="JetBrains Mono,monospace" font-size="11" fill="#fbbf24" text-anchor="middle">A∩B</text>
+    </svg>
+    <div class="proplist pl-amber" style="margin-top:0.4rem">
+      <div><span style="color:#fbbf24">A∪B</span> &nbsp;= toda el área coloreada (en A, en B o en ambos)</div>
+      <div><span style="color:#fbbf24">A∩B</span> &nbsp;= la lente del medio (en ambos)</div>
+      <div><span style="color:#fbbf24">A−B</span> &nbsp;= solo la luna izquierda (en A, no en B)</div>
+      <div><span style="color:#fbbf24">A△B</span> &nbsp;= las dos lunas, sin el centro (uno u otro, no ambos)</div>
+      <div><span style="color:#fbbf24">Aᶜ</span> &nbsp;= todo el rectángulo menos A</div>
+    </div>
+  </div>
+  <div class="card purple">
+    <div class="card-title">🔗 Conjuntos ⟷ lógica (misma estructura)</div>
+    <div class="proplist pl-purple">
+      <div>∩ ⟷ ∧ &nbsp;<span style="color:#94a3b8">intersección / conjunción</span></div>
+      <div>∪ ⟷ ∨ &nbsp;<span style="color:#94a3b8">unión / disyunción</span></div>
+      <div>Aᶜ ⟷ ¬a &nbsp;<span style="color:#94a3b8">complemento / negación</span></div>
+      <div>⊆ ⟷ → &nbsp;<span style="color:#94a3b8">inclusión / condicional</span></div>
+      <div>= ⟷ ↔ &nbsp;<span style="color:#94a3b8">igualdad / bicondicional</span></div>
+      <div>R(universal) ⟷ tautología (V)</div>
+      <div>∅ ⟷ contradicción (F)</div>
+    </div>
+    <div class="note ok">✓ Las leyes de conjuntos son las mismas de lógica con otra notación (incluido <b>De Morgan</b>).</div>
+  </div>
+</div>
+<div class="card amber" style="max-width:1400px;margin:0 auto">
+  <div class="tblwrap">
+    <table class="gloss">
+      <thead><tr><th>Símbolo / término</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td class="sym">A, B, X · a, b, x</td><td class="def"><b>Conjuntos</b> (mayúsculas) y <b>elementos</b> (minúsculas).</td><td class="ex">A = {2, 4, 6}</td></tr>
+        <tr><td class="sym">{ }</td><td class="def"><b>Llaves de conjunto</b>. Encierran los elementos separados por coma o punto y coma.</td><td class="ex">{1, 2, 3}</td></tr>
+        <tr><td class="sym">∈</td><td class="def"><b>Pertenencia</b> ("pertenece a"). Relaciona <b>elemento ↔ conjunto</b>.</td><td class="ex">2 ∈ A · √2 ∈ ℝ</td></tr>
+        <tr><td class="sym">∉</td><td class="def"><b>No pertenencia</b>.</td><td class="ex">3 ∉ {2,4,6}</td></tr>
+        <tr><td class="sym">{x / p(x)}</td><td class="def"><b>Definición por comprensión</b> ("las x tales que p(x)"). Opuesto: por <i>extensión</i> = enumerar.</td><td class="ex">{x / x∈ℕ ∧ x≤3} = {1,2,3}</td></tr>
+        <tr><td class="sym">∅ · { } · ϕ</td><td class="def"><b>Conjunto vacío</b>. Sin elementos. Único; incluido en todos los conjuntos.</td><td class="ex">{x / x mosca de 9 km} = ∅</td></tr>
+        <tr><td class="sym">U · R <a href="#s12" class="dbl">⚠ doble</a></td><td class="def"><b>Conjunto referencial / universal</b>. De donde se toman los elementos; se grafica con un rectángulo. (Ojo: "R" también es reales/relación/rango.)</td><td class="ex"></td></tr>
+        <tr><td class="sym">#(A) · |A| <a href="#s12" class="dbl">⚠ doble</a></td><td class="def"><b>Cardinal</b> de A. Cantidad de elementos. (Ojo: |A| también es determinante en U10 y módulo en U7-8.)</td><td class="ex">#({2,4,6}) = 3</td></tr>
+        <tr><td class="sym">⊆</td><td class="def"><b>Inclusión amplia</b> ("subconjunto de"). A⊆B si todo elemento de A está en B. <b>Permite A=B</b>.</td><td class="ex">{1,3} ⊆ {1,3,5}</td></tr>
+        <tr><td class="sym">⊂</td><td class="def"><b>Inclusión estricta</b> ("subconjunto propio"). A⊆B <b>y</b> A≠B (B tiene algo más).</td><td class="ex">análogo a &lt; vs ≤</td></tr>
+        <tr><td class="sym">⊄</td><td class="def"><b>No incluido</b>. ⟺ ∃x / x∈A ∧ x∉B (hay un elemento de A fuera de B).</td><td class="ex"></td></tr>
+        <tr><td class="sym">⊇ · ⊃</td><td class="def"><b>Contiene</b> (inclusión inversa). B⊇A = "B incluye a A" = A⊆B.</td><td class="ex"></td></tr>
+        <tr><td class="sym">=</td><td class="def"><b>Igualdad de conjuntos</b>. A=B ⟺ A⊆B ∧ B⊆A. No importan repetidos ni orden.</td><td class="ex">{1,3,5} = {1,3,5,1}</td></tr>
+        <tr><td class="sym">∪</td><td class="def"><b>Unión</b>. {x / x∈A ∨ x∈B} (de A, de B o de ambos).</td><td class="ex">{2,4}∪{4,5} = {2,4,5}</td></tr>
+        <tr><td class="sym">∩</td><td class="def"><b>Intersección</b>. {x / x∈A ∧ x∈B} (comunes). <i>Disjuntos</i>: A∩B=∅.</td><td class="ex">{2,4}∩{4,5} = {4}</td></tr>
+        <tr><td class="sym">− · ∖</td><td class="def"><b>Diferencia</b> ("A menos B"). {x / x∈A ∧ x∉B}. NO conmutativa. Clave: A−B = A∩Bᶜ.</td><td class="ex">{2,4,6}−{2,5} = {4,6}</td></tr>
+        <tr><td class="sym">△</td><td class="def"><b>Diferencia simétrica</b>. (A−B)∪(B−A) = (A∪B)−(A∩B). Equivale al XOR lógico.</td><td class="ex">{1,2}△{2,3} = {1,3}</td></tr>
+        <tr><td class="sym">Aᶜ · A' · Ā</td><td class="def"><b>Complemento de A</b>. Lo del referencial que NO está en A. Aᶜ = R−A. (Aᶜ)ᶜ=A.</td><td class="ex">= negación lógica ¬a</td></tr>
+        <tr><td class="sym">P(A) · 𝒫(A)</td><td class="def"><b>Conjunto de partes / potencia</b>. TODOS los subconjuntos de A. #P(A) = 2^#(A). Siempre ∅∈P(A) y A∈P(A).</td><td class="ex">#A=3 → 2³=8 subconj.</td></tr>
+        <tr><td class="sym t">Conjunto unitario</td><td class="def">Un solo elemento.</td><td class="ex">{3}</td></tr>
+        <tr><td class="sym t">De Morgan (conjuntos)</td><td class="def">(A∪B)ᶜ = Aᶜ∩Bᶜ · (A∩B)ᶜ = Aᶜ∪Bᶜ.</td><td class="ex">la ᶜ "rompe" y da vuelta</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ 04 CONTEO ============ -->
+<div class="section-label" id="s04">04 — Conteo / cardinalidad <span class="u-tag">Unidad 4</span></div>
+<div class="card green" style="max-width:1400px;margin:0 auto">
+  <div class="note warn" style="margin-bottom:0.8rem">⚠️ En esta materia "conteo" = <b>inclusión-exclusión con cardinales</b>. <b>NO</b> se ven factoriales (n!), permutaciones, variaciones ni números combinatorios C(n,k) / (ⁿₖ). Si los ves en otra fuente, no son de Palermo.</div>
+  <div class="tblwrap">
+    <table class="gloss">
+      <thead><tr><th>Símbolo / término</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td class="sym">#(A) · |A|</td><td class="def"><b>Cardinal</b> (cantidad de elementos). En conteo se trabaja con cardinales, no con los conjuntos en sí.</td><td class="ex">#(A) = 4</td></tr>
+        <tr><td class="sym">#(S∪T) = #S + #T</td><td class="def"><b>Unión de disjuntos</b>. Cuando S∩T=∅, se suman directamente.</td><td class="ex">sin elementos comunes</td></tr>
+        <tr><td class="sym">#(S∪T) = #S+#T −#(S∩T)</td><td class="def"><b>Unión de 2 no disjuntos</b>. Se resta la intersección (se contó dos veces).</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Inclusión-exclusión (3)</td><td class="def">#(S∪T∪R) = #S+#T+#R − #(S∩T)−#(S∩R)−#(T∩R) + #(S∩T∩R).</td><td class="ex">sumo, resto pares, sumo triple</td></tr>
+        <tr><td class="sym t">Principio gral.</td><td class="def">Sumar individuales, restar intersecciones de nº <b>par</b> de conjuntos, sumar las de nº <b>impar</b>.</td><td class="ex"></td></tr>
+        <tr><td class="sym">#(Ā) = #(U) − #(A)</td><td class="def"><b>Cardinal del complemento</b> (los "ninguno": total menos la unión).</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Diagrama de Venn</td><td class="def">Curvas dentro del rectángulo; cada región = una operación. <b>"Solo A y B"</b> = intersección doble sin la triple.</td><td class="ex">"A y B" (sin "solo") = completa</td></tr>
+        <tr><td class="sym t">Diagrama de Carroll</td><td class="def">Tabla de doble entrada para 2 propiedades complementarias (A/Ā × B/B̄) con totales marginales.</td><td class="ex"></td></tr>
+        <tr><td class="sym">Ā · B̄</td><td class="def"><b>Complemento</b> en la tabla de Carroll (barra superior; = Aᶜ).</td><td class="ex"></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ 05 RELACIONES ============ -->
+<div class="section-label" id="s05">05 — Relaciones <span class="u-tag">Unidad 5</span></div>
+<div class="card purple" style="max-width:1400px;margin:0 auto 1.2rem">
+  <div class="card-title">🔁 Propiedades (solo en relaciones de A en A)</div>
+  <div class="proplist pl-purple">
+    <div><b style="color:#fff">Reflexiva</b>: ∀a: (a,a)∈R &nbsp;<span style="color:#94a3b8">todo elemento consigo mismo · diagonal toda 1 · todos con lazo</span></div>
+    <div><b style="color:#fff">Simétrica</b>: (a,b)∈R ⟹ (b,a)∈R &nbsp;<span style="color:#94a3b8">matriz simétrica respecto de la diagonal</span></div>
+    <div><b style="color:#fff">Antisimétrica</b>: (a,b)∈R ∧ (b,a)∈R ⟹ a=b &nbsp;<span style="color:#94a3b8">NO es lo opuesto de simétrica; pueden darse ambas</span></div>
+    <div><b style="color:#fff">Transitiva</b>: (a,b)∈R ∧ (b,c)∈R ⟹ (a,c)∈R</div>
+    <div style="background:rgba(245,158,11,0.08)"><span style="color:#fbbf24">prefijo "no-"</span> = falla en <b>algún</b> caso &nbsp;·&nbsp; <span style="color:#fbbf24">prefijo "a-/arr-"</span> (arreflexiva, asimétrica, atransitiva) = falla en <b>todos</b></div>
+  </div>
+</div>
+<div class="card purple" style="max-width:1400px;margin:0 auto">
+  <div class="tblwrap">
+    <table class="gloss">
+      <thead><tr><th>Símbolo / término</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td class="sym">(a, b)</td><td class="def"><b>Par ordenado</b>. Dos elementos con orden. (a,b) ≠ (b,a). Es un punto del plano. (≠ del conjunto {a,b}, sin orden.)</td><td class="ex"></td></tr>
+        <tr><td class="sym">×</td><td class="def"><b>Producto cartesiano</b>. A×B = {(a,b) / a∈A ∧ b∈B} (todos los pares). NO conmutativo. #(A×B)=#A·#B.</td><td class="ex">{1,2}×{a,b} = 4 pares</td></tr>
+        <tr><td class="sym">A² · A×A</td><td class="def"><b>Producto cartesiano de A consigo mismo</b> (partida = llegada).</td><td class="ex"></td></tr>
+        <tr><td class="sym">R <a href="#s12" class="dbl">⚠ doble</a></td><td class="def"><b>Relación binaria</b>. Cualquier subconjunto de A×B: R ⊆ A×B. (∅ y A×B también son relaciones.)</td><td class="ex"></td></tr>
+        <tr><td class="sym">a R b · (a,b)∈R</td><td class="def"><b>"a está relacionado con b"</b>. b es <i>imagen</i> de a.</td><td class="ex">R: x&lt;y, (2,5)∈R → 2 R 5</td></tr>
+        <tr><td class="sym">Dom R</td><td class="def"><b>Dominio</b>. Elementos de A relacionados con algún b. Siempre Dom R ⊆ A.</td><td class="ex"></td></tr>
+        <tr><td class="sym">Im R</td><td class="def"><b>Imagen</b>. Elementos de B que son imagen de algún a. Siempre Im R ⊆ B.</td><td class="ex"></td></tr>
+        <tr><td class="sym">R⁻¹</td><td class="def"><b>Relación inversa</b>. Invierte cada par: {(y,x) / (x,y)∈R}. Dom R⁻¹ = Im R.</td><td class="ex">{(2,1)} → {(1,2)}</td></tr>
+        <tr><td class="sym t">Representaciones</td><td class="def">Por extensión (lista de pares), diagrama <b>sagital</b> (flechas), gráfico cartesiano (puntos), <b>matriz booleana</b> (1/0).</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Equivalencia</td><td class="def">Reflexiva + simétrica + transitiva. Genera una <b>partición</b> en clases.</td><td class="ex">"tener la misma edad"</td></tr>
+        <tr><td class="sym t">Orden parcial · total · estricto</td><td class="def"><b>Parcial</b>: refl.+antisim.+trans. (≤, ⊆, "divide a"). <b>Total</b> si además ∀a,b: aRb∨bRa. <b>Estricto</b>: arrefl.+asim.+trans. (&lt;).</td><td class="ex"></td></tr>
+        <tr><td class="sym">Cᵢ</td><td class="def"><b>Clase de equivalencia</b>. Elementos mutuamente relacionados. Las clases forman partición: Cᵢ∩Cₖ=∅ y ∪Cᵢ = A.</td><td class="ex"></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ 06 COMPLEJOS BINÓMICA ============ -->
+<div class="section-label" id="s06">06 — Números complejos · forma binómica <span class="u-tag">Unidad 7</span></div>
+<div class="grid grid-2" style="margin-bottom:1.2rem">
+  <div class="card cyan">
+    <div class="card-title">📐 Plano de Argand · z, su conjugado y su opuesto</div>
+    <svg viewBox="0 0 300 250" width="100%" style="display:block;margin:0.2rem auto;max-width:320px">
+      <!-- ejes -->
+      <line x1="20" y1="125" x2="285" y2="125" stroke="#2a2a3e" stroke-width="1.2"/>
+      <line x1="150" y1="20" x2="150" y2="235" stroke="#2a2a3e" stroke-width="1.2"/>
+      <text x="280" y="140" font-family="JetBrains Mono,monospace" font-size="10" fill="#94a3b8">Re</text>
+      <text x="156" y="30" font-family="JetBrains Mono,monospace" font-size="10" fill="#94a3b8">Im</text>
+      <!-- vector z -->
+      <line x1="150" y1="125" x2="225" y2="75" stroke="#7c3aed" stroke-width="2"/>
+      <circle cx="225" cy="75" r="4" fill="#a78bfa"/>
+      <text x="231" y="70" font-family="JetBrains Mono,monospace" font-size="11" fill="#a78bfa">z = 3+2i</text>
+      <text x="170" y="92" font-family="JetBrains Mono,monospace" font-size="9" fill="#a78bfa" transform="rotate(-33 175 95)">|z|</text>
+      <!-- conjugado -->
+      <line x1="150" y1="125" x2="225" y2="175" stroke="#06b6d4" stroke-width="1.6" stroke-dasharray="4 3"/>
+      <circle cx="225" cy="175" r="4" fill="#06b6d4"/>
+      <text x="231" y="182" font-family="JetBrains Mono,monospace" font-size="11" fill="#06b6d4">z̄ = 3−2i</text>
+      <!-- opuesto -->
+      <line x1="150" y1="125" x2="75" y2="175" stroke="#f87171" stroke-width="1.6" stroke-dasharray="4 3"/>
+      <circle cx="75" cy="175" r="4" fill="#f87171"/>
+      <text x="18" y="192" font-family="JetBrains Mono,monospace" font-size="11" fill="#f87171">−z = −3−2i</text>
+    </svg>
+    <div class="proplist pl-cyan" style="margin-top:0.3rem">
+      <div><span style="color:#06b6d4">z̄</span> conjugado = reflejo sobre el <b>eje real</b> (cambia solo Im)</div>
+      <div><span style="color:#f87171">−z</span> opuesto = giro 180° por el origen (cambia <b>ambas</b>)</div>
+      <div><span style="color:#a78bfa">|z|</span> módulo = <b>longitud</b> del vector = √(a²+b²)</div>
+    </div>
+  </div>
+  <div class="card amber">
+    <div class="card-title">🔁 Potencias de i · ciclo de 4</div>
+    <div class="formula amber-f">i⁰=1 &nbsp; i¹=i &nbsp; i²=−1 &nbsp; i³=−i &nbsp; i⁴=1 ↺</div>
+    <div class="op-rule" style="margin-top:0.6rem">Para <b>iᵐ</b>: dividí m entre 4 y quedate con el <b>resto r</b> → iᵐ = iʳ.</div>
+    <div class="formula" style="margin-top:0.4rem">i²³ → 23 ÷ 4 = resto 3 → i³ = −i</div>
+    <div class="note ok">✓ z·z̄ = a²+b² = |z|² &nbsp;(siempre real, ≥ 0). Sirve para dividir: racionaliza el denominador.</div>
+  </div>
+</div>
+<div class="card cyan" style="max-width:1400px;margin:0 auto">
+  <div class="tblwrap">
+    <table class="gloss">
+      <thead><tr><th>Símbolo / término</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td class="sym">i</td><td class="def"><b>Unidad imaginaria</b>. i = √(−1), por lo tanto <b>i² = −1</b>. Permite resolver x²+1=0.</td><td class="ex">notación de Euler</td></tr>
+        <tr><td class="sym">z</td><td class="def"><b>Número complejo</b>. z = a + bi (binómica) o z = (a; b) (cartesiana).</td><td class="ex"></td></tr>
+        <tr><td class="sym">a + bi</td><td class="def"><b>Forma binómica</b>. a = parte real, b = parte imaginaria (coeficiente de i).</td><td class="ex">3 − 8i</td></tr>
+        <tr><td class="sym">(a ; b)</td><td class="def"><b>Forma cartesiana / canónica</b>. Par ordenado de reales. Se reescribe en binómica antes de operar.</td><td class="ex">(0;2) = 2i</td></tr>
+        <tr><td class="sym">Re(z)</td><td class="def"><b>Parte (componente) real</b> de z. Re(a+bi) = a.</td><td class="ex">Re(3−8i) = 3</td></tr>
+        <tr><td class="sym">Im(z)</td><td class="def"><b>Parte (componente) imaginaria</b> de z. Im(a+bi) = b (el coeficiente, <b>sin</b> la i).</td><td class="ex">Im(3−8i) = −8</td></tr>
+        <tr><td class="sym">ℂ</td><td class="def"><b>Conjunto de los complejos</b>. ℂ = {a+bi / a,b∈ℝ}. Amplía a los reales: ℝ ⊂ ℂ.</td><td class="ex"></td></tr>
+        <tr><td class="sym">z̄</td><td class="def"><b>Conjugado de z</b>. Misma parte real, parte imaginaria opuesta: a+bi → a−bi. Reflejo sobre el eje real.</td><td class="ex">3−8i → 3+8i</td></tr>
+        <tr><td class="sym">−z</td><td class="def"><b>Opuesto de z</b>. Cambia el signo de <b>ambas</b> componentes: a+bi → −a−bi. Giro de 180°.</td><td class="ex">3−8i → −3+8i</td></tr>
+        <tr><td class="sym t">Real · imaginario puro</td><td class="def"><b>Complejo real</b>: Im(z)=0 (es un real). <b>Imaginario puro</b>: Re(z)=0.</td><td class="ex">3+0i=3 · 0+4i=4i</td></tr>
+        <tr><td class="sym t">Igualdad</td><td class="def">a+bi = c+di ⟺ a=c ∧ b=d (coinciden ambas componentes).</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Plano de Argand</td><td class="def"><b>Plano complejo</b>. z como punto (a;b) o vector. Eje horizontal = real, vertical = imaginario.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Operaciones</td><td class="def"><b>Suma/resta</b>: componente a componente. <b>Producto</b>: distributiva + reemplazar i²=−1. <b>División</b>: multiplicar por el conjugado del denominador.</td><td class="ex">(a+bi)(c+di)</td></tr>
+        <tr><td class="sym">z·z̄ = a²+b²</td><td class="def"><b>Producto por el conjugado</b> = real (= |z|²). Además z+z̄ = 2·Re(z); z−z̄ = 2·Im(z)·i.</td><td class="ex"></td></tr>
+        <tr><td class="sym">z⁻¹</td><td class="def"><b>Inverso multiplicativo</b> (z≠0). z⁻¹ = z̄ / (z·z̄).</td><td class="ex"></td></tr>
+        <tr><td class="sym">iᵐ = iʳ</td><td class="def"><b>Potencia de i</b> (ciclo de 4). r = resto de m ÷ 4.</td><td class="ex">i²³ → i³ = −i</td></tr>
+        <tr><td class="sym">Δ <a href="#s12" class="dbl">⚠ doble</a></td><td class="def"><b>Discriminante</b> de ax²+bx+c. Δ = b²−4ac. <b>Δ &lt; 0 ⟹ dos raíces complejas conjugadas</b> (z y z̄). (En U11 el mismo Δ es de Cramer.)</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Estructura</td><td class="def">(ℂ,+) es <b>grupo conmutativo</b>; (ℂ,+,·) es <b>cuerpo</b>. El conjugado es involutivo: (z̄)̄ = z.</td><td class="ex"></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ 07 COMPLEJOS POLAR ============ -->
+<div class="section-label" id="s07">07 — Complejos · polar / trigonométrica / exponencial <span class="u-tag">Unidad 8</span></div>
+<div class="grid grid-2" style="margin-bottom:1.2rem">
+  <div class="card amber">
+    <div class="card-title">🧭 Módulo ρ y argumento θ</div>
+    <svg viewBox="0 0 300 200" width="100%" style="display:block;margin:0.2rem auto;max-width:300px">
+      <line x1="30" y1="160" x2="285" y2="160" stroke="#2a2a3e" stroke-width="1.2"/>
+      <line x1="40" y1="20" x2="40" y2="185" stroke="#2a2a3e" stroke-width="1.2"/>
+      <text x="278" y="175" font-family="JetBrains Mono,monospace" font-size="10" fill="#94a3b8">Re</text>
+      <text x="46" y="30" font-family="JetBrains Mono,monospace" font-size="10" fill="#94a3b8">Im</text>
+      <line x1="40" y1="160" x2="220" y2="60" stroke="#f59e0b" stroke-width="2"/>
+      <circle cx="220" cy="60" r="4" fill="#fbbf24"/>
+      <text x="226" y="56" font-family="JetBrains Mono,monospace" font-size="11" fill="#fbbf24">z</text>
+      <text x="120" y="100" font-family="JetBrains Mono,monospace" font-size="11" fill="#fbbf24" transform="rotate(-29 125 105)">ρ = |z|</text>
+      <path d="M 80 160 A 40 40 0 0 0 71 137" fill="none" stroke="#06b6d4" stroke-width="1.4"/>
+      <text x="84" y="150" font-family="JetBrains Mono,monospace" font-size="11" fill="#06b6d4">θ</text>
+      <line x1="220" y1="60" x2="220" y2="160" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/>
+    </svg>
+    <div class="proplist pl-amber" style="margin-top:0.3rem">
+      <div><b style="color:#fff">ρ = |z|</b> = √(a²+b²) &nbsp;<span style="color:#94a3b8">la longitud</span></div>
+      <div><b style="color:#fff">θ = arg(z)</b>, tg θ = b/a &nbsp;<span style="color:#94a3b8">el ángulo desde +Re, antihorario</span></div>
+      <div><b style="color:#fff">a = ρ·cos θ · b = ρ·sen θ</b> &nbsp;<span style="color:#94a3b8">vuelta a binómica</span></div>
+    </div>
+  </div>
+  <div class="card cyan">
+    <div class="card-title">⚠️ Corrección de θ según el cuadrante</div>
+    <div class="op-rule">La calculadora da α = |arctg(b/a)| (ángulo agudo). El argumento real θ se corrige según dónde caiga z. <b>Primero graficá.</b></div>
+    <div class="proplist pl-cyan" style="margin-top:0.5rem">
+      <div><b style="color:#fff">I</b> (+,+): θ = α</div>
+      <div><b style="color:#fff">II</b> (−,+): θ = 180° − α</div>
+      <div><b style="color:#fff">III</b> (−,−): θ = 180° + α</div>
+      <div><b style="color:#fff">IV</b> (+,−): θ = 360° − α</div>
+    </div>
+    <div class="formula cyan-f" style="margin-top:0.5rem">Euler: e^(iθ) = cos θ + i·sen θ</div>
+  </div>
+</div>
+<div class="card amber" style="max-width:1400px;margin:0 auto">
+  <div class="tblwrap">
+    <table class="gloss">
+      <thead><tr><th>Símbolo / término</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td class="sym">|z| · ρ · r <a href="#s12" class="dbl">⚠ doble</a></td><td class="def"><b>Módulo de z</b>. Longitud del vector; real ≥ 0. |z| = √(a²+b²) (Pitágoras). Se deja como raíz.</td><td class="ex">|3−2i| = √13</td></tr>
+        <tr><td class="sym">θ · arg(z)</td><td class="def"><b>Argumento de z</b>. Ángulo desde +Re al vector, antihorario. tg θ = b/a. En radianes.</td><td class="ex">θ = arctg(b/a)</td></tr>
+        <tr><td class="sym">α</td><td class="def"><b>Ángulo de referencia</b>. α = |arctg(b/a)|, siempre el agudo contra el eje real. θ se obtiene corrigiéndolo.</td><td class="ex"></td></tr>
+        <tr><td class="sym">(ρ ; θ)</td><td class="def"><b>Forma polar</b>. Módulo y argumento separados por punto y coma.</td><td class="ex">(2 ; π/6)</td></tr>
+        <tr><td class="sym">ρ(cos θ + i·sen θ)</td><td class="def"><b>Forma trigonométrica</b>. Sale de a = ρ·cosθ, b = ρ·senθ. Misma info que la polar, desarrollada.</td><td class="ex"></td></tr>
+        <tr><td class="sym">cis θ</td><td class="def"><b>Abreviatura</b> de (cos θ + i·sen θ). z = ρ·cis θ es la trigonométrica compacta.</td><td class="ex"></td></tr>
+        <tr><td class="sym">ρ·e^(iθ)</td><td class="def"><b>Forma exponencial</b>. Usa la fórmula de Euler. La más compacta.</td><td class="ex">2·e^(iπ/6)</td></tr>
+        <tr><td class="sym">e^(iθ) = cosθ+i·senθ</td><td class="def"><b>Fórmula de Euler</b>. Conecta exponencial con trigonométrica. Caso θ=π: <b>e^(iπ)+1 = 0</b> (identidad de Euler).</td><td class="ex"></td></tr>
+        <tr><td class="sym">cos · sen · tg · arctg</td><td class="def"><b>Funciones trigonométricas</b>. Signos por cuadrante: I(+,+) II(−,+) III(−,−) IV(+,−).</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Argumento multivaluado</td><td class="def">arg(z) = θ + 2kπ (k∈ℤ). El <b>principal</b> se toma en [0, 2π). Igualdad polar exige ρ=ρ' ∧ θ=θ'+2kπ.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Multiplicación (polar)</td><td class="def">z₁·z₂: <b>módulos se multiplican, argumentos se suman</b>. ρ₁ρ₂·[cos(θ₁+θ₂)+i·sen(θ₁+θ₂)].</td><td class="ex"></td></tr>
+        <tr><td class="sym t">División (polar)</td><td class="def">z₁/z₂: módulos se dividen, argumentos se <b>restan</b>.</td><td class="ex">(ρ₁/ρ₂)·[cos(θ₁−θ₂)…]</td></tr>
+        <tr><td class="sym t">De Moivre (potencia)</td><td class="def"><b>zⁿ = ρⁿ·[cos(nθ) + i·sen(nθ)]</b>. Módulo a la n, argumento por n.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Propiedades del módulo</td><td class="def">|z₁·z₂|=|z₁||z₂| · |zⁿ|=|z|ⁿ · <b>|z₁+z₂| ≤ |z₁|+|z₂|</b> (desigualdad triangular).</td><td class="ex"></td></tr>
+        <tr><td class="sym">|z − z₀| = r</td><td class="def"><b>Ecuación de circunferencia</b> de centro z₀ y radio r en el plano complejo.</td><td class="ex">lugar geométrico</td></tr>
+        <tr><td class="sym">σ · β</td><td class="def"><b>Módulo y argumento del 2º complejo</b> en forma exponencial (el apunte escribe v = σ·e^(iβ)).</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Conjugado/opuesto en polar</td><td class="def">z̄ = (ρ ; −θ) · −z = (ρ ; θ+π) · z⁻¹ = (1/ρ ; −θ).</td><td class="ex"></td></tr>
+        <tr><td class="sym">wₖ</td><td class="def"><b>Raíz n-ésima</b> de z. wₖ = ⁿ√ρ·[cos((θ+2kπ)/n)+i·sen(…)], k=0..n−1. Las n raíces = vértices de un polígono regular. <span style="color:#f87171">(la profe la marcó fuera del parcial/final)</span>.</td><td class="ex"></td></tr>
+        <tr><td class="sym">π</td><td class="def"><b>Pi</b>. Ángulos notables: π/6=30° · π/4=45° · π/3=60° · π/2=90° · π=180° · 2π=360°.</td><td class="ex"></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ 08 MATRICES ============ -->
+<div class="section-label" id="s08">08 — Matrices <span class="u-tag">Unidad 9</span></div>
+<div class="grid grid-2" style="margin-bottom:1.2rem">
+  <div class="card purple">
+    <div class="card-title">🔢 Cómo se nombra un elemento · aᵢⱼ</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr)">
+        <span class="hl">a₁₁</span><span>a₁₂</span><span>a₁₃</span>
+        <span>a₂₁</span><span class="hl">a₂₂</span><span>a₂₃</span>
+      </div>
+    </div>
+    <div class="op-rule"><b>Primer subíndice = fila</b>, segundo = columna. a₂₃ está en la fila 2, columna 3. La <b>diagonal principal</b> (resaltada) son los aᵢᵢ.</div>
+    <div class="note ok">✓ Orden m × n se lee <b>filas × columnas</b>, siempre en ese orden.</div>
+  </div>
+  <div class="card cyan">
+    <div class="card-title">↗ Trasponer · Aᵀ intercambia filas y columnas</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr)">
+        <span>1</span><span>2</span><span>3</span>
+        <span>4</span><span>5</span><span>6</span>
+      </div>
+      <span class="eq">→ Aᵀ →</span>
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr)">
+        <span>1</span><span>4</span>
+        <span>2</span><span>5</span>
+        <span>3</span><span>6</span>
+      </div>
+    </div>
+    <div class="op-rule">La fila 1 (1 2 3) se vuelve la <b>columna 1</b>. Si A es 2×3, Aᵀ es 3×2.</div>
+    <div class="proplist pl-cyan">
+      <div>Simétrica: <b style="color:#fff">A = Aᵀ</b></div>
+      <div>Antisimétrica: <b style="color:#fff">A = −Aᵀ</b> (diagonal de ceros)</div>
+    </div>
+  </div>
+</div>
+<div class="card purple" style="max-width:1400px;margin:0 auto">
+  <div class="tblwrap">
+    <table class="gloss">
+      <thead><tr><th>Símbolo / término</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td class="sym">A</td><td class="def"><b>Matriz</b>. Arreglo rectangular de números en filas y columnas, entre paréntesis o corchetes.</td><td class="ex"></td></tr>
+        <tr><td class="sym">aᵢⱼ</td><td class="def"><b>Elemento</b> de la matriz. Posición fila i, columna j (1º subíndice = fila, 2º = columna).</td><td class="ex">a₁₃ = fila 1, col 3</td></tr>
+        <tr><td class="sym">m × n</td><td class="def"><b>Orden / dimensión</b>. m filas × n columnas (en ese orden).</td><td class="ex">ℝ³ˣ⁴ = 3 filas, 4 col</td></tr>
+        <tr><td class="sym">A ∈ ℝ^(m×n)</td><td class="def"><b>Matriz de m×n con coeficientes reales</b>.</td><td class="ex"></td></tr>
+        <tr><td class="sym">A = (aᵢⱼ)</td><td class="def"><b>Notación compacta</b> por el elemento genérico, con 1≤i≤m, 1≤j≤n.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Igualdad</td><td class="def">A = B ⟺ <b>mismo orden</b> ∧ ∀i,j: aᵢⱼ = bᵢⱼ.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Tipos de matriz</td><td class="def"><b>fila</b> (1×n) · <b>columna</b> (m×1) · <b>nula</b> (todos 0) · <b>cuadrada</b> (m=n) · <b>triangular sup.</b> (0 si i&gt;j) · <b>triangular inf.</b> (0 si i&lt;j) · <b>diagonal</b> (0 si i≠j) · <b>escalar</b> (diagonal constante) · <b>identidad</b>.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Diagonal principal · secundaria</td><td class="def"><b>Principal</b>: a₁₁, a₂₂, …, aₙₙ (subíndices iguales). <b>Secundaria</b>: de la esquina sup. derecha a la inf. izquierda.</td><td class="ex"></td></tr>
+        <tr><td class="sym">I</td><td class="def"><b>Matriz identidad</b>. Diagonal toda 1, resto 0. Neutro del producto: A·I = I·A = A.</td><td class="ex">I₃ = diag(1,1,1)</td></tr>
+        <tr><td class="sym">(0)</td><td class="def"><b>Matriz nula</b>. Todos los elementos cero. Neutro de la suma.</td><td class="ex"></td></tr>
+        <tr><td class="sym">Aᵀ · Aᵗ</td><td class="def"><b>Traspuesta (transpuesta)</b>. Intercambia filas por columnas. Si A es m×n, Aᵀ es n×m. (Aᵀ)ᵀ = A.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Simétrica · antisimétrica</td><td class="def"><b>Simétrica</b>: A = Aᵀ (aᵢⱼ=aⱼᵢ). <b>Antisimétrica</b>: A = −Aᵀ; la diagonal es siempre de ceros.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Suma / resta</td><td class="def">cᵢⱼ = aᵢⱼ ± bᵢⱼ. <b>Mismo orden</b> obligatorio; elemento a elemento.</td><td class="ex"></td></tr>
+        <tr><td class="sym">k · A</td><td class="def"><b>Producto por escalar</b>. k multiplica TODOS los elementos: (k·aᵢⱼ). Distinto de A².</td><td class="ex"></td></tr>
+        <tr><td class="sym">A·B = C</td><td class="def"><b>Producto de matrices</b>. A(m×n)·B(n×p) = C(m×p). Condición: <b>columnas de A = filas de B</b>. NO conmutativo.</td><td class="ex">A·B ≠ B·A</td></tr>
+        <tr><td class="sym">cᵢⱼ = Σₖ aᵢₖ·bₖⱼ</td><td class="def"><b>Elemento del producto</b>. Suma de productos de la <b>fila i de A por la columna j de B</b>.</td><td class="ex"></td></tr>
+        <tr><td class="sym">A²</td><td class="def"><b>A · A</b> (producto consigo misma), NO elevar cada elemento al cuadrado.</td><td class="ex">confusión típica con k·A</td></tr>
+        <tr><td class="sym">A⁻¹</td><td class="def"><b>Matriz inversa</b>. A⁻¹·A = I. Existe solo si cuadrada y |A| ≠ 0. <b>Regular</b> = tiene inversa; <b>singular</b> = no.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Propiedades</td><td class="def">(A·B)ᵀ = Bᵀ·Aᵀ &nbsp;·&nbsp; (A·B)⁻¹ = B⁻¹·A⁻¹ &nbsp;·&nbsp; (A⁻¹)⁻¹ = A &nbsp;·&nbsp; (A⁻¹)ᵀ = (Aᵀ)⁻¹. <b>El orden se invierte.</b></td><td class="ex"></td></tr>
+        <tr><td class="sym t">Conmutables · divisores de 0</td><td class="def"><b>Conmutables</b>: A·B = B·A (caso especial). <b>Divisores de cero</b>: A·B = (0) con A≠0 y B≠0.</td><td class="ex"></td></tr>
+        <tr><td class="sym">μ</td><td class="def"><b>Segundo escalar</b> en propiedades: (k+μ)·A = k·A + μ·A.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Otras (en apunte)</td><td class="def"><b>Idempotente</b>: A²=A · <b>Involutiva</b>: A²=I · <b>Ortogonal</b>: A·Aᵀ=I (o sea A⁻¹=Aᵀ).</td><td class="ex">no dadas en clase</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ 09 DETERMINANTES ============ -->
+<div class="section-label" id="s09">09 — Determinantes <span class="u-tag">Unidad 10</span></div>
+<div class="grid grid-2" style="margin-bottom:1.2rem">
+  <div class="card amber">
+    <div class="card-title">± Tablero de signos del cofactor · (−1)^(i+j)</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);font-size:1.1rem">
+        <span class="pos">+</span><span class="neg">−</span><span class="pos">+</span>
+        <span class="neg">−</span><span class="pos">+</span><span class="neg">−</span>
+        <span class="pos">+</span><span class="neg">−</span><span class="pos">+</span>
+      </div>
+    </div>
+    <div class="op-rule">El signo <b>depende de la casilla, no del valor</b>. Si i+j es <b>par</b> → mantiene el signo (+); si es <b>impar</b> → lo cambia (−). Arranca siempre con + arriba a la izquierda.</div>
+    <div class="formula amber-f">Cᵢⱼ = (−1)^(i+j) · Mᵢⱼ</div>
+  </div>
+  <div class="card green">
+    <div class="card-title">🧮 Cómo calcular |A| según el orden</div>
+    <div class="proplist pl-green">
+      <div><b style="color:#fff">2×2</b> → producto cruzado: a₁₁a₂₂ − a₁₂a₂₁</div>
+      <div><b style="color:#fff">3×3</b> → regla de Sarrus (3 diagonales − 3)</div>
+      <div><b style="color:#fff">≥3</b> → Laplace: Σ elemento × cofactor</div>
+    </div>
+    <div class="note warn">⚠️ <b>|A+B| ≠ |A|+|B|</b>. El determinante distribuye sobre el producto, NUNCA sobre la suma.</div>
+    <div class="note ok">✓ Para la inversa: A⁻¹ = (1/|A|)·Adj(A). Si |A|=0, no hay inversa (singular).</div>
+  </div>
+</div>
+<div class="card amber" style="max-width:1400px;margin:0 auto">
+  <div class="tblwrap">
+    <table class="gloss">
+      <thead><tr><th>Símbolo / término</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td class="sym">det(A) · |A| <a href="#s12" class="dbl">⚠ doble</a></td><td class="def"><b>Determinante de A</b>. Número real asociado a una matriz <b>CUADRADA</b>. det: ℝⁿˣⁿ → ℝ. (Ojo: |A| también es cardinal y módulo.)</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Determinante 2×2</td><td class="def"><b>Producto cruzado</b>: |A| = a₁₁·a₂₂ − a₁₂·a₂₁ (diagonal principal menos secundaria).</td><td class="ex">|4,−2;5,1| = 4+10 = 14</td></tr>
+        <tr><td class="sym t">Regla de Sarrus (3×3)</td><td class="def">Copiar las 2 primeras filas debajo; sumar las 3 diagonales <b>↘ (+)</b> y restar las 3 <b>↙ (−)</b>. <b>Solo 3×3.</b></td><td class="ex">"regla de la mariposa"</td></tr>
+        <tr><td class="sym">Mᵢⱼ</td><td class="def"><b>Menor complementario</b>. Determinante de la submatriz al eliminar la <b>fila i y la columna j</b>. Orden n−1. SIN signo.</td><td class="ex">M₁₂ de 3×3 → un det 2×2</td></tr>
+        <tr><td class="sym">Cᵢⱼ · cᵢⱼ</td><td class="def"><b>Cofactor (adjunto)</b>. Menor con signo posicional: Cᵢⱼ = (−1)^(i+j)·Mᵢⱼ.</td><td class="ex">tablero +−+ / −+− / +−+</td></tr>
+        <tr><td class="sym">(−1)^(i+j)</td><td class="def"><b>Signo posicional</b> del cofactor. Depende de la casilla, NO del valor del elemento.</td><td class="ex">i+j par → + · impar → −</td></tr>
+        <tr><td class="sym t">Regla de Laplace</td><td class="def">|A| = Σⱼ aₖⱼ·Cₖⱼ (elemento × cofactor por una fila o columna). Conviene la línea con <b>más ceros</b>.</td><td class="ex">cualquier n ≥ 3</td></tr>
+        <tr><td class="sym">Adj(A) · (Aᶜ)ᵀ</td><td class="def"><b>Matriz adjunta</b>. Traspuesta de la matriz de cofactores. (El paso que se olvida: <b>transponer</b>.)</td><td class="ex"></td></tr>
+        <tr><td class="sym">Aᶜ <a href="#s12" class="dbl">⚠ doble</a></td><td class="def"><b>Matriz de cofactores</b>. Cada elemento reemplazado por su cofactor Cᵢⱼ. (Ojo: Aᶜ también es complemento de conjunto en U3.)</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Inversa por adjunta</td><td class="def">A⁻¹ = (1/|A|)·Adj(A) = (1/|A|)·(Aᶜ)ᵀ. Existe solo si |A| ≠ 0.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Propiedades del determinante</td><td class="def">|Aᵀ|=|A| · |A·B|=|A|·|B| · |I|=1 · det(triangular)=producto de la diagonal · <b>|k·A| = kⁿ·|A|</b> (¡exponente n!) · |A⁻¹|=1/|A| · fila de ceros o filas proporcionales → |A|=0.</td><td class="ex"></td></tr>
+        <tr><td class="sym">|A+B| ≠ |A|+|B|</td><td class="def"><b>Trampa</b>: el determinante NO distribuye sobre la suma. El apunte invita a "verificarlo" para falsearlo.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Singular · regular</td><td class="def"><b>Singular</b>: |A|=0 (no inversible, filas dependientes). <b>Regular</b>: |A|≠0. "Hallar x para que no sea inversible" ⟹ resolver |A(x)|=0.</td><td class="ex"></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ 10 SISTEMAS ============ -->
+<div class="section-label" id="s10">10 — Sistemas de ecuaciones lineales <span class="u-tag">Unidad 11</span></div>
+<div class="grid grid-2" style="margin-bottom:1.2rem">
+  <div class="card green">
+    <div class="card-title">🌳 Árbol de Cramer · qué tipo de solución</div>
+    <div class="proplist pl-green">
+      <div><b style="color:#4ade80">|A| ≠ 0</b> &nbsp;→&nbsp; <b style="color:#fff">SCD</b> (solución única)</div>
+      <div><b style="color:#fbbf24">|A| = 0</b> ∧ todos los Δᵢ = 0 &nbsp;→&nbsp; 0/0 &nbsp;→&nbsp; <b style="color:#fff">SCI</b> (infinitas)</div>
+      <div><b style="color:#f87171">|A| = 0</b> ∧ algún Δᵢ ≠ 0 &nbsp;→&nbsp; k/0 &nbsp;→&nbsp; <b style="color:#fff">SI</b> (ninguna)</div>
+    </div>
+    <div class="note ok">✓ Mnemónico: <b>0/0 = infinitas (CI)</b> &nbsp;·&nbsp; <b>número/0 = ninguna (I)</b>.</div>
+  </div>
+  <div class="card purple">
+    <div class="card-title">📋 Rouché-Frobenius · con rangos</div>
+    <div class="proplist pl-purple">
+      <div>R(A) = R(A') &nbsp;→&nbsp; <b style="color:#fff">compatible</b></div>
+      <div>R(A) = R(A') = n &nbsp;→&nbsp; <b style="color:#fff">SCD</b></div>
+      <div>R(A) = R(A') = h &lt; n &nbsp;→&nbsp; <b style="color:#fff">SCI</b> &nbsp;(indet. = n−h)</div>
+      <div>R(A) ≠ R(A') &nbsp;→&nbsp; <b style="color:#fff">SI</b></div>
+    </div>
+    <div class="note warn">⚠️ <b>SCI ≠ SI</b>: una clase grabada los invirtió. Lo correcto es lo de arriba (0/0 = infinitas).</div>
+  </div>
+</div>
+<div class="card green" style="max-width:1400px;margin:0 auto">
+  <div class="tblwrap">
+    <table class="gloss">
+      <thead><tr><th>Símbolo / término</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+      <tbody>
+        <tr><td class="sym">A·X = B</td><td class="def"><b>Forma matricial</b> de un sistema. A = coeficientes, X = incógnitas, B = términos independientes.</td><td class="ex"></td></tr>
+        <tr><td class="sym">A</td><td class="def"><b>Matriz de coeficientes</b>, m×n. En aᵢⱼ: 1º subíndice = nº de ecuación, 2º = nº de incógnita.</td><td class="ex"></td></tr>
+        <tr><td class="sym">A' (ampliada / orlada)</td><td class="def"><b>Matriz ampliada</b>. La de coeficientes más una columna con los términos independientes. Dimensión m×(n+1).</td><td class="ex"></td></tr>
+        <tr><td class="sym">X</td><td class="def"><b>Vector de incógnitas</b>. Columna n×1 con x₁, …, xₙ.</td><td class="ex"></td></tr>
+        <tr><td class="sym">B</td><td class="def"><b>Vector de términos independientes</b>. Columna m×1 con b₁, …, bₘ.</td><td class="ex"></td></tr>
+        <tr><td class="sym">SCD</td><td class="def"><b>Sistema Compatible Determinado</b> — solución <b>única</b>.</td><td class="ex"></td></tr>
+        <tr><td class="sym">SCI</td><td class="def"><b>Sistema Compatible Indeterminado</b> — <b>infinitas</b> soluciones.</td><td class="ex"></td></tr>
+        <tr><td class="sym">SI</td><td class="def"><b>Sistema Incompatible</b> — <b>sin</b> solución.</td><td class="ex"></td></tr>
+        <tr><td class="sym">Δ <a href="#s12" class="dbl">⚠ doble</a></td><td class="def"><b>Determinante de la matriz de coeficientes</b> (denominador de Cramer). Δ = |A|. (En U7 el mismo Δ es el discriminante.)</td><td class="ex"></td></tr>
+        <tr><td class="sym">Δxᵢ · Δx, Δy, Δz</td><td class="def"><b>Determinantes de Cramer</b>. |A| reemplazando la columna de la incógnita i por la columna B.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Regla de Cramer</td><td class="def">Si |A| ≠ 0: <b>xᵢ = Δxᵢ / Δ</b> (cada incógnita = cociente de dos determinantes). Solo si cuadrada y no singular.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Gauss-Jordan</td><td class="def">Formar matrices <b>equivalentes</b> hasta llegar a triangular o reducida; luego despejar de abajo hacia arriba.</td><td class="ex">backward substitution</td></tr>
+        <tr><td class="sym t">Operaciones elementales</td><td class="def">(1) intercambiar dos <b>filas</b> (no columnas); (2) multiplicar una fila por k≠0; (3) sumar a una fila otra. <b>Prohibido</b>: sumar un número a una fila.</td><td class="ex"></td></tr>
+        <tr><td class="sym">Fᵢ + Fⱼ → Fₖ</td><td class="def"><b>Notación de operación elemental</b>: "sumo fila i con fila j, el resultado va en la fila k". Cada paso se anuncia.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Sistema homogéneo</td><td class="def">A·X = 0 (todos los términos independientes cero). <b>Siempre compatible</b>. Admite solución no trivial ⟺ |A| = 0.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Solución trivial</td><td class="def">x₁ = x₂ = … = xₙ = 0 (siempre es solución de un homogéneo).</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Sistemas / matrices equivalentes</td><td class="def"><b>Equivalentes</b>: tienen las mismas soluciones; se obtienen por operaciones elementales. Las matrices equivalentes tienen el mismo <b>rango</b>.</td><td class="ex"></td></tr>
+        <tr><td class="sym">R(A) <a href="#s12" class="dbl">⚠ doble</a></td><td class="def"><b>Rango de A</b>. Mayor cantidad de vectores canónicos columna distintos obtenibles por operaciones elementales. (Ojo: "R" también es referencial/relación/reales.)</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Rouché-Frobenius</td><td class="def">R(A)=R(A') → compatible · =n → SCD · =h&lt;n → SCI (indet. n−h) · R(A)≠R(A') → SI.</td><td class="ex"></td></tr>
+        <tr><td class="sym">h</td><td class="def"><b>Rango común</b> cuando h &lt; n (caso SCI). <b>Grado de indeterminación</b> = n − h = nº de parámetros libres.</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Variables principales · libres</td><td class="def">En SCI, las <b>principales</b> se expresan en función de las <b>libres</b> (parámetros).</td><td class="ex">S = {(3z, 8, z) / z∈ℝ}</td></tr>
+        <tr><td class="sym t">Pivote</td><td class="def">Elemento no nulo (preferentemente 1) elegido para hacer ceros en su columna (<b>método del rectángulo</b>).</td><td class="ex"></td></tr>
+        <tr><td class="sym t">Corolario</td><td class="def">Si hay <b>más incógnitas que ecuaciones</b>, el sistema no puede ser SCD (a lo sumo SCI).</td><td class="ex"></td></tr>
+        <tr><td class="sym">S</td><td class="def"><b>Conjunto solución</b>. SCD → un punto · SI → ∅ · SCI → con parámetros.</td><td class="ex">SI → S = ∅</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============ 11 TRANSVERSALES ============ -->
+<div class="section-label" id="s11">11 — Símbolos transversales <span class="u-tag">toda la materia</span></div>
+<div class="grid grid-2" style="margin-bottom:1.2rem">
+  <div class="card cyan">
+    <div class="card-title">🪆 Jerarquía de los conjuntos numéricos</div>
+    <svg viewBox="0 0 420 210" width="100%" style="display:block;margin:0.2rem auto;max-width:420px">
+      <rect x="8" y="8" width="404" height="194" rx="8" fill="none" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="18" y="24" font-family="JetBrains Mono,monospace" font-size="12" fill="#a78bfa">ℂ · complejos</text>
+      <rect x="22" y="34" width="376" height="160" rx="7" fill="none" stroke="#06b6d4" stroke-width="1.4"/>
+      <text x="32" y="50" font-family="JetBrains Mono,monospace" font-size="12" fill="#06b6d4">ℝ · reales</text>
+      <rect x="250" y="60" width="138" height="124" rx="6" fill="rgba(245,158,11,0.07)" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <text x="262" y="76" font-family="JetBrains Mono,monospace" font-size="11" fill="#f59e0b">𝕀 · irracionales</text>
+      <text x="262" y="92" font-family="JetBrains Mono,monospace" font-size="9" fill="#94a3b8">π, e, √2</text>
+      <rect x="36" y="60" width="196" height="124" rx="6" fill="none" stroke="#10b981" stroke-width="1.3"/>
+      <text x="46" y="76" font-family="JetBrains Mono,monospace" font-size="12" fill="#4ade80">ℚ · racionales</text>
+      <rect x="50" y="86" width="168" height="92" rx="5" fill="none" stroke="#94a3b8" stroke-width="1.1"/>
+      <text x="60" y="102" font-family="JetBrains Mono,monospace" font-size="11" fill="#cbd5e1">ℤ · enteros</text>
+      <rect x="64" y="112" width="140" height="56" rx="4" fill="rgba(124,58,237,0.10)" stroke="#a78bfa" stroke-width="1.1"/>
+      <text x="74" y="128" font-family="JetBrains Mono,monospace" font-size="11" fill="#c4b5fd">ℕ · naturales</text>
+      <text x="74" y="144" font-family="JetBrains Mono,monospace" font-size="9" fill="#94a3b8">1, 2, 3, …</text>
+    </svg>
+    <div class="formula cyan-f">ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ ⊂ ℂ &nbsp;·&nbsp; ℝ = ℚ ∪ 𝕀</div>
+  </div>
+  <div class="card amber">
+    <div class="card-title">Σ Letras griegas · qué rol cumplen acá</div>
+    <div class="tblwrap">
+      <table class="gloss">
+        <tbody>
+          <tr><td class="sym">θ</td><td class="def">theta — <b>argumento</b> (ángulo) de un complejo</td><td class="ex">U8</td></tr>
+          <tr><td class="sym">ρ</td><td class="def">rho — <b>módulo</b> de un complejo</td><td class="ex">U8</td></tr>
+          <tr><td class="sym">α · β</td><td class="def">alfa — ángulo de referencia · beta — argumento del 2º complejo</td><td class="ex">U8</td></tr>
+          <tr><td class="sym">σ</td><td class="def">sigma min. — módulo del 2º complejo (exponencial)</td><td class="ex">U8</td></tr>
+          <tr><td class="sym">Δ</td><td class="def">delta — <b>discriminante</b> (U7) / determinante de <b>Cramer</b> (U11)</td><td class="ex">U7·U11</td></tr>
+          <tr><td class="sym">Σ · Π</td><td class="def">sigma may. — <b>sumatoria</b> · pi may. — productoria</td><td class="ex">U9·U10</td></tr>
+          <tr><td class="sym">π</td><td class="def">pi min. — constante 3,14159… (radianes)</td><td class="ex">U8</td></tr>
+          <tr><td class="sym">μ</td><td class="def">mu — segundo escalar en propiedades de matrices</td><td class="ex">U9</td></tr>
+          <tr><td class="sym">λ</td><td class="def">lambda — escalar / autovalor <span style="color:#64748b">(no se ve en esta materia; notación estándar)</span></td><td class="ex">—</td></tr>
+          <tr><td class="sym">ϕ</td><td class="def">phi — símbolo alternativo del conjunto vacío ∅</td><td class="ex">U3</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="grid grid-2" style="max-width:1400px;margin:0 auto">
+  <div class="card purple">
+    <div class="card-title">🔢 Conjuntos numéricos</div>
+    <div class="tblwrap">
+      <table class="gloss">
+        <thead><tr><th>Símbolo</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">ℕ</td><td class="def"><b>Naturales</b>. {1, 2, 3, …} (a veces con 0: ℕ₀). Para contar.</td><td class="ex"></td></tr>
+          <tr><td class="sym">ℤ</td><td class="def"><b>Enteros</b>. {…,−2,−1,0,1,2,…}. Sin decimales. ℤ⁺ = positivos.</td><td class="ex"></td></tr>
+          <tr><td class="sym">ℚ</td><td class="def"><b>Racionales</b>. Expresables como fracción p/q (q≠0). Incluye enteros.</td><td class="ex"></td></tr>
+          <tr><td class="sym">𝕀 · I</td><td class="def"><b>Irracionales</b>. Decimales infinitos no periódicos (no fracción).</td><td class="ex">π, e, √2</td></tr>
+          <tr><td class="sym">ℝ · ℜ</td><td class="def"><b>Reales</b>. ℝ = ℚ ∪ 𝕀. (El apunte a veces escribe ℜ caligráfica.)</td><td class="ex">ℕ⊂ℤ⊂ℚ⊂ℝ</td></tr>
+          <tr><td class="sym">ℂ</td><td class="def"><b>Complejos</b>. {a+bi / a,b∈ℝ}. ℝ ⊂ ℂ.</td><td class="ex"></td></tr>
+          <tr><td class="sym">ℝⁿ · ℝᵐˣⁿ</td><td class="def"><b>Tuplas / matrices reales</b>. ℝᵐˣⁿ = matrices m×n; ℝⁿˣⁿ = cuadradas.</td><td class="ex"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card green">
+    <div class="card-title">⚖️ Igualdad, orden y operadores</div>
+    <div class="tblwrap">
+      <table class="gloss">
+        <thead><tr><th>Símbolo</th><th>Significado</th><th>Ejemplo</th></tr></thead>
+        <tbody>
+          <tr><td class="sym">= · ≠</td><td class="def"><b>Igual / distinto</b>.</td><td class="ex">|A+B| ≠ |A|+|B|</td></tr>
+          <tr><td class="sym">≡</td><td class="def"><b>Equivalente</b> (lógica: misma tabla; relaciones: "≡ mod n").</td><td class="ex"></td></tr>
+          <tr><td class="sym">≈ · ≅</td><td class="def"><b>Aproximadamente igual / congruente</b>.</td><td class="ex">26,5° ≈ 30°</td></tr>
+          <tr><td class="sym">&lt; · &gt; · ≤ · ≥</td><td class="def"><b>Menor / mayor</b> (o igual).</td><td class="ex">x² ≥ 0</td></tr>
+          <tr><td class="sym">± · ∓</td><td class="def"><b>Más-menos / menos-más</b>.</td><td class="ex">x = (2 ± √Δ)/2</td></tr>
+          <tr><td class="sym">√ · ⁿ√</td><td class="def"><b>Raíz cuadrada / n-ésima</b>.</td><td class="ex">|z| = √(a²+b²)</td></tr>
+          <tr><td class="sym">Σ · Π</td><td class="def"><b>Sumatoria / productoria</b> (suma o producto indexado).</td><td class="ex">Σₖ aᵢₖ·bₖⱼ</td></tr>
+          <tr><td class="sym">∞</td><td class="def"><b>Infinito</b>. Aparece en "infinitas soluciones" (SCI).</td><td class="ex"></td></tr>
+          <tr><td class="sym">· · × · *</td><td class="def"><b>Multiplicación</b>. <b>/</b> = división (o "tal que" en conjuntos).</td><td class="ex"></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 12 CONFUNDIBLES ============ -->
+<div class="section-label" id="s12">12 — Confundibles · símbolos que se parecen <span class="u-tag">★ lo más pedido</span></div>
+
+<div class="card red" style="max-width:1400px;margin:0 auto 1.2rem">
+  <div class="card-title">⚖️ Las barras | … | — tres significados según el contexto</div>
+  <div class="grid grid-3" style="margin-top:0.3rem">
+    <div style="padding:0.7rem;border-right:1px solid var(--border)">
+      <div class="op-name" style="color:#a78bfa">|z| · módulo</div>
+      <div class="op-notation">complejo (U7-8)</div>
+      <div class="op-rule">Longitud del vector. <b>√(a²+b²)</b>, da un <b>real ≥ 0</b>.</div>
+    </div>
+    <div style="padding:0.7rem;border-right:1px solid var(--border)">
+      <div class="op-name" style="color:#fbbf24">|A| · determinante</div>
+      <div class="op-notation">matriz cuadrada (U10)</div>
+      <div class="op-rule">Número real de una matriz. = det(A). Decide si hay inversa.</div>
+    </div>
+    <div style="padding:0.7rem">
+      <div class="op-name" style="color:#06b6d4">#(A) · |A| · cardinal</div>
+      <div class="op-notation">conjunto (U3-4)</div>
+      <div class="op-rule">Cantidad de elementos del conjunto.</div>
+    </div>
+  </div>
+  <div class="note ok">✓ ¿Qué hay adentro de las barras? <b>Un complejo → módulo · una matriz → determinante · un conjunto → cardinal · un real → valor absoluto.</b> El contexto manda.</div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:1.2rem">
+
+  <div class="card cyan">
+    <div class="card-title">z̄ vs |z| · conjugado vs módulo</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">z̄</span> conjugado</h4><div class="vs-row">a+bi → a−bi</div><div class="vs-row">da <b>otro complejo</b></div><div class="vs-row">reflejo sobre eje real</div></div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side"><h4><span class="sy">|z|</span> módulo</h4><div class="vs-row">√(a²+b²)</div><div class="vs-row">da un <b>real ≥ 0</b></div><div class="vs-row">longitud del vector</div></div>
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">z̄ vs −z · conjugado vs opuesto</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">z̄</span> conjugado</h4><div class="vs-row">cambia <b>solo</b> la parte imaginaria</div><div class="vs-row">a+bi → a−bi</div></div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side"><h4><span class="sy">−z</span> opuesto</h4><div class="vs-row">cambia <b>ambas</b> componentes</div><div class="vs-row">a+bi → −a−bi</div></div>
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">arg(z) vs |z| · ángulo vs longitud</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">arg(z) · θ</span></h4><div class="vs-row">el <b>ángulo</b> (dirección)</div><div class="vs-row">tg θ = b/a</div></div>
+      <div class="vs-mid">+</div>
+      <div class="vs-side"><h4><span class="sy">|z| · ρ</span></h4><div class="vs-row">la <b>longitud</b> (magnitud)</div><div class="vs-row">√(a²+b²)</div></div>
+    </div>
+    <div class="note warn">⚠️ La forma polar necesita los <b>dos</b>: módulo y argumento.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">α vs θ · referencia vs argumento</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">α</span> referencia</h4><div class="vs-row">ángulo <b>agudo</b> contra el eje real</div><div class="vs-row">lo da la calculadora</div></div>
+      <div class="vs-mid">→</div>
+      <div class="vs-side"><h4><span class="sy">θ</span> argumento</h4><div class="vs-row">arco completo desde +Re</div><div class="vs-row">vos lo corregís por cuadrante</div></div>
+    </div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">∧ vs ∩ · lógica vs conjuntos</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">∧</span> conjunción</h4><div class="vs-row">opera <b>proposiciones</b></div><div class="vs-row">p∧q → da V/F</div></div>
+      <div class="vs-mid">≈</div>
+      <div class="vs-side"><h4><span class="sy">∩</span> intersección</h4><div class="vs-row">opera <b>conjuntos</b></div><div class="vs-row">A∩B → da un conjunto</div></div>
+    </div>
+    <div class="note ok">✓ Misma estructura (y ∨↔∪). Distinto universo.</div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">∈ vs ⊆ · pertenencia vs inclusión</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">∈</span> pertenece</h4><div class="vs-row"><b>elemento</b> ↔ conjunto</div><div class="vs-row">2 ∈ A</div></div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side"><h4><span class="sy">⊆</span> incluido</h4><div class="vs-row"><b>conjunto</b> ↔ conjunto</div><div class="vs-row">{2} ⊆ A</div></div>
+    </div>
+    <div class="note danger">🚨 Error clásico: escribir 2 ⊆ A o {2} ∈ A.</div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">⊂ vs ⊆ · estricta vs amplia</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">⊆</span> amplia</h4><div class="vs-row"><b>permite</b> A = B</div></div>
+      <div class="vs-mid">vs</div>
+      <div class="vs-side"><h4><span class="sy">⊂</span> estricta</h4><div class="vs-row">exige A ≠ B (B tiene algo más)</div></div>
+    </div>
+    <div class="note ok">✓ Es el mismo matiz que &lt; (estricto) vs ≤ (amplio).</div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">disjuntos vs complementarios</div>
+    <div class="versus">
+      <div class="vs-side"><h4>disjuntos</h4><div class="vs-row">A∩B = ∅</div><div class="vs-row">no comparten, pero no cubren todo</div></div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side"><h4>complementarios</h4><div class="vs-row">A y Aᶜ</div><div class="vs-row">no comparten <b>y</b> cubren todo U</div></div>
+    </div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">"no-" vs "a-/arr-" · en relaciones</div>
+    <div class="versus">
+      <div class="vs-side"><h4>no-reflexiva</h4><div class="vs-row">falla en <b>algún</b> caso</div><div class="vs-row">a veces sí, a veces no</div></div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side"><h4>arreflexiva</h4><div class="vs-row">falla en <b>todos</b></div><div class="vs-row">a-/arr- = nunca</div></div>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">Aᵀ vs A⁻¹ · traspuesta vs inversa</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">Aᵀ</span> traspuesta</h4><div class="vs-row">filas ↔ columnas</div><div class="vs-row">existe <b>siempre</b></div></div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side"><h4><span class="sy">A⁻¹</span> inversa</h4><div class="vs-row">A·A⁻¹ = I</div><div class="vs-row">solo si cuadrada y |A|≠0</div></div>
+    </div>
+    <div class="note ok">✓ En ortogonales coinciden: A⁻¹ = Aᵀ.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">Mᵢⱼ vs Cᵢⱼ · menor vs cofactor</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">Mᵢⱼ</span> menor</h4><div class="vs-row">el determinante <b>pelado</b></div><div class="vs-row">sin signo</div></div>
+      <div class="vs-mid">→</div>
+      <div class="vs-side"><h4><span class="sy">Cᵢⱼ</span> cofactor</h4><div class="vs-row">el menor <b>con signo</b></div><div class="vs-row">(−1)^(i+j)·Mᵢⱼ</div></div>
+    </div>
+    <div class="note warn">⚠️ Laplace y la adjunta usan <b>cofactores</b>, no menores.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">A² vs k·A · producto vs escalar</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">A²</span></h4><div class="vs-row">= A · A (producto matricial)</div><div class="vs-row"><b>NO</b> es elevar cada elemento</div></div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side"><h4><span class="sy">k·A</span></h4><div class="vs-row">escalar por matriz</div><div class="vs-row">k multiplica <b>cada</b> elemento</div></div>
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">Δ disc. vs Δ Cramer · mismo símbolo</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">Δ</span> discriminante</h4><div class="vs-row">b² − 4ac &nbsp;(U7)</div><div class="vs-row">decide raíces reales/complejas</div></div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side"><h4><span class="sy">Δ</span> de Cramer</h4><div class="vs-row">= |A| &nbsp;(U11)</div><div class="vs-row">denominador del sistema</div></div>
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">SCI vs SI · indeterminado vs incompatible</div>
+    <div class="versus">
+      <div class="vs-side"><h4><span class="sy">SCI</span></h4><div class="vs-row">compatible <b>indeterminado</b></div><div class="vs-row"><b>infinitas</b> · 0/0</div></div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side"><h4><span class="sy">SI</span></h4><div class="vs-row"><b>incompatible</b></div><div class="vs-row"><b>ninguna</b> · número/0</div></div>
+    </div>
+    <div class="note danger">🚨 En una clase la profe los invirtió oralmente. Lo correcto: 0/0 → SCI.</div>
+  </div>
+
+</div>
+
+<div class="card red" style="max-width:1400px;margin:0 auto">
+  <div class="card-title">🚨 Otros que se mezclan seguido</div>
+  <div class="proplist" style="font-size:0.7rem">
+    <div style="background:rgba(239,68,68,0.06)"><b style="color:#fff">→ vs ⟹ vs ∴</b> &nbsp;— <b>→</b> condicional de uso diario (arma tablas) · <b>⟹</b> implicación, solo si es <b>tautología</b> (leyes lógicas) · <b>∴</b> "por lo tanto", separa premisas de conclusión.</div>
+    <div style="background:rgba(239,68,68,0.06)"><b style="color:#fff">≡ vs = vs ↔</b> &nbsp;— <b>≡/⟺</b> misma tabla de verdad (metalenguaje) · <b>↔</b> conectivo que se evalúa fila a fila · <b>=</b> igualdad de objetos (números, conjuntos, matrices).</div>
+    <div style="background:rgba(239,68,68,0.06)"><b style="color:#fff">"R" con 4 sentidos</b> &nbsp;— conjuntos → referencial/universal · sistemas → R(A) rango · producto cartesiano → relación · numérico → ℝ reales. <b>El contexto decide.</b></div>
+    <div style="background:rgba(16,185,129,0.06)"><b style="color:#fff">|A·B| = |A|·|B|</b> (cierto) &nbsp;vs&nbsp; <b style="color:#fff">|A+B| ≠ |A|+|B|</b> (falso) — el determinante distribuye sobre el <b>producto</b>, NO sobre la suma.</div>
+    <div style="background:rgba(245,158,11,0.06)"><b style="color:#fff">cofactor vs adjunta</b> &nbsp;— <b>Cᵢⱼ</b> es un número por casilla · <b>Adj(A)</b> es la matriz <b>traspuesta</b> de todos los cofactores (error: olvidar transponer).</div>
+  </div>
+</div>
+
+<footer>
+  <p>Notación y Símbolos · Glosario integrador · Álgebra · Universidad de Palermo</p>
+  <p style="margin-top:0.4rem;color:#64748b">213 entradas · 10 unidades · 20 pares confundibles — buscá lo que no reconozcas</p>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#algebra" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>
