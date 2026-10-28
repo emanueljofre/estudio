@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unidad Aritmético-Lógica — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  header { text-align: center; margin-bottom: 2rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px; margin: 1.2rem auto 0; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .section-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--accent);
+    margin: 2.5rem auto 1rem; max-width: 1400px;
+    display: flex; align-items: center; gap: 0.8rem; scroll-margin-top: 1rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-label.is-ctx { color: var(--muted); }
+
+  .grid   { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid.is-ctx { opacity: 0.82; }
+
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem; font-family: var(--mono); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule {
+    font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border); border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  .formula {
+    font-family: var(--mono); font-size: 0.82rem; color: #fff;
+    background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 5px; padding: 0.5rem 0.7rem; text-align: center; margin: 0.5rem 0;
+  }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+
+  .proplist {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    display: grid; gap: 0.35rem;
+  }
+  .proplist div { padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div { background: rgba(16,185,129,0.06); }
+
+  .step { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.4rem; }
+  .step .s {
+    padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0;
+  }
+  .step .s b { color: #fff; }
+
+  .note {
+    font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem;
+    padding: 0.35rem 0.55rem; border-radius: 4px;
+  }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.06); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  .flag      { color: #f87171;          font-size: 0.55rem; margin-left: 0.5rem; }
+  .flag.info { color: var(--accent3);   font-size: 0.55rem; margin-left: 0.5rem; }
+
+  .insight {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--accent3);
+    background: rgba(245,158,11,0.06); border-left: 2px solid var(--accent3);
+    border-radius: 0 4px 4px 0; padding: 0.4rem 0.6rem; margin-top: 0.5rem;
+  }
+
+  .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+  .vs-side { padding: 0.8rem; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.35rem; }
+  .vs-side h4 { font-family: var(--display); font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+  .vs-mid { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.75rem; font-weight: 700; color: var(--accent3); padding: 0 0.7rem; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .vs-row { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .vs-row:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .versus { grid-template-columns: 1fr; }
+    .vs-mid { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0.4rem; text-align: center; }
+  }
+
+  .stat { text-align: center; padding: 0.8rem 0.4rem; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+  .stat-num {
+    font-family: var(--display); font-size: 1.7rem; font-weight: 800; line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .stat-unit { font-family: var(--mono); font-size: 0.7rem; color: var(--accent2); letter-spacing: 0.08em; }
+  .stat-cap { font-family: var(--mono); font-size: 0.56rem; color: var(--muted); margin-top: 0.1rem; }
+
+  .recall { font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0; border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden; }
+  .recall summary { cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2); background: rgba(124,58,237,0.06); list-style: none; display: flex; align-items: center; gap: 0.5rem; user-select: none; }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before { content: '▸'; font-size: 0.7rem; color: var(--accent); transition: transform 0.15s; flex-shrink: 0; }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a { padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5; border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04); }
+  .recall-a strong { color: #fff; }
+
+  .tier { display: inline-flex; align-items: center; gap: 0.3rem; font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 3px; vertical-align: middle; line-height: 1; }
+  .tier::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .tier.core { color: var(--accent4); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.35); }
+  .tier.core::before { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .tier.key  { color: var(--accent3); background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.4); }
+  .tier.key::before  { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .tier.ctx  { color: var(--muted); background: rgba(148,163,184,0.06); border: 1px solid var(--border); }
+  .tier.ctx::before  { background: var(--muted); }
+
+  .scope { max-width: 1400px; margin: 0 auto 1rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent3); border-radius: 6px; padding: 0.8rem 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; align-items: center; }
+  .scope-label { font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent3); font-weight: 700; writing-mode: vertical-rl; transform: rotate(180deg); border-right: 1px solid var(--border); padding-right: 0.7rem; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+  .scope-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spill { font-family: var(--mono); font-size: 0.6rem; padding: 0.22rem 0.55rem; border-radius: 3px; border: 1px solid var(--border); color: var(--muted); }
+  .spill.in  { color: var(--accent4); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
+  .spill.key { color: var(--accent3); border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+  .spill.cut { color: var(--muted); border-style: dashed; text-decoration: line-through; opacity: 0.75; }
+  @media (max-width: 600px) {
+    .scope { grid-template-columns: 1fr; }
+    .scope-label { writing-mode: horizontal-tb; transform: none; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.4rem; }
+  }
+
+  /* cmatrix */
+  .cmatrix-wrap { overflow-x: auto; max-width: 1400px; margin: 0.5rem auto; }
+  .cmatrix { display: grid; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-family: var(--mono); font-size: 0.66rem; min-width: 560px; }
+  .cmatrix > div { padding: 0.5rem 0.6rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .cmatrix .cm-corner, .cmatrix .cm-rl { background: rgba(255,255,255,0.03); color: var(--muted); font-size: 0.6rem; letter-spacing: 0.04em; display: flex; align-items: center; }
+  .cmatrix .cm-rl { color: #fff; font-weight: 700; }
+  .cmatrix .cm-head { font-family: var(--display); font-weight: 700; color: #fff; font-size: 0.78rem; text-align: center; display: block; }
+  .cmatrix .cm-head .sub { display: block; font-family: var(--mono); font-size: 0.5rem; color: var(--muted); margin-top: 0.2rem; letter-spacing: 0.04em; }
+  .cmatrix .one { color: var(--accent2); font-weight: 700; text-align: center; }
+  .cmatrix .zero { color: #475569; text-align: center; }
+
+  /* worked — color por flag */
+  .worked { font-family: var(--mono); font-size: 0.72rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-left: 2px solid var(--accent3); border-radius: 0 6px 6px 0; padding: 0.7rem 0.9rem; margin: 0.6rem 0; }
+  .worked .wr { display: grid; grid-template-columns: 118px 1fr; gap: 0.7rem; align-items: baseline; padding: 0.18rem 0; }
+  .worked .wl { font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .worked .wb { color: var(--text); letter-spacing: 0.06em; word-break: break-all; }
+  .worked .cf { color: var(--accent3); font-weight: 700; }
+  .worked .of { color: var(--accent2); font-weight: 700; }
+  .worked .sf { color: var(--accent4); font-weight: 700; }
+  .worked .res { color: #fff; font-weight: 700; }
+  .worked .wr.total { border-top: 1px solid var(--border); margin-top: 0.2rem; padding-top: 0.35rem; }
+
+  /* exam-q */
+  .exam-q { position: relative; margin: 0.6rem 0; padding: 0.7rem 0.9rem 0.7rem 2.7rem; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.3); border-left: 2px solid var(--red); border-radius: 0 6px 6px 0; font-family: var(--mono); font-size: 0.7rem; }
+  .exam-q::before { content: 'Q'; position: absolute; left: 0.65rem; top: 0.7rem; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--red); color: #fff; font-family: var(--display); font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+  .exam-q .q { color: #fff; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.4; }
+  .exam-q .a { color: var(--muted); line-height: 1.55; }
+  .exam-q .a strong { color: var(--text); }
+
+  /* tabla genérica */
+  .tbl { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.7rem; }
+  .tbl th { padding: 0.4rem 0.6rem; text-align: center; background: rgba(255,255,255,0.05); border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 700; }
+  .tbl th:first-child { text-align: left; }
+  .tbl td { padding: 0.35rem 0.6rem; text-align: center; border-bottom: 1px solid var(--border); color: var(--text); }
+  .tbl td:first-child { text-align: left; color: #fff; }
+  .tbl .one { color: var(--accent2); font-weight: 700; }
+  .tbl .zero { color: #475569; }
+
+  /* diagram hover-dim */
+  .diagram .node, .diagram .link { transition: opacity 0.2s ease; }
+  .diagram .dim { opacity: 0.35; }
+  .diagram .node.active { filter: drop-shadow(0 0 10px currentColor); }
+
+  .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .toc-rail { position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem; }
+  .toc-rail a { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; font-family: var(--mono); font-size: 0.55rem; color: var(--muted); padding: 0.12rem 0.25rem; border-radius: 3px; }
+  .toc-rail a .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; transition: all 0.2s; }
+  .toc-rail a .lbl { opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap; }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  footer { text-align: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+  footer .out { color: var(--muted); margin-top: 0.5rem; opacity: 0.85; }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1, .stat-num { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .scope, .cmatrix, .worked, .exam-q, .recall, .stat, .tbl { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="toc-rail">
+  <a href="#s01"><span class="dot"></span><span class="lbl">01 · Función ALU</span></a>
+  <a href="#s02"><span class="dot"></span><span class="lbl">02 · Compuertas</span></a>
+  <a href="#s03"><span class="dot"></span><span class="lbl">03 · XOR suma</span></a>
+  <a href="#s04"><span class="dot"></span><span class="lbl">04 · Sumador</span></a>
+  <a href="#s05"><span class="dot"></span><span class="lbl">05 · Restador + Ca2</span></a>
+  <a href="#s06"><span class="dot"></span><span class="lbl">06 · Flags</span></a>
+  <a href="#s07"><span class="dot"></span><span class="lbl">07 · Sobre/bajoflujo</span></a>
+  <a href="#s08"><span class="dot"></span><span class="lbl">08 · Álgebra de Boole</span></a>
+  <a href="#s09"><span class="dot"></span><span class="lbl">09 · SOP · programador</span></a>
+  <a href="#s10"><span class="dot"></span><span class="lbl">10 · En el final</span></a>
+  <a href="#s11"><span class="dot"></span><span class="lbl">11 · Auto-test</span></a>
+  <a href="#s12"><span class="dot"></span><span class="lbl">12 · Claves final</span></a>
+</nav>
+
+<header>
+  <div class="badge">Arquitectura de Computadores · Unidad 05 — Unidad Aritmético-Lógica · repaso final</div>
+  <h1>Unidad Aritmético-Lógica</h1>
+  <p class="subtitle">ALU · sumador · restador con Ca2 · flags · sobreflujo · FPU</p>
+  <div class="divider"></div>
+</header>
+
+<div class="scope">
+  <div class="scope-label">Scope · final</div>
+  <div class="scope-pills">
+    <span class="spill key">función de la ALU</span>
+    <span class="spill key">restador = A + Ca2(B)</span>
+    <span class="spill key">flags CF · OF · SF · ZF</span>
+    <span class="spill key">sobreflujo / bajoflujo</span>
+    <span class="spill key">sumador full-adder</span>
+    <span class="spill in">estructura del CPU + FPU</span>
+    <span class="spill in">parte numérica Ca2 (confirmada)</span>
+    <span class="spill in">flags ↔ interrupciones (IF · OF→INT4)</span>
+    <span class="spill in">circuito combinacional (concepto)</span>
+    <span class="spill cut">dibujar el circuito</span>
+    <span class="spill cut">armar funciones SOP</span>
+    <span class="spill cut">MOSFET / electrónica a fondo</span>
+  </div>
+</div>
+
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto 1.2rem">
+  <div class="note warn" style="max-width:1400px;margin:0 auto;font-size:0.7rem">⚠️ Formato del final · La ALU se desarrolla como <strong>teoría</strong> (molde tipo B9, estructura del CPU), pero el final es <strong>integrador</strong> y la <strong>parte numérica entra</strong>: cuando preguntaron si la práctica de Ca2/conversiones entra en el final, el profe respondió <em>"Sí, esa es la parte numérica, por supuesto"</em> (2026-06-01). Hay además <strong>instancia oral</strong> — contestar rápido, frente a cámara, con el <strong>vocabulario de la materia</strong> (motivo nº1 de recursada del final).</div>
+</div>
+
+<!-- ============ 01 ============ -->
+<div class="section-label" id="s01">01 — Función y estructura de la ALU <span class="tier key">★ entró en P1 · vuelve en el final</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🧮 Definición</div>
+    <div class="op-name">ALU — Unidad Aritmético-Lógica</div>
+    <div class="op-notation">UAL · "la calculadora del CPU"</div>
+    <div class="op-rule">
+      Componente del CPU que realiza las operaciones <strong>aritméticas</strong> (suma, resta, ×, ÷, desplazamientos) y <strong>lógicas</strong> (AND, OR…). "Opera como una calculadora de bolsillo, pero manejada por la unidad de control."
+    </div>
+    <div class="proplist pl-purple">
+      <div><b style="color:#fff">multiplicación</b> = sumas sucesivas</div>
+      <div><b style="color:#fff">división</b> = restas sucesivas</div>
+      <div><b style="color:#fff">operador</b> = la operación · <b style="color:#fff">operando</b> = el valor (escalar)</div>
+    </div>
+    <div class="insight">💡 de la clase · "La ALU es como una calculadora. La unidad de control la maneja, pero la cuenta la hace la calculadora."</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🗺️ Estructura del CPU — ¿dónde vive la ALU?</div>
+    <svg class="diagram" viewBox="0 0 440 210" width="100%" style="display:block;margin:0.2rem auto" role="img" aria-label="Estructura del CPU con sus cuatro componentes y la memoria externa">
+      <rect x="8" y="8" width="300" height="194" rx="8" fill="rgba(124,58,237,0.06)" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="158" y="26" font-family="JetBrains Mono,monospace" font-size="11" fill="#a78bfa" text-anchor="middle">CPU</text>
+      <g class="node" data-id="uc" style="color:#06b6d4">
+        <rect x="26" y="40" width="120" height="46" rx="5" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.5"/>
+        <text x="86" y="62" font-family="JetBrains Mono,monospace" font-size="10" fill="#06b6d4" text-anchor="middle">Unidad de</text>
+        <text x="86" y="76" font-family="JetBrains Mono,monospace" font-size="10" fill="#06b6d4" text-anchor="middle">Control</text>
+      </g>
+      <g class="node" data-id="reg" style="color:#10b981">
+        <rect x="170" y="40" width="120" height="46" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="230" y="68" font-family="JetBrains Mono,monospace" font-size="10" fill="#10b981" text-anchor="middle">Registros</text>
+      </g>
+      <g class="node" data-id="alu" style="color:#f59e0b">
+        <rect x="26" y="120" width="120" height="46" rx="5" fill="rgba(245,158,11,0.14)" stroke="#f59e0b" stroke-width="2"/>
+        <text x="86" y="142" font-family="JetBrains Mono,monospace" font-size="10" fill="#f59e0b" text-anchor="middle">ALU</text>
+        <text x="86" y="156" font-family="JetBrains Mono,monospace" font-size="8" fill="#f59e0b" text-anchor="middle">aritmética+lógica</text>
+      </g>
+      <g class="node" data-id="bus" style="color:#94a3b8">
+        <rect x="170" y="120" width="120" height="46" rx="5" fill="rgba(148,163,184,0.08)" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="230" y="142" font-family="JetBrains Mono,monospace" font-size="9" fill="#94a3b8" text-anchor="middle">Interconexión</text>
+        <text x="230" y="156" font-family="JetBrains Mono,monospace" font-size="8" fill="#94a3b8" text-anchor="middle">bus interno</text>
+      </g>
+      <line class="link" x1="146" y1="143" x2="170" y2="143" stroke="#2a2a3e" stroke-width="1.5"/>
+      <line class="link" x1="86" y1="86" x2="86" y2="120" stroke="#2a2a3e" stroke-width="1.5"/>
+      <line class="link" x1="230" y1="86" x2="230" y2="120" stroke="#2a2a3e" stroke-width="1.5"/>
+      <g class="node" data-id="mem" style="color:#ef4444">
+        <rect x="338" y="80" width="94" height="50" rx="5" fill="rgba(239,68,68,0.06)" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="385" y="101" font-family="JetBrains Mono,monospace" font-size="9" fill="#f87171" text-anchor="middle">Memoria</text>
+        <text x="385" y="114" font-family="JetBrains Mono,monospace" font-size="8" fill="#f87171" text-anchor="middle">(FUERA)</text>
+      </g>
+      <line class="link" x1="308" y1="105" x2="338" y2="105" stroke="#2a2a3e" stroke-width="1.5" stroke-dasharray="3 3"/>
+    </svg>
+    <div class="note danger">🚨 Trampa B9: la consigna pide la estructura del <strong>CPU</strong> (UC · registros · ALU · interconexión), NO la de la <strong>computadora</strong> (microprocesador · memoria principal · E/S · bus de sistema). La memoria principal está FUERA del CPU.</div>
+    <div class="note ok">🆕 Evolución (para el final) · En procesadores modernos, junto a la ALU hay una <strong>FPU — unidad de punto flotante</strong> que opera reales (IEEE 754). El 8086 <strong>solo tenía ALU</strong>; la FPU se sumó después: <em>"en vez de una ALU, hay una ALU y una unidad de puntos flotantes"</em> (2026-06-01).</div>
+  </div>
+
+</div>
+
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">⚙️ Flujo de una operación (el ciclo de la ALU)</div>
+    <div class="op-rule" style="margin-bottom:0.6rem">La ALU no opera sola: es la etapa <strong>EX</strong> del <strong>ciclo de instrucción</strong>. El diagrama integra lo que el curso reparte en otras unidades — el ciclo <strong>IF-ID-OF-EX</strong> y las interrupciones (unidad 8), los registros <strong>PC · IR · AC</strong> (unidad 4) y los <strong>3 buses</strong> (unidad 9).</div>
+    <div class="insight" style="margin-bottom:0.7rem">📐 Es <strong>un mismo proceso en 3 niveles de zoom</strong>, no tres diagramas. De arriba hacia abajo, de lo general al detalle: <strong>① el ciclo</strong> (qué etapa sigue a cuál) → <strong>② zoom a IF·ID</strong> (registros PC/IR y la memoria) → <strong>③ zoom a EX</strong> (el camino de datos de la ALU).</div>
+
+    <svg viewBox="0 0 960 465" width="100%" style="display:block;margin:0.6rem auto;max-width:960px" role="img" aria-label="Ciclo de instrucción IF-ID-OF-EX, los registros PC IR y la memoria que tocan la búsqueda y decodificación, y el camino de datos de la ALU">
+      <defs>
+        <marker id="alf" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7c3aed"/></marker>
+        <marker id="alc" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#06b6d4"/></marker>
+        <marker id="alg" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#10b981"/></marker>
+        <marker id="ala" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#f59e0b"/></marker>
+      </defs>
+      <g font-family="JetBrains Mono,monospace">
+        <!-- ===== TIER 1 · ribbon: ciclo de instruccion ===== -->
+        <!-- return arc EX -> IF (top) -->
+        <path d="M838,44 Q838,16 478,16 Q118,16 118,42" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="2 0" marker-end="url(#alc)"/>
+        <text x="478" y="11" font-size="9" fill="#22d3ee" text-anchor="middle">fin de ciclo · chequeo de interrupción → próxima instrucción (PC)</text>
+
+        <!-- IF -->
+        <rect x="18" y="44" width="200" height="56" rx="6" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="118" y="68" font-size="11" fill="#a78bfa" text-anchor="middle">IF · Búsqueda</text>
+        <text x="118" y="85" font-size="8.5" fill="#94a3b8" text-anchor="middle">PC → memoria → IR</text>
+        <!-- ID -->
+        <rect x="258" y="44" width="200" height="56" rx="6" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="358" y="68" font-size="11" fill="#a78bfa" text-anchor="middle">ID · Decodifica</text>
+        <text x="358" y="85" font-size="8.5" fill="#94a3b8" text-anchor="middle">COP del IR → señales</text>
+        <!-- OF (condicional) -->
+        <rect x="498" y="44" width="200" height="56" rx="6" fill="rgba(6,182,212,0.08)" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="598" y="68" font-size="11" fill="#22d3ee" text-anchor="middle">OF · Operandos</text>
+        <text x="598" y="85" font-size="8.5" fill="#94a3b8" text-anchor="middle">trae si faltan (cond.)</text>
+        <!-- EX (ALU, enfatizado) -->
+        <rect x="738" y="42" width="200" height="60" rx="6" fill="rgba(245,158,11,0.16)" stroke="#f59e0b" stroke-width="2.4"/>
+        <text x="838" y="67" font-size="11" fill="#f59e0b" text-anchor="middle">EX · Ejecución</text>
+        <text x="838" y="85" font-size="8.5" fill="#fbbf24" text-anchor="middle">la UC ordena a la ALU ★</text>
+
+        <!-- forward arrows -->
+        <line x1="218" y1="72" x2="256" y2="72" stroke="#7c3aed" stroke-width="1.6" marker-end="url(#alf)"/>
+        <line x1="458" y1="72" x2="496" y2="72" stroke="#7c3aed" stroke-width="1.6" marker-end="url(#alf)"/>
+        <line x1="698" y1="72" x2="736" y2="72" stroke="#f59e0b" stroke-width="1.6" marker-end="url(#ala)"/>
+        <!-- skip ID -> EX (sin operandos) -->
+        <path d="M358,100 Q358,130 598,130 Q838,130 838,102" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#alg)"/>
+        <text x="598" y="146" font-size="8.5" fill="#10b981" text-anchor="middle">sin operandos → se omite OF</text>
+
+        <!-- ===== divider 1 ===== -->
+        <line x1="40" y1="166" x2="920" y2="166" stroke="#2a2a3e" stroke-width="1" stroke-dasharray="3 4"/>
+        <text x="480" y="184" font-size="9" fill="#a78bfa" text-anchor="middle">▼ registros y memoria que tocan la búsqueda y decodificación (IF · ID) ▼</text>
+
+        <!-- ===== TIER 2 · registros del ciclo ===== -->
+        <!-- PC -->
+        <rect x="30" y="200" width="140" height="44" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="100" y="221" font-size="11" fill="#34d399" text-anchor="middle" font-weight="700">PC</text>
+        <text x="100" y="236" font-size="7.5" fill="#94a3b8" text-anchor="middle">dirección de la próxima instr.</text>
+        <!-- Memoria (FUERA) -->
+        <rect x="270" y="196" width="170" height="52" rx="5" fill="rgba(239,68,68,0.06)" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text x="355" y="219" font-size="9.5" fill="#f87171" text-anchor="middle">Memoria principal</text>
+        <text x="355" y="234" font-size="7.5" fill="#f87171" text-anchor="middle">(FUERA del CPU)</text>
+        <!-- IR -->
+        <rect x="540" y="200" width="140" height="44" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.8"/>
+        <text x="610" y="221" font-size="11" fill="#34d399" text-anchor="middle" font-weight="700">IR</text>
+        <text x="610" y="236" font-size="7.5" fill="#94a3b8" text-anchor="middle">instrucción actual</text>
+        <!-- Decodificador -->
+        <rect x="780" y="200" width="150" height="44" rx="5" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.5"/>
+        <text x="855" y="221" font-size="10" fill="#22d3ee" text-anchor="middle">Decodificador</text>
+        <text x="855" y="236" font-size="7.5" fill="#94a3b8" text-anchor="middle">saca el COP (ID)</text>
+        <!-- bus arrows PC -> Mem -> IR -> Decod -->
+        <text x="220" y="214" font-size="7.5" fill="#94a3b8" text-anchor="middle">① bus direcciones</text>
+        <line x1="170" y1="224" x2="268" y2="224" stroke="#10b981" stroke-width="1.6" marker-end="url(#alg)"/>
+        <text x="490" y="214" font-size="7.5" fill="#94a3b8" text-anchor="middle">② bus datos (instrucción)</text>
+        <line x1="440" y1="224" x2="538" y2="224" stroke="#10b981" stroke-width="1.6" marker-end="url(#alg)"/>
+        <text x="730" y="214" font-size="7.5" fill="#94a3b8" text-anchor="middle">③ COP</text>
+        <line x1="680" y1="224" x2="778" y2="224" stroke="#10b981" stroke-width="1.6" marker-end="url(#alg)"/>
+
+        <!-- ===== divider 2 ===== -->
+        <line x1="40" y1="276" x2="920" y2="276" stroke="#2a2a3e" stroke-width="1" stroke-dasharray="3 4"/>
+        <text x="480" y="294" font-size="9" fill="#fbbf24" text-anchor="middle">▼ detalle de la etapa EX — el camino de datos de la ALU (núcleo de esta unidad) ▼</text>
+
+        <!-- ===== TIER 3 · camino de datos ALU ===== -->
+        <!-- UC control -->
+        <rect x="245" y="308" width="160" height="30" rx="5" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.5"/>
+        <text x="325" y="327" font-size="9" fill="#22d3ee" text-anchor="middle">UC · operación (señal de control)</text>
+        <line x1="325" y1="338" x2="325" y2="352" stroke="#06b6d4" stroke-width="1.6" marker-end="url(#alc)"/>
+
+        <!-- operandos (registros) -->
+        <rect x="24" y="352" width="150" height="32" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="99" y="372" font-size="9" fill="#34d399" text-anchor="middle">Operando A (registro)</text>
+        <rect x="24" y="406" width="150" height="32" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="99" y="426" font-size="9" fill="#34d399" text-anchor="middle">Operando B (registro)</text>
+        <line x1="174" y1="368" x2="248" y2="371" stroke="#10b981" stroke-width="1.6" marker-end="url(#alg)"/>
+        <line x1="174" y1="422" x2="248" y2="419" stroke="#10b981" stroke-width="1.6" marker-end="url(#alg)"/>
+
+        <!-- ALU (trapecio clásico, notch a la izquierda) -->
+        <path d="M250,352 L400,370 L400,424 L250,442 L250,405 L268,397 L250,389 Z" fill="rgba(245,158,11,0.16)" stroke="#f59e0b" stroke-width="2.2"/>
+        <text x="333" y="396" font-size="13" fill="#f59e0b" text-anchor="middle" font-weight="700">ALU</text>
+        <text x="333" y="411" font-size="7.5" fill="#fbbf24" text-anchor="middle">suma binarios puros</text>
+
+        <!-- resultado -> AC -->
+        <line x1="400" y1="384" x2="468" y2="380" stroke="#f59e0b" stroke-width="1.6" marker-end="url(#ala)"/>
+        <rect x="470" y="362" width="190" height="34" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="565" y="383" font-size="9" fill="#34d399" text-anchor="middle">Resultado → Acumulador (AC)</text>
+
+        <!-- flags -> registro de estado -->
+        <line x1="400" y1="414" x2="468" y2="428" stroke="#f59e0b" stroke-width="1.6" marker-end="url(#ala)"/>
+        <text x="434" y="437" font-size="8" fill="#fbbf24" text-anchor="middle">flags</text>
+        <rect x="470" y="416" width="280" height="36" rx="5" fill="rgba(239,68,68,0.07)" stroke="#ef4444" stroke-width="1.5"/>
+        <text x="610" y="438" font-size="9" fill="#f87171" text-anchor="middle">Registro de estado · CF · OF · SF · ZF</text>
+      </g>
+    </svg>
+
+    <div class="grid grid-2" style="margin-top:0.4rem;gap:1rem">
+      <div>
+        <div class="card-title" style="margin-bottom:0.6rem">📋 Qué hace cada etapa</div>
+        <div class="step">
+          <div class="s"><b>1 · IF (búsqueda):</b> la UC pone la dirección del <b>PC</b> en el <b>bus de direcciones</b> y da señal de lectura por el <b>bus de control</b>; la instrucción llega por el <b>bus de datos</b> al <b>IR</b>. El PC se actualiza.</div>
+          <div class="s"><b>2 · ID (decodificación):</b> un <b>decodificador</b> interpreta el <b>COP</b> del IR y emite las señales que activan ALU y registros.</div>
+          <div class="s"><b>3 · OF (operandos, condicional):</b> si la instrucción no los trae, la UC busca los operandos en caché/MP por el bus y los coloca en <b>registros</b> de la ALU. Si ya los tiene, <b>se omite</b>.</div>
+          <div class="s"><b>4 · EX (ejecución):</b> la UC ordena la operación; la ALU <b>opera</b> (suma binarios puros) y guarda el resultado en un registro (<b>acumulador AC</b>).</div>
+          <div class="s"><b>5 · Flags:</b> además <b>setea las banderas</b> en el <b>registro de estado</b> — CF (carry), OF (overflow), SF (signo), ZF (cero). ← <b>núcleo de esta unidad</b></div>
+          <div class="s"><b>6 · Fin de ciclo:</b> la UC chequea si hay <b>interrupción</b>; si no, vuelve al IF con la próxima instrucción. Cada microoperación (µOP) ≈ <b>1 ciclo de reloj</b>.</div>
+        </div>
+      </div>
+      <div>
+        <div class="card-title" style="margin-bottom:0.6rem">🗂️ Qué registro toca cada etapa</div>
+        <table class="tbl">
+          <thead><tr><th>Etapa</th><th>Lee</th><th>Escribe</th></tr></thead>
+          <tbody>
+            <tr><td>IF</td><td>PC</td><td>IR · (PC++)</td></tr>
+            <tr><td>ID</td><td>IR</td><td>— (emite señales)</td></tr>
+            <tr><td>OF</td><td>—</td><td>registros (operandos)</td></tr>
+            <tr><td>EX</td><td>operandos</td><td>AC · registro de estado</td></tr>
+          </tbody>
+        </table>
+        <div class="note ok" style="margin-top:0.6rem">🗄️ PC, IR, AC, registro de estado y operandos viven todos en el <strong>mismo banco de registros del CPU</strong> — lo único FUERA es la memoria principal. Aparecen en bandas distintas porque <strong>cada etapa usa los suyos</strong>, no porque sean cosas separadas.</div>
+      </div>
+    </div>
+    <div class="note warn" style="margin-top:0.8rem">⚠️ Alcance · El corazón de esta unidad son los pasos <strong>4-5 (la ALU ejecuta y setea las flags)</strong>. Los pasos 1-3 y 6 (ciclo IF-ID-OF-EX, buses, interrupciones) son de las unidades 4, 8, 9 y 12 — pero en el <strong>final integrador SÍ cuentan como conexión</strong>: saber que la ALU es la etapa EX y que sus flags alimentan el chequeo de interrupciones es justo el cruce que el profe valora.</div>
+  </div>
+</div>
+
+<!-- ============ 02 ============ -->
+<div class="section-label" id="s02">02 — Compuertas lógicas <span class="tier core">base · circuito combinacional</span></div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">🔌 Las 8 compuertas (salida según entradas B·A)</div>
+    <div class="op-rule">Chips que implementan cada operador booleano. Son circuitos <strong>combinacionales</strong>: la salida depende ÚNICAMENTE de las entradas actuales (sin memoria).</div>
+    <div class="cmatrix-wrap">
+      <div class="cmatrix" style="grid-template-columns:150px repeat(4,1fr) 1.4fr">
+        <div class="cm-corner">B A →</div>
+        <div class="cm-head">00</div><div class="cm-head">01</div><div class="cm-head">10</div><div class="cm-head">11</div>
+        <div class="cm-head">función</div>
+
+        <div class="cm-rl">OR</div>
+        <div class="zero">0</div><div class="one">1</div><div class="one">1</div><div class="one">1</div>
+        <div style="color:#94a3b8;text-align:center">S = A + B</div>
+
+        <div class="cm-rl">AND</div>
+        <div class="zero">0</div><div class="zero">0</div><div class="zero">0</div><div class="one">1</div>
+        <div style="color:#94a3b8;text-align:center">S = A · B</div>
+
+        <div class="cm-rl">NOR</div>
+        <div class="one">1</div><div class="zero">0</div><div class="zero">0</div><div class="zero">0</div>
+        <div style="color:#94a3b8;text-align:center">‾(A+B) = OR + NOT</div>
+
+        <div class="cm-rl">NAND</div>
+        <div class="one">1</div><div class="one">1</div><div class="one">1</div><div class="zero">0</div>
+        <div style="color:#94a3b8;text-align:center">‾(A·B) = AND + NOT</div>
+
+        <div class="cm-rl">XOR ⚡</div>
+        <div class="zero">0</div><div class="one">1</div><div class="one">1</div><div class="zero">0</div>
+        <div style="color:#f59e0b;text-align:center">S = A ⊕ B (la aritmética)</div>
+
+        <div class="cm-rl">XNOR</div>
+        <div class="one">1</div><div class="zero">0</div><div class="zero">0</div><div class="one">1</div>
+        <div style="color:#94a3b8;text-align:center">‾(A ⊕ B)</div>
+
+        <div class="cm-rl">NOT</div>
+        <div style="grid-column:span 4;color:#94a3b8;text-align:center">1 entrada: 0 → 1 · 1 → 0</div>
+        <div style="color:#94a3b8;text-align:center">S = Ā</div>
+
+        <div class="cm-rl">Buffer</div>
+        <div style="grid-column:span 4;color:#94a3b8;text-align:center">S = A (no altera; regenera la señal)</div>
+        <div style="color:#94a3b8;text-align:center">fusible / repetidor</div>
+      </div>
+    </div>
+    <div class="insight">💡 de la clase · Analogía de la habitación: OR = "con una lámpara prendida ya hay luz"; AND = "solo hay luz si las dos están prendidas". "Las tablas de OR y AND son las que hay que acordarse de memoria."</div>
+    <div class="note warn">⚠️ Para el final · de "sistemas digitales" lo que sí puede caer es <strong>qué es un circuito combinacional</strong> (la salida depende solo de las entradas actuales). El detalle de cada compuerta es base — baja probabilidad, pero "pueden entrar cosas de sistemas digitales en los finales".</div>
+  </div>
+</div>
+
+<!-- ============ 03 ============ -->
+<div class="section-label" id="s03">03 — XOR como sumador de 1 bit <span class="tier core">puente al sumador</span></div>
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">➕ La XOR ES la suma aritmética</div>
+    <div class="op-rule">En binario la suma de 1 bit es exactamente la tabla de la XOR… salvo el caso 1+1, que da 0 <strong>y me llevo 1</strong> (el carry, que sale aparte por una AND).</div>
+    <div class="formula cyan-f">0+0=0 · 0+1=1 · 1+0=1 · <strong style="color:#fbbf24">1+1=0 y llevo 1</strong></div>
+    <div class="formula">S = A ⊕ B &nbsp;(bit de suma) &nbsp;·&nbsp; Cy = A · B &nbsp;(acarreo)</div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">🔑 Por qué importa</div>
+    <div class="op-rule">La XOR da el <strong>bit de suma</strong>; la AND da el <strong>carry</strong>. Juntas forman la celda más simple de suma (half-adder). Todo el sumador del procesador se construye a partir de esto.</div>
+    <div class="insight">💡 de la clase · "La X-OR es la aritmética: piensen en binario, 1+1 da 0 y tengo un carry, que es lo que me llevo de 1."</div>
+  </div>
+
+</div>
+
+<!-- ============ 04 ============ -->
+<div class="section-label" id="s04">04 — Sumador binario (full-adder + concatenación) <span class="tier key">⚡ núcleo de la ALU</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🧱 Celda full-adder (sumadora completa)</div>
+    <div class="op-rule">El <strong>half-adder</strong> (B₀, A₀ → S₀, Cy₀) no recibe carry de la columna anterior. El <strong>full-adder</strong> agrega la entrada <strong>Cy₋₁</strong> → 3 entradas, 2 salidas.</div>
+    <table class="tbl">
+      <thead><tr><th>Cy₋₁</th><th>B₀</th><th>A₀</th><th>S₀</th><th>Cy₀</th></tr></thead>
+      <tbody>
+        <tr><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td><td class="zero">0</td></tr>
+        <tr><td class="zero">0</td><td class="zero">0</td><td class="one">1</td><td class="one">1</td><td class="zero">0</td></tr>
+        <tr><td class="zero">0</td><td class="one">1</td><td class="zero">0</td><td class="one">1</td><td class="zero">0</td></tr>
+        <tr><td class="zero">0</td><td class="one">1</td><td class="one">1</td><td class="zero">0</td><td class="one">1</td></tr>
+        <tr><td class="one">1</td><td class="zero">0</td><td class="zero">0</td><td class="one">1</td><td class="zero">0</td></tr>
+        <tr><td class="one">1</td><td class="zero">0</td><td class="one">1</td><td class="zero">0</td><td class="one">1</td></tr>
+        <tr><td class="one">1</td><td class="one">1</td><td class="zero">0</td><td class="zero">0</td><td class="one">1</td></tr>
+        <tr><td class="one">1</td><td class="one">1</td><td class="one">1</td><td class="one">1</td><td class="one">1</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">⛓️ Sumador de n bits — la cadena de carry</div>
+    <div class="op-rule">Se concatenan n full-adders. El carry de cada etapa entra a la siguiente. La 1ª celda (Σ₀, las unidades) tiene su <strong>Cy₋₁ conectado a "0"</strong>: no hay etapa anterior.</div>
+    <svg viewBox="0 0 460 130" width="100%" style="display:block;margin:0.4rem auto" role="img" aria-label="Cadena de cuatro sumadores con acarreo encadenado">
+      <g font-family="JetBrains Mono,monospace" font-size="10">
+        <rect x="14"  y="44" width="74" height="44" rx="5" fill="rgba(124,58,237,0.10)" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="51"  y="70" fill="#a78bfa" text-anchor="middle">Σ₃</text>
+        <rect x="128" y="44" width="74" height="44" rx="5" fill="rgba(124,58,237,0.10)" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="165" y="70" fill="#a78bfa" text-anchor="middle">Σ₂</text>
+        <rect x="242" y="44" width="74" height="44" rx="5" fill="rgba(124,58,237,0.10)" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="279" y="70" fill="#a78bfa" text-anchor="middle">Σ₁</text>
+        <rect x="356" y="44" width="74" height="44" rx="5" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="393" y="66" fill="#f59e0b" text-anchor="middle">Σ₀</text>
+        <text x="393" y="80" fill="#94a3b8" text-anchor="middle" font-size="7">unidades</text>
+        <!-- carry arrows right to left -->
+        <line x1="356" y1="66" x2="320" y2="66" stroke="#06b6d4" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="242" y1="66" x2="206" y2="66" stroke="#06b6d4" stroke-width="1.5" marker-end="url(#ar)"/>
+        <line x1="128" y1="66" x2="92"  y2="66" stroke="#06b6d4" stroke-width="1.5" marker-end="url(#ar)"/>
+        <text x="338" y="40" fill="#06b6d4" text-anchor="middle" font-size="8">Cy₀</text>
+        <text x="224" y="40" fill="#06b6d4" text-anchor="middle" font-size="8">Cy₁</text>
+        <text x="110" y="40" fill="#06b6d4" text-anchor="middle" font-size="8">Cy₂</text>
+        <!-- Cy-1 = 0 into Σ0 -->
+        <line x1="448" y1="66" x2="430" y2="66" stroke="#475569" stroke-width="1.5" marker-end="url(#ar)"/>
+        <text x="452" y="69" fill="#475569" text-anchor="middle" font-size="9">0</text>
+        <text x="452" y="84" fill="#475569" text-anchor="middle" font-size="7">Cy₋₁</text>
+        <!-- outputs -->
+        <text x="51"  y="112" fill="#94a3b8" text-anchor="middle" font-size="8">S₃</text>
+        <text x="165" y="112" fill="#94a3b8" text-anchor="middle" font-size="8">S₂</text>
+        <text x="279" y="112" fill="#94a3b8" text-anchor="middle" font-size="8">S₁</text>
+        <text x="393" y="112" fill="#94a3b8" text-anchor="middle" font-size="8">S₀</text>
+        <text x="51"  y="30" fill="#94a3b8" text-anchor="middle" font-size="8">A₃B₃</text>
+        <text x="165" y="30" fill="#94a3b8" text-anchor="middle" font-size="8">A₂B₂</text>
+        <text x="279" y="30" fill="#94a3b8" text-anchor="middle" font-size="8">A₁B₁</text>
+        <text x="393" y="30" fill="#94a3b8" text-anchor="middle" font-size="8">A₀B₀</text>
+      </g>
+      <defs><marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#06b6d4"/></marker></defs>
+    </svg>
+    <div class="insight">💡 de la clase · "Un procesador de 64 bits tiene 64 sumadores de 1 bit concatenados." Ojo: son 64 sumadores para sumar UN par de números de 64 bits, no 64 ALUs.</div>
+  </div>
+
+</div>
+
+<!-- ============ 05 ============ -->
+<div class="section-label" id="s05">05 — Restador = sumador + Ca2 <span class="tier key">⚡ + conecta A2</span></div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">➖ Un solo dispositivo, dos modos · la señal S̄/R decide</div>
+    <div class="formula amber-f">R = A − B = A + (−B) = A + Ca2(B) &nbsp;|&nbsp; Ca2(B) = Ca1(B) + 1</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>S̄/R = 0 → SUMA</h4>
+        <div class="vs-row">los negadores XOR dejan pasar B sin cambios</div>
+        <div class="vs-row">entra B + 0000 = B</div>
+        <div class="vs-row">el sumador hace A + B</div>
+        <div class="vs-row" style="color:#4ade80">Resultado: S = A + B</div>
+      </div>
+      <div class="vs-mid">S̄/R</div>
+      <div class="vs-side">
+        <h4>S̄/R = 1 → RESTA</h4>
+        <div class="vs-row">los negadores XOR invierten B → Ca1(B)</div>
+        <div class="vs-row">Cy₋₁ = 1 (de la propia señal) → Ca1(B) + 1 = Ca2(B)</div>
+        <div class="vs-row">el sumador hace A + Ca2(B)</div>
+        <div class="vs-row" style="color:#fbbf24">Resultado: S = A − B</div>
+      </div>
+    </div>
+    <div class="insight">💡 de la clase · "Los sumadores sirven para restar usando complemento a 2 mediante un controlador. Con la señal en 0 sumo; con la señal en 1 niego, y por complemento a 2 obtengo la resta." Elegancia: la MISMA señal niega B y aporta el +1.</div>
+    <div class="note danger">🚨 Conexión con A2 del parcial (−199 → Ca2): eso es EXACTAMENTE lo que el restador ejecuta en hardware. El cálculo de Ca2 está en la unidad 3; acá importa el rol del negador XOR + el "1" de la señal.</div>
+  </div>
+</div>
+
+<!-- ============ 06 ============ -->
+<div class="section-label" id="s06">06 — Flags del registro de estado <span class="tier key">⚡ el más repetido (3 clases)</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🚩 Las banderas (la ALU suma binarios puros)</div>
+    <div class="op-rule">La ALU "no tiene en cuenta ni el punto ni el signo": suma binarios puros. Las <strong>flags</strong> brindan por separado la info de signo / acarreo / sobreflujo para que el <strong>programador</strong> interprete.</div>
+    <div class="proplist pl-purple">
+      <div><b style="color:#f59e0b">CF</b> Carry · =1 si hay acarreo fuera de los n bits — enteros <b>SIN signo</b></div>
+      <div><b style="color:#06b6d4">OF</b> Overflow · =1 si el resultado cae fuera de rango — números <b>CON signo</b></div>
+      <div><b style="color:#10b981">SF</b> Sign · =1 si el bit de signo del resultado es 1 (negativo)</div>
+      <div><b style="color:#94a3b8">ZF</b> Zero · =1 si el resultado fue 0</div>
+      <div><b style="color:#a78bfa">PF</b> Parity · =1 según la paridad del resultado <span style="color:#64748b">(el registro de estado tiene más flags)</span></div>
+      <div><b style="color:#f87171">IF</b> Interrupt · habilita (1) / inhibe (0) las interrupciones enmascarables — la usás en <b>interrupciones (U12)</b></div>
+    </div>
+    <div class="note ok">✓ Idea central: el MISMO resultado binario activa CF (sin signo) y OF (con signo) a la vez. El programador decide qué flag mirar según el formato que asignó.</div>
+    <div class="insight">💡 de la clase · "El CPU me indica si hubo sobreflujo, si es positivo o negativo, si fue 0, y si hubo carry. La interpretación va del lado del programador." (Reforzado el 2026-04-13: "lo que vimos en el apunte anterior".)</div>
+    <div class="note danger">🔗 Conexión para el final · Las flags son el puente con <strong>interrupciones (U12)</strong>: (1) el <strong>OF dispara la interrupción tipo 4</strong> (INTO); (2) al atender una interrupción se hace <strong>push del registro de estado (flags) + CS:IP a la pila</strong> para retomar el estado exacto. Por eso el profe repite las flags en 3 clases: son el tema más transversal de la unidad.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🔬 Tres casos (8 bits) — cómo se activan</div>
+    <div class="worked">
+      <div class="wl" style="margin-bottom:0.3rem">CASO 1 · 11001011 + 01000001 = (1)00001100</div>
+      <div class="wr"><span class="wl">sin signo</span><span class="wb">203 + 65 = 268 &gt; 255 → <span class="cf">CF = 1</span></span></div>
+      <div class="wr"><span class="wl">con signo</span><span class="wb">−53 + 65 = +12 (en rango) → <span class="of">OF = 0</span> · <span class="sf">SF = 0</span></span></div>
+    </div>
+    <div class="worked">
+      <div class="wl" style="margin-bottom:0.3rem">CASO 2 · 01001011 + 01000001 = 10001100</div>
+      <div class="wr"><span class="wl">sin signo</span><span class="wb">75 + 65 = 140 ≤ 255 → <span class="cf">CF = 0</span></span></div>
+      <div class="wr"><span class="wl">con signo</span><span class="wb">+140 fuera de [−128,+127] → <span class="of">OF = 1</span> · <span class="sf">SF = 1</span></span></div>
+    </div>
+    <div class="worked">
+      <div class="wl" style="margin-bottom:0.3rem">CASO 3 · 00001011 + 01000001 = 01001100</div>
+      <div class="wr"><span class="wl">sin signo</span><span class="wb">11 + 65 = 76 → <span class="cf">CF = 0</span></span></div>
+      <div class="wr"><span class="wl">con signo</span><span class="wb">+76 en rango → <span class="of">OF = 0</span> · <span class="sf">SF = 0</span></span></div>
+    </div>
+    <div class="note warn">⚠️ Suma con signo: SIEMPRE hay overflow si sumás dos positivos y da negativo, o dos negativos y da positivo.</div>
+  </div>
+
+</div>
+
+<!-- ============ 07 ============ -->
+<div class="section-label" id="s07">07 — Sobreflujo y bajoflujo <span class="tier key">⚡ ligado al rango</span></div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">📊 Rangos de representación (el origen del overflow)</div>
+    <div class="grid grid-3" style="margin-top:0.3rem">
+      <div class="stat"><div class="stat-num">[0, 7]</div><div class="stat-unit">3 bits sin signo</div><div class="stat-cap">2ⁿ−1 = 7 · el +8 ya desborda</div></div>
+      <div class="stat"><div class="stat-num">[−4,+3]</div><div class="stat-unit">3 bits en Ca2</div><div class="stat-cap">el +5 o el −7 desbordan</div></div>
+      <div class="stat"><div class="stat-num">9+9</div><div class="stat-unit">4 bits → 18</div><div class="stat-cap">máx 15 · overflow (ej. del profe)</div></div>
+    </div>
+  </div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">⚔️ Sobreflujo vs bajoflujo</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Sobreflujo (overflow)</h4>
+        <div class="vs-row">el resultado SUPERA el máximo del rango</div>
+        <div class="vs-row">ocurre en enteros y reales</div>
+        <div class="vs-row">causa: cantidad finita de dígitos</div>
+        <div class="vs-row">ej: 9+9=18 en 4 bits</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>Bajoflujo (underflow)</h4>
+        <div class="vs-row">la cifra es TAN chica que no entra en la precisión</div>
+        <div class="vs-row">solo en reales (punto fijo/flotante)</div>
+        <div class="vs-row">la UAL aproxima el resultado a 0</div>
+        <div class="vs-row">ej: 0,00001₂ &lt; 0,125₂ mínimo → 0</div>
+      </div>
+    </div>
+    <div class="insight">💡 Conexión con IEEE 754 (unidad 3): ante bajoflujo, la norma usa <strong>desnormalización</strong> — relaja la mantisa 1,xxx para representar 0,xxx y ampliar el rango hacia el cero, sacrificando precisión.</div>
+    <div class="note danger">🔗 En el final integrador · el <strong>overflow</strong> no se queda en el flag OF: dispara la <strong>interrupción/excepción tipo 4 (INTO)</strong>; un <strong>error de punto flotante</strong> entra como <strong>tipo 16</strong> (división por 0 = tipo 0). Es la bisagra entre esta unidad e interrupciones (U12).</div>
+  </div>
+</div>
+
+<!-- ============ 08 ============ -->
+<div class="section-label is-ctx" id="s08">08 — Álgebra de Boole <span class="tier ctx">base · baja probabilidad en el final</span></div>
+<div class="grid grid-2 is-ctx">
+
+  <div class="card purple">
+    <div class="card-title">📐 Postulados y propiedades</div>
+    <div class="proplist pl-purple">
+      <div><b style="color:#fff">Variables booleanas:</b> solo 0 y 1 · combinaciones de la tabla = 2ⁿ</div>
+      <div><b style="color:#fff">OR:</b> A+0 = A · A+1 = 1 &nbsp;<span style="color:#fbbf24">(1+1 lógico = 1)</span></div>
+      <div><b style="color:#fff">AND:</b> A·0 = 0 · A·1 = A</div>
+      <div><b style="color:#fff">NOT:</b> A=0 → Ā=1 · A=1 → Ā=0</div>
+      <div><b style="color:#fff">Complementación:</b> A+Ā = 1 · A·Ā = 0</div>
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🔄 Ley de De Morgan</div>
+    <div class="formula cyan-f">‾(A+B+C) = Ā · B̄ · C̄</div>
+    <div class="op-notation" style="text-align:center">suma negada = producto de negadas</div>
+    <div class="formula cyan-f">‾(A·B·C) = Ā + B̄ + C̄</div>
+    <div class="op-notation" style="text-align:center">producto negado = suma de negadas</div>
+    <div class="note warn">⚠️ Para el final · baja probabilidad, pero "pueden entrar cosas de sistemas digitales". Saber <strong>qué es</strong> (postulados, De Morgan) a nivel concepto; no hace falta memorizar demostraciones.</div>
+  </div>
+
+</div>
+
+<!-- ============ 09 ============ -->
+<div class="section-label is-ctx" id="s09">09 — Funciones SOP e interpretación del programador <span class="tier ctx">base · baja probabilidad</span></div>
+<div class="grid grid-2 is-ctx">
+
+  <div class="card purple">
+    <div class="card-title">🧩 Suma de productos (SOP) <span class="flag info">ⓘ no pide armarlas · solo el concepto</span></div>
+    <div class="op-rule">Para cada "1" de la salida se arma un término producto (AND) de todas las variables (directa si vale 1, negada si vale 0); se unen todos con un OR.</div>
+    <div class="formula">S=1 en 001, 101, 111 → S = (A·B̄·C̄) + (A·B̄·C) + (A·B·C)</div>
+    <div class="note warn">⚠️ El profe dijo "no se las voy a pedir" (armar el circuito SOP). Para el final: reconocer el método como concepto, no construirlo.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">👤 Interpretación del programador</div>
+    <div class="op-rule">La ALU suma <strong>binarios puros</strong> — no sabe de signo ni de coma. Quien decide si esos bits son un entero sin signo, un Ca2 o un punto flotante es el <strong>programador</strong>, mirando las flags.</div>
+    <div class="note ok">✓ Por eso existen las flags: el mismo patrón de bits significa cosas distintas según el formato asignado.</div>
+  </div>
+
+</div>
+
+<!-- ============ 10 · NUEVO ============ -->
+<div class="section-label" id="s10">10 — U05 en el final integrador <span class="tier key">★ cómo se cruza</span></div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🕸️ Dónde reaparece la ALU en un final integrador</div>
+    <div class="op-rule">El profe llama al final <strong>integrador</strong>: no pregunta la unidad aislada, sino cómo se conecta. Estos son los hilos de la ALU que cruzan a otras unidades.</div>
+    <table class="tbl">
+      <thead><tr><th>Concepto de U05</th><th>Dónde se profundiza / conecta en el final</th></tr></thead>
+      <tbody>
+        <tr><td>Estructura del CPU (ALU)</td><td>Reaparece como en B9 (parcial 1) · evoluciona a <strong>ALU + FPU</strong> en procesadores modernos (U04 · U09)</td></tr>
+        <tr><td>Flags / registro de estado</td><td><strong>Interrupciones (U12):</strong> IF habilita, <strong>OF → interrupción tipo 4</strong>, flags a la pila al interrumpir</td></tr>
+        <tr><td>Restador = A + Ca2(B)</td><td><strong>Parte numérica</strong> del final (Ca2, conversiones) — el profe confirmó que entra</td></tr>
+        <tr><td>Sumador / compuertas</td><td>Diseño de la ALU con compuertas → <strong>FPGA</strong> (nuevas tecnologías: conecta, pero no se evalúa en el final)</td></tr>
+        <tr><td>Sobreflujo / bajoflujo</td><td>Rango de representación (U02 · U03) · bajoflujo → desnormalización IEEE 754</td></tr>
+      </tbody>
+    </table>
+    <div class="note ok">✓ En el oral/final, una buena respuesta no recita la ALU: la <strong>ubica</strong> — "la ALU es la etapa EX del ciclo; sus flags van al registro de estado y de ahí las usa el manejo de interrupciones".</div>
+  </div>
+</div>
+
+<!-- ============ 11 ============ -->
+<div class="section-label" id="s11">11 — Auto-test (recuperación activa) <span class="tier key">⚡ lo que más cae</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🧠 Tapá la respuesta y respondé</div>
+    <details class="recall">
+      <summary>¿Cuáles son los 4 componentes del CPU y dónde encaja la ALU?</summary>
+      <div class="recall-a">Unidad de control · registros · <strong>ALU</strong> · sistema de interconexión interno. La ALU ejecuta las operaciones aritméticas y lógicas. (La memoria principal NO está dentro del CPU.)</div>
+    </details>
+    <details class="recall">
+      <summary>¿Cómo hace la ALU una resta si solo sabe sumar?</summary>
+      <div class="recall-a">A − B = A + Ca2(B). El negador XOR controlado invierte B (Ca1) cuando S̄/R = 1, y esa misma señal aporta el +1; luego el sumador hace A + Ca2(B).</div>
+    </details>
+    <details class="recall">
+      <summary>¿Qué diferencia hay entre la flag CF y la OF?</summary>
+      <div class="recall-a"><strong>CF</strong> = acarreo fuera de los n bits, relevante para enteros SIN signo. <strong>OF</strong> = resultado fuera de rango para números CON signo. El mismo resultado binario activa una u otra según cómo lo interprete el programador.</div>
+    </details>
+    <details class="recall">
+      <summary>En 4 bits sin signo, ¿qué pasa al sumar 9 + 9?</summary>
+      <div class="recall-a">18 no entra en 4 bits (máx 15) → <strong>sobreflujo</strong>; hay acarreo en el MSB → <strong>CF = 1</strong>.</div>
+    </details>
+    <details class="recall">
+      <summary>¿Qué conexión tienen las flags de la ALU con las interrupciones?</summary>
+      <div class="recall-a">El <strong>OF</strong> dispara la <strong>interrupción tipo 4</strong> (INTO); el <strong>IF</strong> habilita/inhibe las enmascarables; y al atender una interrupción se hace <strong>push del registro de estado (flags) + CS:IP a la pila</strong> para retomar el estado exacto.</div>
+    </details>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">📝 Respuestas modelo (entraron en P1 → reaparecen en el final)</div>
+    <div class="exam-q">
+      <div class="q">¿Cuál es la estructura del CPU? (B9)</div>
+      <div class="a">Unidad de control, registros, ALU y sistema de interconexión interno. <strong>No confundir</strong> con la estructura de la computadora (microprocesador, memoria principal, E/S, bus de sistema).</div>
+    </div>
+    <div class="exam-q">
+      <div class="q">Escribir −199 en complemento a 2. (A2)</div>
+      <div class="a">199 = 11000111 → bit de signo: 011000111 → Ca1: 100111000 → +1: <strong>100111001</strong>. Es lo que el restador hardware ejecuta. No olvidar el bit de signo.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 12 ============ -->
+<div class="section-label" id="s12">12 — Claves para el FINAL</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">💡 Claves para el final integrador</div>
+    <div class="note danger" style="margin-bottom:0.6rem">🗣️ <strong>LO QUE MÁS PESA — el vocabulario.</strong> El profe penaliza el lenguaje no técnico: "respondan con el <strong>lenguaje de la materia</strong>… estudien más para el final". Decí <strong>unidad aritmético-lógica</strong> (no "la calculadora"), <strong>acarreo</strong>, <strong>registro de estado</strong>, <strong>negador controlado</strong>, <strong>sobreflujo</strong>. Es el motivo nº1 de recursada del final. Hay <strong>oral</strong>: rápido y frente a cámara.</div>
+    <div class="step">
+      <div class="s"><b>1.</b> Esta unidad se desarrolla como <b>teoría</b>, pero el final es integrador y la <b>parte numérica (Ca2) entra</b> — "esa es la parte numérica, por supuesto".</div>
+      <div class="s"><b>2.</b> Estructura del <b>CPU</b> = UC · registros · ALU · interconexión. NO es la de la computadora; la memoria está afuera. En modernos: <b>ALU + FPU</b>.</div>
+      <div class="s"><b>3.</b> "Lo más importante: la función de la ALU, que con compuertas arma los sumadores, que los sumadores restan con complemento a 2 mediante un controlador, y los conceptos de sobreflujo, bajoflujo y banderas."</div>
+      <div class="s"><b>4.</b> El restador es un sumador que hace <b>A + Ca2(B)</b>; el controlador S̄/R niega B y aporta el +1.</div>
+      <div class="s"><b>5.</b> Flags: <b>CF</b> (sin signo), <b>OF</b> (con signo), <b>SF</b> (signo), <b>ZF</b> (cero) + <b>PF</b> (paridad) e <b>IF</b> (interrupciones). El mismo resultado sirve para CF y OF a la vez.</div>
+      <div class="s"><b>6.</b> Cruce con interrupciones (U12): <b>OF → interrupción tipo 4</b>; al interrumpir se hace push de las <b>flags a la pila</b>.</div>
+      <div class="s"><b>7.</b> Sobreflujo = supera el máximo (enteros y reales). Bajoflujo = demasiado chico, se aproxima a 0 (solo reales).</div>
+      <div class="s"><b>8.</b> Baja probabilidad pero posible ("sistemas digitales puede entrar en el final"): qué es un <b>circuito combinacional</b>, Boole/De Morgan a nivel concepto. NO te piden <b>dibujar el circuito</b> ni <b>armar SOP</b>.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Unidad Aritmético-Lógica · Arquitectura de Computadores · Universidad de Palermo · repaso final</p>
+  <p class="out">Fuera de alcance incluso en el final: dibujar el circuito sumador/restador, armar funciones lógicas SOP, detalle de sistemas digitales a fondo (MOSFET, flip-flops). El cálculo de Ca2 / IEEE 754 se ejercita en la parte numérica (unidades 2-3); acá importa el rol del Ca2 dentro del restador.</p>
+</footer>
+
+<script>
+(function () {
+  var root = document.querySelector('.diagram');
+  if (root) {
+    var all = root.querySelectorAll('.node, .link');
+    root.querySelectorAll('.node').forEach(function (node) {
+      node.addEventListener('mouseenter', function () {
+        var id = node.dataset.id;
+        all.forEach(function (el) {
+          var rel = el.dataset.id === id || el.dataset.from === id || el.dataset.to === id;
+          el.classList.toggle('dim', !rel);
+        });
+        node.classList.add('active');
+      });
+      node.addEventListener('mouseleave', function () {
+        all.forEach(function (el) { el.classList.remove('dim'); });
+        node.classList.remove('active');
+      });
+    });
+  }
+})();
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#arquitectura-de-computadores" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

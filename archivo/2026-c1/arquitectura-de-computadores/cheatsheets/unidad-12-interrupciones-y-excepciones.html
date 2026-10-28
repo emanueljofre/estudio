@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interrupciones y Excepciones — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  header { text-align: center; margin-bottom: 2rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px; margin: 1.2rem auto 0; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .section-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--accent);
+    margin: 2.5rem auto 1rem; max-width: 1400px;
+    display: flex; align-items: center; gap: 0.8rem; scroll-margin-top: 1rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-label.is-ctx { color: var(--muted); }
+
+  /* dek — línea conectiva bajo cada section-label (qué es esto + de dónde viene) */
+  .dek { max-width: 1400px; margin: -0.5rem auto 1.1rem; font-family: var(--display); font-size: 0.85rem; line-height: 1.55; color: var(--muted); }
+  .dek b { color: var(--text); font-weight: 700; }
+  .dek .q { color: #fbbf24; font-style: italic; }
+  .dek a { color: var(--accent2); text-decoration: none; border-bottom: 1px dotted rgba(6,182,212,0.5); }
+
+  /* roadmap — mapa narrativo de la unidad (3 tramos) */
+  .roadmap { display: grid; gap: 0.7rem; }
+  .rm-lane { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; padding: 0.75rem 0.85rem; border-radius: 7px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+  .rm-q { font-family: var(--display); font-weight: 800; font-size: 0.84rem; color: #fff; flex-basis: 100%; margin-bottom: 0.1rem; }
+  .rm-q span { font-family: var(--mono); font-weight: 400; font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-left: 0.4rem; }
+  .rm-step { font-family: var(--mono); font-size: 0.66rem; color: var(--text); padding: 0.32rem 0.55rem; border-radius: 4px; background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.32); text-decoration: none; white-space: nowrap; }
+  .rm-lane.b .rm-step { background: rgba(6,182,212,0.12); border-color: rgba(6,182,212,0.32); }
+  .rm-lane.c .rm-step { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.32); }
+  .rm-step:hover { border-color: var(--accent2); color: #fff; }
+  .rm-arrow { color: var(--muted); font-size: 0.7rem; }
+  @media (max-width: 700px) { .rm-step { white-space: normal; } .rm-arrow { display: none; } }
+
+  .grid   { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid.is-ctx { opacity: 0.82; }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem; font-family: var(--mono); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule {
+    font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border); border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  .formula {
+    font-family: var(--mono); font-size: 0.82rem; color: #fff;
+    background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 5px; padding: 0.5rem 0.7rem; text-align: center; margin: 0.5rem 0;
+  }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+  .formula.green-f { background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.25); }
+
+  .proplist { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.35rem; }
+  .proplist div { padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div { background: rgba(16,185,129,0.06); }
+
+  .step { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.4rem; }
+  .step .s {
+    padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0;
+  }
+  .step .s b { color: #fff; }
+  .step .s.cyan-s  { border-left-color: var(--accent2); }
+  .step .s.amber-s { border-left-color: var(--accent3); }
+  .step .s.green-s { border-left-color: var(--accent4); }
+
+  .note { font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem; padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.06); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  .flag      { color: #f87171;        font-size: 0.55rem; margin-left: 0.5rem; }
+  .flag.info { color: var(--accent3); font-size: 0.55rem; margin-left: 0.5rem; }
+
+  .insight {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--accent3);
+    background: rgba(245,158,11,0.06); border-left: 2px solid var(--accent3);
+    border-radius: 0 4px 4px 0; padding: 0.4rem 0.6rem; margin-top: 0.5rem;
+  }
+
+  /* glosario de siglas (sección 03) */
+  .gloss { display: grid; grid-template-columns: max-content 1fr; gap: 0.45rem 1rem; font-family: var(--mono); font-size: 0.72rem; align-items: baseline; }
+  .gloss dt { color: var(--accent3); font-weight: 700; white-space: nowrap; }
+  .gloss dd { color: var(--muted); line-height: 1.45; }
+  .gloss dd b { color: #fff; font-weight: 700; }
+  @media (min-width: 780px) { .gloss { grid-template-columns: max-content 1fr max-content 1fr; gap: 0.45rem 1.1rem; } }
+
+  /* sub-pasos numerados dentro de una etapa */
+  .substeps { display: grid; gap: 0.35rem; margin-top: 0.55rem; }
+  .substeps > div { position: relative; padding-left: 1.65rem; line-height: 1.5; }
+  .substeps > div > .k {
+    position: absolute; left: 0; top: 0.05rem; width: 1.2rem; height: 1.2rem;
+    display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;
+    background: rgba(245,158,11,0.18); color: var(--accent3); font-weight: 700; font-size: 0.62rem;
+  }
+
+  .matrix {
+    display: inline-grid; gap: 0.15rem 0.55rem; font-family: var(--mono);
+    font-size: 0.8rem; color: var(--text); padding: 0.3rem 0.65rem; position: relative;
+  }
+  .matrix::before, .matrix::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 7px; border: 1.5px solid var(--accent2);
+  }
+  .matrix::before { left: 0; border-right: none; }
+  .matrix::after  { right: 0; border-left: none; }
+  .matrix span { text-align: center; }
+  .matrix .hl { color: var(--accent3); font-weight: 700; }
+  .mwrap { display: flex; justify-content: center; align-items: center; gap: 0.6rem; margin: 0.6rem 0; flex-wrap: wrap; }
+  .mwrap .eq { font-family: var(--mono); color: var(--muted); font-size: 0.95rem; }
+
+  /* versus */
+  .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+  .vs-side { padding: 0.8rem; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.35rem; }
+  .vs-side h4 { font-family: var(--display); font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+  .vs-mid { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.75rem; font-weight: 700; color: var(--accent3); padding: 0 0.7rem; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .vs-row { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .vs-row:last-child { border-bottom: none; }
+  .vs-row b { color: #fff; }
+  @media (max-width: 600px) {
+    .versus { grid-template-columns: 1fr; }
+    .vs-mid { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0.4rem; text-align: center; }
+  }
+
+  /* stat */
+  .stat { text-align: center; padding: 0.8rem 0.4rem; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+  .stat-num { font-family: var(--display); font-size: 2rem; font-weight: 800; line-height: 1; background: linear-gradient(135deg, #fff 30%, var(--accent2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .stat-unit { font-family: var(--mono); font-size: 0.72rem; color: var(--accent2); letter-spacing: 0.08em; }
+  .stat-cap { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); margin-top: 0.1rem; }
+
+  /* recall */
+  .recall { font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0; border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden; }
+  .recall summary { cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2); background: rgba(124,58,237,0.06); list-style: none; display: flex; align-items: center; gap: 0.5rem; user-select: none; }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before { content: '▸'; font-size: 0.7rem; color: var(--accent); transition: transform 0.15s; flex-shrink: 0; }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a { padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5; border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04); }
+  .recall-a strong { color: #fff; }
+
+  /* exam-q */
+  .exam-q { position: relative; margin: 0.6rem 0; padding: 0.7rem 0.9rem 0.7rem 2.7rem; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.3); border-left: 2px solid var(--red); border-radius: 0 6px 6px 0; font-family: var(--mono); font-size: 0.7rem; }
+  .exam-q::before { content: 'Q'; position: absolute; left: 0.65rem; top: 0.7rem; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--red); color: #fff; font-family: var(--display); font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+  .exam-q .q { color: #fff; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.4; }
+  .exam-q .a { color: var(--muted); line-height: 1.55; }
+  .exam-q .a strong { color: var(--text); }
+
+  /* tier */
+  .tier { display: inline-flex; align-items: center; gap: 0.3rem; font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 3px; vertical-align: middle; line-height: 1; }
+  .tier::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .tier.core { color: var(--accent4); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.35); }
+  .tier.core::before { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .tier.key  { color: var(--accent3); background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.4); }
+  .tier.key::before  { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .tier.ctx  { color: var(--muted); background: rgba(148,163,184,0.06); border: 1px solid var(--border); }
+  .tier.ctx::before  { background: var(--muted); }
+  .tier.final { color: #c4b5fd; background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.5); }
+  .tier.final::before { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+
+  /* scope */
+  .scope { max-width: 1400px; margin: 0 auto 1rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent3); border-radius: 6px; padding: 0.8rem 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; align-items: center; }
+  .scope-label { font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent3); font-weight: 700; writing-mode: vertical-rl; transform: rotate(180deg); border-right: 1px solid var(--border); padding-right: 0.7rem; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+  .scope-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spill { font-family: var(--mono); font-size: 0.6rem; padding: 0.22rem 0.55rem; border-radius: 3px; border: 1px solid var(--border); color: var(--muted); }
+  .spill.in  { color: var(--accent4); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
+  .spill.key { color: var(--accent3); border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+  .spill.cut { color: var(--muted); border-style: dashed; text-decoration: line-through; opacity: 0.75; }
+  .spill.final { color: #c4b5fd; border-color: rgba(124,58,237,0.55); background: rgba(124,58,237,0.10); }
+  .spill.ref { color: var(--muted); border-style: dashed; }
+  @media (max-width: 600px) {
+    .scope { grid-template-columns: 1fr; }
+    .scope-label { writing-mode: horizontal-tb; transform: none; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.4rem; }
+  }
+
+  /* cmatrix */
+  .cmatrix-wrap { overflow-x: auto; max-width: 1400px; margin: 0.5rem auto; }
+  .cmatrix { display: grid; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-family: var(--mono); font-size: 0.66rem; min-width: 640px; }
+  .cmatrix > div { padding: 0.5rem 0.6rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .cmatrix .cm-corner, .cmatrix .cm-rl { background: rgba(255,255,255,0.03); color: var(--muted); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; }
+  .cmatrix .cm-head { font-family: var(--display); font-weight: 700; color: #fff; font-size: 0.8rem; text-align: center; position: relative; display: block; }
+  .cmatrix .cm-head .sub { display: block; font-family: var(--mono); font-size: 0.5rem; color: var(--muted); margin-top: 0.2rem; letter-spacing: 0.04em; }
+  .cmatrix .cm-head.is-key { color: var(--accent3); }
+  .cmatrix .cm-head.is-key::after { content: '★'; position: absolute; top: 0.35rem; right: 0.5rem; color: var(--accent3); font-size: 0.6rem; }
+  .cmatrix .is-dim { opacity: 0.5; }
+  .cmatrix .cm-key { background: rgba(245,158,11,0.05); }
+  .cmatrix .ok { color: var(--accent4); font-weight: 700; }
+  .cmatrix .no { color: #f87171; font-weight: 700; }
+  .cmatrix .cm-cell b { color: #fff; }
+
+  /* glossary */
+  .glossary { font-family: var(--mono); font-size: 0.68rem; column-count: 2; column-gap: 1.6rem; }
+  .glossary div { break-inside: avoid; padding: 0.3rem 0; }
+  .glossary dt { display: inline; color: #fff; font-weight: 700; }
+  .glossary dd { display: inline; color: var(--muted); margin: 0; }
+  @media (max-width: 700px) { .glossary { column-count: 1; } }
+
+  /* diagram hover-dim */
+  .diagram .node, .diagram .link { transition: opacity 0.2s ease; }
+  .diagram .dim { opacity: 0.35; }
+  .diagram .node.active { filter: drop-shadow(0 0 10px currentColor); }
+
+  /* navegación */
+  .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .toc-rail { position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem; }
+  .toc-rail a { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; font-family: var(--mono); font-size: 0.55rem; color: var(--muted); padding: 0.12rem 0.25rem; border-radius: 3px; }
+  .toc-rail a .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; transition: all 0.2s; }
+  .toc-rail a .lbl { opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap; }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  footer { text-align: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+  footer .out { color: #64748b; font-size: 0.6rem; margin-top: 0.4rem; }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1, .stat-num { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .scope, .cmatrix, .exam-q, .recall, .stat { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<nav class="toc-rail" id="toc" aria-label="Secciones">
+  <a href="#s01"><span class="dot"></span><span class="lbl">01 · Clasificación</span></a>
+  <a href="#s02"><span class="dot"></span><span class="lbl">02 · Flag IF</span></a>
+  <a href="#s03"><span class="dot"></span><span class="lbl">03 · Ciclo 4 etapas</span></a>
+  <a href="#s04"><span class="dot"></span><span class="lbl">04 · IVT</span></a>
+  <a href="#s05"><span class="dot"></span><span class="lbl">05 · Tipos dedicados</span></a>
+  <a href="#s06"><span class="dot"></span><span class="lbl">06 · NMI</span></a>
+  <a href="#s07"><span class="dot"></span><span class="lbl">07 · Anidamiento/STI</span></a>
+  <a href="#s08"><span class="dot"></span><span class="lbl">08 · Excepciones SW</span></a>
+  <a href="#s09"><span class="dot"></span><span class="lbl">09 · Error y trampa</span></a>
+  <a href="#s10"><span class="dot"></span><span class="lbl">10 · PIC 8259A</span></a>
+  <a href="#s11"><span class="dot"></span><span class="lbl">11 · MSI/MSI-X</span></a>
+  <a href="#s12"><span class="dot"></span><span class="lbl">12 · Examen</span></a>
+  <a href="#s13"><span class="dot"></span><span class="lbl">13 · Glosario</span></a>
+</nav>
+
+<header>
+  <div class="badge">Arquitectura de Computadores · Unidad 12 — Interrupciones y Excepciones</div>
+  <h1>Interrupciones y Excepciones</h1>
+  <p class="subtitle">clasificación HW/SW · ciclo de 4 etapas · IVT · tipos dedicados · anidamiento · NMI · interrupciones modernas (MSI/MSI-X)</p>
+  <div class="divider"></div>
+</header>
+
+<!-- Scope contract: actualizado para el FINAL integrador (entra toda la unidad, incl. §10–11 del apunte) -->
+<div class="scope">
+  <div class="scope-label">Scope · final</div>
+  <div class="scope-pills">
+    <span class="spill key">★ ciclo de 4 etapas</span>
+    <span class="spill key">★ tipos dedicados 0–4</span>
+    <span class="spill in">clasificación HW / SW</span>
+    <span class="spill in">flag IF (enmascarar)</span>
+    <span class="spill in">IVT · 256 × 4 = 1 KB</span>
+    <span class="spill in">anidamiento + STI</span>
+    <span class="spill in">NMI (no enmascarable)</span>
+    <span class="spill in">excepciones SW · PIC 8259A</span>
+    <span class="spill final">✦ MSI / MSI-X · PCIe</span>
+    <span class="spill final">✦ LAPIC / x2APIC · IPI · NUMA</span>
+    <span class="spill ref">buses → U10</span>
+    <span class="spill ref">nuevas tecnologías → U13</span>
+    <span class="spill ref">assembler / DEBUG → U14</span>
+  </div>
+</div>
+<p style="max-width:1400px;margin:-0.4rem auto 1rem;font-family:var(--mono);font-size:0.62rem;color:var(--muted)">✦ = contenido del apunte (§10–11) que <b style="color:#c4b5fd">no entró en el parcial pero sí entra en el final</b>. El resto ya lo viste para el parcial. → = tema afín que se rinde por su propia unidad.</p>
+
+<!-- ============ MAPA ============ -->
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto 0.4rem">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🗺️ Mapa de la unidad — el hilo que conecta todo</div>
+    <div class="op-rule">Toda la unidad responde una pregunta: <strong>¿qué hace el CPU cuando algo necesita su atención YA — y cómo vuelve a lo que estaba haciendo?</strong> Se recorre en <strong>3 tramos</strong>: el marco, el mecanismo y los casos. Seguí las flechas.</div>
+    <div class="roadmap">
+      <div class="rm-lane">
+        <div class="rm-q">① El marco <span>qué es y cómo se clasifica</span></div>
+        <a class="rm-step" href="#s01">qué es · clasificación HW/SW</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s02">flag IF (la máscara)</a>
+      </div>
+      <div class="rm-lane b">
+        <div class="rm-q">② Cómo se atiende <span>★ el mecanismo · núcleo de la unidad</span></div>
+        <a class="rm-step" href="#s03">ciclo de 4 etapas</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s04">IVT (buscar la ISR)</a>
+      </div>
+      <div class="rm-lane c">
+        <div class="rm-q">③ Los tipos, casos y el hardware <span>las variantes</span></div>
+        <a class="rm-step" href="#s05">tipos 0–4</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s06">NMI</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s07">anidamiento · STI</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s08">excepciones SW (INT)</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s09">excepciones del proc.</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s10">PIC 8259A</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s11" style="background:rgba(124,58,237,0.18);border-color:rgba(124,58,237,0.45);color:#c4b5fd">MSI / MSI-X ✦ final</a>
+      </div>
+    </div>
+    <div class="insight">💡 El esqueleto de todo es el <strong>ciclo de 4 etapas</strong> (Solicitud → Reconocimiento → Atención → Retorno). <em>La trampa del profe</em>: NO confundirlo con el <strong>ciclo de instrucción</strong> (búsqueda → decodificación → ejecución) — son dos cosas distintas.</div>
+  </div>
+</div>
+
+<!-- ============ 01 ============ -->
+<div class="section-label" id="s01">01 — Qué es una interrupción · clasificación <span class="tier key">★ marco</span></div>
+<div class="dek">El CPU está ejecutando un programa y algo necesita su atención <span class="q">ya</span>. Una <b>interrupción</b> desvía el control a una rutina (ISR) y luego vuelve. El marco que ordena todo: <b>interrupciones</b> (hardware — enmascarables / no enmascarables) y <b>excepciones</b> (software — del procesador / programadas).</div>
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">🔔 Definición</div>
+    <div class="op-name">Interrupción</div>
+    <div class="op-notation">evento externo · transferencia de control</div>
+    <div class="op-rule">
+      Procedimiento desencadenado por un <strong>evento</strong> que produce una <strong>transferencia impredecible</strong> del control de la CPU, desde el programa que se ejecuta hacia una rutina de <strong>atención de la interrupción</strong>.
+    </div>
+    <div class="insight">💡 de la clase · la rutina que atiende = "ISR" (Interrupt Service Routine) = rutina del driver. Vive en memoria (programa residente), se carga del disco al arrancar porque la RAM es volátil.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⚠️ Definición</div>
+    <div class="op-name">Excepción</div>
+    <div class="op-notation">evento interno · sincrónico · software</div>
+    <div class="op-rule">
+      Evento <strong>sincrónico</strong> generado por la <strong>propia ejecución de una instrucción</strong> (no por un dispositivo externo) que transfiere el control de la CPU hacia una rutina de atención. Su causa es <strong>interna y predecible</strong>: o un <strong>error</strong> que el procesador detecta al ejecutar (división por 0, o un <strong>opcode</strong> —código de operación— inválido), o una instrucción <strong>INT</strong> que el programa invoca a propósito.
+    </div>
+    <div class="insight">💡 Ojo · el apunte (p.1) <strong>no</strong> da una definición textual de excepción como la de interrupción — la define por <strong>clasificación</strong> (SW: detectada por el procesador / programada). Esta es la formulación paralela. No es una señal eléctrica como la de HW.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧭 Dos grandes familias</div>
+    <div class="op-name">Interrupciones vs Excepciones</div>
+    <div class="op-rule">
+      <strong>Interrupciones</strong> = causadas por <strong>hardware</strong> (asincrónicas, vienen de afuera). <strong>Excepciones</strong> = causadas por <strong>software</strong> (sincrónicas, las produce la propia ejecución).
+    </div>
+    <div class="proplist pl-cyan">
+      <div>HW · enmascarable <span style="color:#94a3b8">→ INTR, se puede ignorar</span></div>
+      <div>HW · no enmascarable <span style="color:#f87171">→ NMI, inevitable</span></div>
+      <div>SW · detectada por el procesador <span style="color:#94a3b8">→ error de instrucción</span></div>
+      <div>SW · programada <span style="color:#94a3b8">→ INT, "pseudo-interrupción"</span></div>
+    </div>
+  </div>
+
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🧩 Analogía del profe</div>
+    <div class="op-rule">
+      La excepción por software es como el <strong>try/catch</strong> de Java/C: "capturar la falla y hacer algo con ella". No es una señal eléctrica como la de hardware — la dispara una instrucción del propio programa.
+    </div>
+    <div class="note ok">✓ Regla mental: si el evento <strong>viene de afuera</strong> (un dispositivo) → interrupción de HW. Si lo <strong>genera la instrucción</strong> que se ejecuta → excepción de SW.</div>
+  </div>
+
+  <!-- árbol de clasificación SVG -->
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="card-title">🌳 Árbol de clasificación · de dónde viene cada una</div>
+    <svg class="diagram" viewBox="0 0 880 250" width="100%" style="max-width:880px;display:block;margin:0.5rem auto;font-family:'JetBrains Mono',monospace">
+      <!-- raíz -->
+      <g class="node" data-id="root" style="color:#7c3aed">
+        <rect x="370" y="14" width="140" height="38" rx="5" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" stroke-width="1.5"/>
+        <text x="440" y="38" font-size="12" fill="#a78bfa" text-anchor="middle">Evento / interrupción</text>
+      </g>
+      <!-- niveles -->
+      <line class="link" data-from="root" data-to="hw" x1="440" y1="52" x2="225" y2="78" stroke="#2a2a3e" stroke-width="1.5"/>
+      <line class="link" data-from="root" data-to="sw" x1="440" y1="52" x2="655" y2="78" stroke="#2a2a3e" stroke-width="1.5"/>
+      <g class="node" data-id="hw" style="color:#06b6d4">
+        <rect x="130" y="78" width="190" height="38" rx="5" fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-width="1.5"/>
+        <text x="225" y="96" font-size="11" fill="#06b6d4" text-anchor="middle">HARDWARE</text>
+        <text x="225" y="110" font-size="8.5" fill="#94a3b8" text-anchor="middle">interrupciones · asincrónicas</text>
+      </g>
+      <g class="node" data-id="sw" style="color:#f59e0b">
+        <rect x="560" y="78" width="190" height="38" rx="5" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="655" y="96" font-size="11" fill="#f59e0b" text-anchor="middle">SOFTWARE</text>
+        <text x="655" y="110" font-size="8.5" fill="#94a3b8" text-anchor="middle">excepciones · sincrónicas</text>
+      </g>
+      <!-- hojas HW -->
+      <line class="link" data-from="hw" data-to="enm" x1="225" y1="116" x2="120" y2="160" stroke="#2a2a3e" stroke-width="1.5"/>
+      <line class="link" data-from="hw" data-to="nmi" x1="225" y1="116" x2="330" y2="160" stroke="#2a2a3e" stroke-width="1.5"/>
+      <g class="node" data-id="enm" style="color:#10b981">
+        <rect x="30" y="160" width="180" height="60" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.3"/>
+        <text x="120" y="182" font-size="10.5" fill="#4ade80" text-anchor="middle">Enmascarable (INTR)</text>
+        <text x="120" y="198" font-size="8.5" fill="#94a3b8" text-anchor="middle">IF=1 atiende · IF=0 ignora ·</text>
+        <text x="120" y="210" font-size="8.5" fill="#94a3b8" text-anchor="middle">tipo lo manda el dispositivo</text>
+      </g>
+      <g class="node" data-id="nmi" style="color:#ef4444">
+        <rect x="240" y="160" width="180" height="60" rx="5" fill="rgba(239,68,68,0.10)" stroke="#ef4444" stroke-width="1.3"/>
+        <text x="330" y="182" font-size="10.5" fill="#f87171" text-anchor="middle">No enmascarable (NMI)</text>
+        <text x="330" y="198" font-size="8.5" fill="#94a3b8" text-anchor="middle">IF no la afecta ·</text>
+        <text x="330" y="210" font-size="8.5" fill="#94a3b8" text-anchor="middle">siempre Tipo 2, prioritaria</text>
+      </g>
+      <!-- hojas SW -->
+      <line class="link" data-from="sw" data-to="det" x1="655" y1="116" x2="550" y2="160" stroke="#2a2a3e" stroke-width="1.5"/>
+      <line class="link" data-from="sw" data-to="prog" x1="655" y1="116" x2="760" y2="160" stroke="#2a2a3e" stroke-width="1.5"/>
+      <g class="node" data-id="det" style="color:#a78bfa">
+        <rect x="460" y="160" width="180" height="60" rx="5" fill="rgba(124,58,237,0.10)" stroke="#7c3aed" stroke-width="1.3"/>
+        <text x="550" y="182" font-size="10.5" fill="#a78bfa" text-anchor="middle">Detectada por el CPU</text>
+        <text x="550" y="198" font-size="8.5" fill="#94a3b8" text-anchor="middle">error al ejecutar ·</text>
+        <text x="550" y="210" font-size="8.5" fill="#94a3b8" text-anchor="middle">error (Tipo 0) / trampa (Tipo 1)</text>
+      </g>
+      <g class="node" data-id="prog" style="color:#06b6d4">
+        <rect x="670" y="160" width="180" height="60" rx="5" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.3"/>
+        <text x="760" y="182" font-size="10.5" fill="#06b6d4" text-anchor="middle">Programada</text>
+        <text x="760" y="198" font-size="8.5" fill="#94a3b8" text-anchor="middle">"pseudo-interrupción" ·</text>
+        <text x="760" y="210" font-size="8.5" fill="#94a3b8" text-anchor="middle">INT3 · INTO · INT XXh</text>
+      </g>
+      <text x="440" y="242" font-size="8.5" fill="#64748b" text-anchor="middle">pasá el mouse por cada caja para aislar su rama</text>
+    </svg>
+    <div class="note warn">⚠️ El flag <strong>IF</strong> aparece a propósito en una sola hoja: gobierna <strong>únicamente</strong> la rama <strong>enmascarable</strong>. La NMI y las dos ramas de excepción son <strong>incondicionales</strong> — lo ignoran por completo.</div>
+  </div>
+</div>
+
+<!-- ============ 02 ============ -->
+<div class="section-label" id="s02">02 — El flag IF · la máscara <span class="tier core">core</span></div>
+<div class="dek">¿Quién decide si el CPU se deja interrumpir? Un solo bit: el <b>flag IF</b>. <b>IF=1</b> atiende · <b>IF=0</b> ignora (se "enmascara"). Es la <b>llave</b> de todo lo que viene — el ciclo solo arranca si IF=1.</div>
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">🚩 Definición</div>
+    <div class="op-name">El flag IF</div>
+    <div class="op-notation">Interrupt Flag · registro de estado (PSW · Program Status Word)</div>
+    <div class="op-rule">
+      Bit del <strong>registro de estado del CPU</strong> (junto a Zero, Sign, Carry, Overflow). Es la <strong>máscara</strong>: con él el programador decide si la CPU atiende o ignora las interrupciones <strong>enmascarables</strong>.
+    </div>
+    <div class="proplist pl-purple">
+      <div><b style="color:#f87171">IF = 0</b> → la CPU <span style="color:#f87171">ignora</span> la señal INTR · "se enmascaró"</div>
+      <div><b style="color:#4ade80">IF = 1</b> → la CPU <span style="color:#4ade80">reconoce</span> y atiende las solicitudes</div>
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">⌨️ Cómo se ve en assembler</div>
+    <div class="op-rule">En DEBUG / lenguaje ensamblador, el flag IF se maneja con dos instrucciones espejo:</div>
+    <div class="formula cyan-f">EI · Enable Interrupt → IF = 1</div>
+    <div class="formula">DI · Disable Interrupt → IF = 0</div>
+    <div class="note ok">✓ EI/DI es la notación del profe. En el <b>8086 real</b> las instrucciones son <b>STI</b> (Set, IF=1) y <b>CLI</b> (Clear, IF=0) → <b>EI ≡ STI</b>, <b>DI ≡ CLI</b>. STI reaparece en §07 (anidamiento).</div>
+    <div class="insight">💡 de la clase · "cuando la máquina arranca, el IF se pone en 1 para que el sistema esté listo para ser interrumpido."</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⚠️ Por qué importa</div>
+    <div class="op-rule">
+      El IF es el <strong>eje de toda la unidad</strong>: gobierna el ciclo (arranca solo si IF=1), el anidamiento (la CPU lo pone en 0 al entrar a una ISR) y la diferencia con la NMI (que <strong>no lo respeta</strong>).
+    </div>
+    <div class="note warn">⚠️ El IF solo afecta a las <strong>enmascarables</strong>. La NMI y las excepciones por software lo ignoran por completo.</div>
+  </div>
+</div>
+
+<!-- ============ 03 ============ -->
+<div class="section-label" id="s03">03 — Ciclo de interrupciones enmascarables · 4 etapas <span class="tier key">★ núcleo de la unidad</span></div>
+<div class="dek">El corazón de la unidad: cómo el CPU <b>atiende</b> una interrupción enmascarable y después <b>vuelve</b> a lo que estaba haciendo. Lo desglosamos en tres pasos: <b>glosario</b> de siglas → <b>diagrama</b> del flujo → <b>4 etapas</b> en detalle. <span class="q">Trampa del profe</span>: esto NO es el ciclo de instrucción (búsqueda → decodificación → ejecución) — son cosas distintas.</div>
+<div class="grid grid-2">
+
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="card-title">🔑 Primero descifrá las siglas</div>
+    <dl class="gloss">
+      <dt>CPU</dt><dd>Unidad Central de Proceso — <b>el procesador</b>.</dd>
+      <dt>INTR</dt><dd><b>Interrupt Request</b> · señal con que el <b>dispositivo pide</b> atención al CPU.</dd>
+      <dt>INTA</dt><dd><b>Interrupt Acknowledge</b> · señal con que el <b>CPU le responde</b> al dispositivo.</dd>
+      <dt>IF</dt><dd><b>Interrupt Flag</b> · bit del registro de estado. <b>1</b> = acepta · <b>0</b> = ignora.</dd>
+      <dt>Tipo</dt><dd>número de <b>1 byte</b> que manda el dispositivo para <b>identificarse</b>.</dd>
+      <dt>IVT</dt><dd><b>Tabla de Vectores de Interrupción</b> · dado un Tipo, dice <b>dónde está</b> su ISR.</dd>
+      <dt>ISR</dt><dd><b>Rutina de Servicio</b> · el <b>código que atiende</b> al dispositivo (el "driver").</dd>
+      <dt>CS:IP</dt><dd><b>Contador de Programa</b> · dirección de la próxima instrucción.</dd>
+      <dt>flags</dt><dd><b>banderas</b> del registro de estado (incluye IF) — el "estado" del CPU.</dd>
+      <dt>pila</dt><dd>memoria temporal tipo <b>LIFO</b>. <b>PUSH</b> = meter · <b>POP</b> = sacar.</dd>
+      <dt>IRET</dt><dd><b>Interrupt Return</b> · instrucción que <b>cierra la ISR</b> y vuelve al programa.</dd>
+    </dl>
+  </div>
+
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">🔄 Cómo fluye el control · componente por componente</div>
+    <svg viewBox="0 0 880 628" width="100%" style="max-width:860px;display:block;margin:0.75rem auto 0.4rem;font-family:'JetBrains Mono',monospace">
+      <defs>
+        <marker id="am-mut" markerWidth="8" markerHeight="8" refX="6.5" refY="4" viewBox="0 0 8 8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="#94a3b8"/></marker>
+        <marker id="am-pur" markerWidth="8" markerHeight="8" refX="6.5" refY="4" viewBox="0 0 8 8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="#a78bfa"/></marker>
+        <marker id="am-amb" markerWidth="8" markerHeight="8" refX="6.5" refY="4" viewBox="0 0 8 8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="#fbbf24"/></marker>
+        <marker id="am-cya" markerWidth="8" markerHeight="8" refX="6.5" refY="4" viewBox="0 0 8 8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="#22d3ee"/></marker>
+        <marker id="am-grn" markerWidth="8" markerHeight="8" refX="6.5" refY="4" viewBox="0 0 8 8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="#4ade80"/></marker>
+        <marker id="am-ind" markerWidth="8" markerHeight="8" refX="6.5" refY="4" viewBox="0 0 8 8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="#818cf8"/></marker>
+      </defs>
+      <!-- stage band backgrounds -->
+      <rect x="8" y="92"  width="864" height="50"  rx="6" fill="rgba(124,58,237,0.05)"/>
+      <rect x="8" y="146" width="864" height="222" rx="6" fill="rgba(245,158,11,0.05)"/>
+      <rect x="8" y="372" width="864" height="108" rx="6" fill="rgba(6,182,212,0.05)"/>
+      <rect x="8" y="484" width="864" height="110" rx="6" fill="rgba(16,185,129,0.05)"/>
+      <!-- lifelines -->
+      <line x1="130" y1="56" x2="130" y2="616" stroke="#4b5a74" stroke-width="1.5" stroke-dasharray="3 5"/>
+      <line x1="312" y1="56" x2="312" y2="616" stroke="#4b5a74" stroke-width="1.5" stroke-dasharray="3 5"/>
+      <line x1="480" y1="56" x2="480" y2="616" stroke="#4b5a74" stroke-width="1.5" stroke-dasharray="3 5"/>
+      <line x1="628" y1="56" x2="628" y2="616" stroke="#4b5a74" stroke-width="1.5" stroke-dasharray="3 5"/>
+      <line x1="792" y1="56" x2="792" y2="616" stroke="#4b5a74" stroke-width="1.5" stroke-dasharray="3 5"/>
+      <!-- ISR activation bar -->
+      <rect x="787" y="440" width="10" height="84" fill="rgba(129,140,248,0.20)" stroke="#818cf8" stroke-width="0.8"/>
+      <!-- participant headers -->
+      <rect x="62"  y="14" width="136" height="42" rx="7" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.3"/>
+      <text x="130" y="33" font-size="10.5" font-weight="700" fill="#a78bfa" text-anchor="middle">DISPOSITIVO</text>
+      <text x="130" y="47" font-size="7.5" fill="#94a3b8" text-anchor="middle">ej. impresora</text>
+      <rect x="244" y="14" width="136" height="42" rx="7" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.3"/>
+      <text x="312" y="32" font-size="11" font-weight="700" fill="#fbbf24" text-anchor="middle">CPU</text>
+      <text x="312" y="46" font-size="7" fill="#94a3b8" text-anchor="middle">tiene el PC (CS:IP) y el IF</text>
+      <rect x="420" y="14" width="120" height="42" rx="7" fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-width="1.3"/>
+      <text x="480" y="32" font-size="10.5" font-weight="700" fill="#22d3ee" text-anchor="middle">IVT</text>
+      <text x="480" y="46" font-size="7" fill="#94a3b8" text-anchor="middle">tabla en memoria</text>
+      <rect x="568" y="14" width="120" height="42" rx="7" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-width="1.3"/>
+      <text x="628" y="32" font-size="10.5" font-weight="700" fill="#4ade80" text-anchor="middle">PILA</text>
+      <text x="628" y="46" font-size="7" fill="#94a3b8" text-anchor="middle">en memoria</text>
+      <rect x="724" y="14" width="134" height="42" rx="7" fill="rgba(129,140,248,0.12)" stroke="#818cf8" stroke-width="1.3"/>
+      <text x="791" y="32" font-size="10.5" font-weight="700" fill="#a5b4fc" text-anchor="middle">ISR</text>
+      <text x="791" y="46" font-size="7" fill="#94a3b8" text-anchor="middle">rutina de atención</text>
+      <!-- pre-state -->
+      <rect x="200" y="64" width="224" height="22" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1"/>
+      <text x="312" y="79" font-size="8.5" fill="#6ee7b7" text-anchor="middle">ejecuta el Programa · IF = 1</text>
+      <!-- stage header bars -->
+      <rect x="8" y="94"  width="864" height="20" rx="4" fill="rgba(124,58,237,0.12)"/>
+      <text x="18" y="108" font-size="10" font-weight="700" fill="#a78bfa">① SOLICITUD — el dispositivo pide atención</text>
+      <rect x="8" y="148" width="864" height="20" rx="4" fill="rgba(245,158,11,0.12)"/>
+      <text x="18" y="162" font-size="10" font-weight="700" fill="#fbbf24">② RECONOCIMIENTO — el CPU prepara el salto · 6 sub-pasos (a–f)</text>
+      <rect x="8" y="374" width="864" height="20" rx="4" fill="rgba(6,182,212,0.12)"/>
+      <text x="18" y="388" font-size="10" font-weight="700" fill="#22d3ee">③ ATENCIÓN — el CPU ejecuta la ISR</text>
+      <rect x="8" y="486" width="864" height="20" rx="4" fill="rgba(16,185,129,0.12)"/>
+      <text x="18" y="500" font-size="10" font-weight="700" fill="#4ade80">④ RETORNO — vuelve al programa, como si nada</text>
+      <!-- ① INTR -->
+      <text x="221" y="128" font-size="8.5" fill="#a78bfa" text-anchor="middle">INTR · "pido atención"</text>
+      <line x1="134" y1="134" x2="308" y2="134" stroke="#a78bfa" stroke-width="1.6" marker-end="url(#am-pur)"/>
+      <!-- ② a: termina instrucción (self CPU) -->
+      <rect x="200" y="174" width="224" height="20" rx="5" fill="rgba(245,158,11,0.10)" stroke="#f59e0b" stroke-width="1"/>
+      <text x="312" y="187" font-size="8.5" fill="#fbbf24" text-anchor="middle">a · termina la instrucción en curso</text>
+      <!-- ② b: INTA -->
+      <text x="221" y="210" font-size="8.5" fill="#fbbf24" text-anchor="middle">b · INTA · "recibido"</text>
+      <line x1="308" y1="216" x2="134" y2="216" stroke="#fbbf24" stroke-width="1.6" marker-end="url(#am-amb)"/>
+      <!-- ② c: IF=0 (self CPU) -->
+      <rect x="200" y="224" width="224" height="20" rx="5" fill="rgba(245,158,11,0.10)" stroke="#f59e0b" stroke-width="1"/>
+      <text x="312" y="237" font-size="8.5" fill="#fbbf24" text-anchor="middle">c · pone IF = 0 (se cierra a otras)</text>
+      <!-- ② d: Tipo -->
+      <text x="221" y="262" font-size="8.5" fill="#a78bfa" text-anchor="middle">d · Tipo (1 byte) · "soy la impresora"</text>
+      <line x1="134" y1="268" x2="308" y2="268" stroke="#a78bfa" stroke-width="1.6" marker-end="url(#am-pur)"/>
+      <!-- ② e: IVT lookup -->
+      <text x="396" y="286" font-size="8.5" fill="#22d3ee" text-anchor="middle">e · índice = Tipo</text>
+      <line x1="316" y1="292" x2="476" y2="292" stroke="#22d3ee" stroke-width="1.6" marker-end="url(#am-cya)"/>
+      <line x1="476" y1="312" x2="316" y2="312" stroke="#22d3ee" stroke-width="1.6" marker-end="url(#am-cya)"/>
+      <text x="396" y="326" font-size="8.5" fill="#22d3ee" text-anchor="middle">↩ puntero a la ISR</text>
+      <!-- ② f: PUSH -->
+      <rect x="408" y="338" width="124" height="13" rx="3" fill="#16161f"/>
+      <text x="470" y="348" font-size="8.5" fill="#4ade80" text-anchor="middle">f · PUSH CS:IP + flags</text>
+      <line x1="316" y1="354" x2="624" y2="354" stroke="#4ade80" stroke-width="1.6" marker-end="url(#am-grn)"/>
+      <!-- ③ g: PC <- dir ISR (self CPU) -->
+      <rect x="200" y="400" width="224" height="20" rx="5" fill="rgba(245,158,11,0.10)" stroke="#f59e0b" stroke-width="1"/>
+      <text x="312" y="413" font-size="8.5" fill="#fbbf24" text-anchor="middle">g · PC ← dirección de la ISR</text>
+      <!-- ③ h: ejecuta -->
+      <text x="552" y="434" font-size="8.5" fill="#a5b4fc" text-anchor="middle">h · salta y ejecuta la ISR</text>
+      <line x1="316" y1="440" x2="788" y2="440" stroke="#818cf8" stroke-width="1.6" marker-end="url(#am-ind)"/>
+      <!-- ③ i: E/S -->
+      <rect x="380" y="452" width="160" height="13" rx="3" fill="#16161f"/>
+      <text x="460" y="462" font-size="8.5" fill="#cbd5e1" text-anchor="middle">i · atiende: lee/escribe (E/S)</text>
+      <line x1="788" y1="468" x2="134" y2="468" stroke="#94a3b8" stroke-width="1.4" stroke-dasharray="4 3" marker-start="url(#am-mut)" marker-end="url(#am-mut)"/>
+      <!-- ④ j: IRET -->
+      <text x="552" y="520" font-size="8.5" fill="#a5b4fc" text-anchor="middle">j · IRET · "terminé"</text>
+      <line x1="788" y1="526" x2="316" y2="526" stroke="#818cf8" stroke-width="1.6" marker-end="url(#am-ind)"/>
+      <!-- ④ k: POP -->
+      <rect x="384" y="540" width="174" height="13" rx="3" fill="#16161f"/>
+      <text x="470" y="550" font-size="8.5" fill="#4ade80" text-anchor="middle">k · POP · restaura CS:IP + flags</text>
+      <line x1="624" y1="556" x2="316" y2="556" stroke="#4ade80" stroke-width="1.6" marker-end="url(#am-grn)"/>
+      <!-- ④ l: sigue programa (self CPU) -->
+      <rect x="200" y="566" width="224" height="22" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1"/>
+      <text x="312" y="581" font-size="8.5" fill="#6ee7b7" text-anchor="middle">l · sigue el Programa · IF = 1 otra vez</text>
+      <!-- caption -->
+      <text x="440" y="612" font-size="8" font-style="italic" fill="#64748b" text-anchor="middle">Cada columna = un componente · cada flecha = un dato/señal. La ② es la más compleja: 6 sub-pasos (a–f).</text>
+    </svg>
+    <div class="note ok">✓ <b>Cómo leerlo</b>: cada columna es un <b>componente</b>; cada flecha, un <b>dato o señal</b> que se mueve. El tiempo corre de arriba hacia abajo, en 4 etapas. La etapa <b>②</b> (Reconocimiento) es la más compleja: por eso se abre en sus <b>6 sub-pasos (a–f)</b> — fijate que ahí es donde aparecen la IVT y la pila.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🪜 Las 4 etapas, paso a paso</div>
+    <div class="step">
+      <div class="s green-s"><b>Punto de partida</b> — El programa principal corre normalmente con <b>IF = 1</b> (el CPU está dispuesto a ser interrumpido). Si IF fuera 0, la interrupción se ignora y nada de esto ocurre.</div>
+      <div class="s amber-s"><b>① Solicitud</b> <span style="color:#94a3b8">· Request</span> — Un <b>dispositivo</b> (impresora, teclado, disco…) necesita atención y manda la señal <b>INTR</b> a un pin del CPU. Es <b>asincrónica</b> (puede llegar en cualquier momento) y se activa por <b>flanco ascendente</b> (la señal pasa de 0 a 1). <span style="color:#94a3b8">El profe: "le toca el timbre al CPU".</span></div>
+      <div class="s amber-s"><b>② Reconocimiento</b> <span style="color:#94a3b8">· Acknowledge — la etapa más compleja.</span> El CPU hace, en orden:
+        <div class="substeps">
+          <div><span class="k">a</span><b>Termina</b> la instrucción que estaba ejecutando (no la corta a la mitad).</div>
+          <div><span class="k">b</span>Le <b>responde al dispositivo con INTA</b> ("recibido"). A INTR + INTA juntas el profe las llama el <i>"ciclo INTA"</i>.</div>
+          <div><span class="k">c</span>Pone <b>IF = 0</b>: se cierra a nuevas interrupciones mientras atiende esta.</div>
+          <div><span class="k">d</span>Lee el <b>Tipo</b> (1 byte) que el dispositivo le manda por el bus para identificarse.</div>
+          <div><span class="k">e</span>Con ese Tipo busca en la <b>IVT</b> el <b>puntero</b> (la dirección) de la ISR que atiende a ese dispositivo.</div>
+          <div><span class="k">f</span>Hace <b>PUSH</b>: guarda en la <b>pila</b> el <b>CS:IP + los flags</b>, para poder volver después al punto exacto.</div>
+        </div>
+      </div>
+      <div class="s amber-s"><b>③ Atención</b> — El CPU <b>carga la dirección de la ISR</b> en el Contador de Programa y <b>ejecuta la ISR</b>: la rutina que efectivamente atiende al dispositivo (lee o escribe datos vía <b>E/S</b>, Entrada/Salida).</div>
+      <div class="s green-s"><b>④ Retorno</b> — Cuando la ISR termina, ejecuta la instrucción especial <b>IRET</b>, que hace <b>POP</b> de la pila: <b>restaura el CS:IP + los flags</b> (con eso IF vuelve a 1). El control regresa al programa <b>exactamente donde había quedado</b>, "como si nada hubiese pasado".</div>
+    </div>
+    <div class="insight">💡 La simetría: lo que se <b>guarda al entrar</b> (PUSH, en ②) es lo mismo que se <b>recupera al salir</b> (POP/IRET, en ④): el <strong>CS:IP + flags</strong> = el "contexto". El profe: "me anoto en la billetera dónde estoy y hasta qué ejercicio llegué".</div>
+  </div>
+
+  <div style="display:grid; gap:1.2rem; align-content:start;">
+    <div class="card cyan">
+      <div class="card-title">🗂️ Qué se guarda en la pila</div>
+      <div class="op-name">CS : IP + flags</div>
+      <div class="op-notation">el "contexto" · Intel 8086 (16 bits)</div>
+      <div class="op-rule">
+        El <strong>CS:IP</strong> es el <strong>Contador de Programa</strong> (la dirección de la próxima instrucción): <strong>CS</strong> (Code Segment) + <strong>IP</strong> (Instruction Pointer), 2 registros de 16 bits. Los <strong>flags</strong> son las banderas del registro de estado. Guardar ambos = poder volver al punto exacto.
+      </div>
+      <div class="proplist pl-cyan">
+        <div>Entrar (etapa ②, Reconocimiento) → <b>PUSH</b> de CS:IP + flags</div>
+        <div>Salir (etapa ④, IRET) → <b>POP</b> de CS:IP + flags</div>
+      </div>
+    </div>
+
+    <div class="card red">
+      <div class="card-title">🚨 Trampa que cae en el examen</div>
+      <div class="op-rule">
+        No confundir el <strong>ciclo de interrupción</strong> con el <strong>ciclo de instrucción</strong> — el profe lo dice textual: <em>"me pasa en los exámenes que se confunden con el ciclo de instrucción."</em>
+      </div>
+      <div class="note danger">🚨 Ciclo de <strong>instrucción</strong> (cómo se ejecuta cada instrucción): búsqueda → decodificación → búsqueda de operando → ejecución (→ escritura). Ciclo de <strong>interrupción</strong> (cómo se atiende un evento): Solicitud → Reconocimiento → Atención → Retorno. <strong>No tienen nada que ver.</strong></div>
+    </div>
+  </div>
+
+  <div style="grid-column:1/-1">
+    <div class="exam-q">
+      <div class="q">Explicá las 4 etapas del ciclo de interrupciones enmascarables y qué pasa en cada una.</div>
+      <div class="a"><strong>1) Solicitud</strong>: el dispositivo manda INTR a un pin del CPU. <strong>2) Reconocimiento</strong>: la CPU termina la instrucción en curso, responde INTA, pone IF=0, lee el Tipo del dispositivo, accede a la IVT y hace PUSH de CS:IP + flags. <strong>3) Atención</strong>: ejecuta la ISR. <strong>4) Retorno</strong>: IRET hace POP de CS:IP + flags y vuelve al programa interrumpido. <em>(Nombrá las 4 completas y en castellano — el profe penaliza siglas sin explicar.)</em></div>
+    </div>
+    <details class="recall">
+      <summary>💡 ¿Por qué NO hay que confundir ciclo de interrupción con ciclo de instrucción?</summary>
+      <div class="recall-a">Son procesos distintos. El <strong>ciclo de instrucción</strong> describe cómo el CPU ejecuta cada instrucción (búsqueda → decodificación → operando → ejecución). El <strong>ciclo de interrupción</strong> describe cómo atiende un evento que lo interrumpe (Solicitud → Reconocimiento → Atención → Retorno). El profe avisa que es el error típico de examen.</div>
+    </details>
+  </div>
+</div>
+
+<!-- ============ 04 ============ -->
+<div class="section-label" id="s04">04 — Tabla de Vector de Interrupción (IVT) <span class="tier key">★ clave</span></div>
+<div class="dek">Dentro del Reconocimiento, ¿cómo encuentra el CPU la rutina (ISR) correcta? Con el <b>Tipo</b> (1 byte) entra a la <b>IVT</b>: 256 entradas × 4 bytes = <b>1 KB</b> de punteros, al inicio de la memoria. El "edificio de 256 pisos" del profe.</div>
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">📐 La IVT en números</div>
+    <div class="op-rule">Espacio al <strong>principio de la memoria principal</strong> con un puntero por cada Tipo posible. Como el Tipo es 1 byte, hay 256 entradas; cada puntero ocupa 4 bytes (CS + IP).</div>
+    <div class="grid grid-3" style="margin-top:0.5rem">
+      <div class="stat"><div class="stat-num">256</div><div class="stat-unit">entradas</div><div class="stat-cap">2⁸ = tipos posibles</div></div>
+      <div class="stat"><div class="stat-num">4</div><div class="stat-unit">bytes</div><div class="stat-cap">por puntero (CS+IP)</div></div>
+      <div class="stat"><div class="stat-num">1</div><div class="stat-unit">KB</div><div class="stat-cap">256 × 4 = 1024 B</div></div>
+    </div>
+    <div class="formula cyan-f">Tipo (1 byte) → 2⁸ = 256 · 256 × 4 B = 1024 B = 1 KB</div>
+    <div class="insight">💡 de la clase · "el vector está en la memoria principal, no ocupa 10 gigas, ocupa 1 KB nada más."</div>
+    <div class="note ok">✓ Las direcciones van en <b>hexadecimal</b> (sufijo <b>h</b>, notación Intel): el vector va de <b>00000h</b> a <b>003FFh</b> = los 1024 bytes (003FFh = 1023).</div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">🏢 Mapa de memoria · "edificio de 256 pisos"</div>
+    <svg viewBox="0 0 420 230" width="100%" style="max-width:420px;display:block;margin:0.4rem auto;font-family:'JetBrains Mono',monospace">
+      <!-- celdas -->
+      <g font-size="9">
+        <rect x="120" y="10"  width="200" height="26" rx="3" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.2"/>
+        <text x="220" y="27" fill="#a78bfa" text-anchor="middle">Tipo 0 → puntero a ISR₀</text>
+        <text x="112" y="27" fill="#94a3b8" text-anchor="end">00000h</text>
+
+        <rect x="120" y="40" width="200" height="26" rx="3" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.2"/>
+        <text x="220" y="57" fill="#06b6d4" text-anchor="middle">Tipo 1 → puntero a ISR₁</text>
+        <text x="112" y="57" fill="#94a3b8" text-anchor="end">00004h</text>
+
+        <rect x="120" y="70" width="200" height="26" rx="3" fill="rgba(239,68,68,0.10)" stroke="#ef4444" stroke-width="1.2"/>
+        <text x="220" y="87" fill="#f87171" text-anchor="middle">Tipo 2 → NMI</text>
+        <text x="112" y="87" fill="#94a3b8" text-anchor="end">00008h</text>
+
+        <rect x="120" y="100" width="200" height="22" rx="3" fill="rgba(255,255,255,0.02)" stroke="#2a2a3e" stroke-width="1"/>
+        <text x="220" y="115" fill="#64748b" text-anchor="middle">⋮  (tipos 3 … 254)</text>
+
+        <rect x="120" y="126" width="200" height="26" rx="3" fill="rgba(245,158,11,0.10)" stroke="#f59e0b" stroke-width="1.2"/>
+        <text x="220" y="143" fill="#f59e0b" text-anchor="middle">Tipo 255 → último puntero</text>
+        <text x="112" y="143" fill="#94a3b8" text-anchor="end">003FCh</text>
+        <text x="328" y="143" fill="#94a3b8" text-anchor="start">003FFh</text>
+      </g>
+      <!-- brace 1KB -->
+      <path d="M 348 12 q 10 0 10 10 v 50 q 0 10 10 10 q -10 0 -10 10 v 50 q 0 10 -10 10" fill="none" stroke="#10b981" stroke-width="1.3"/>
+      <text x="378" y="85" fill="#4ade80" font-size="11" text-anchor="middle" transform="rotate(90 378 85)">1 KB total</text>
+      <!-- nota cada entrada 4 bytes -->
+      <text x="220" y="178" fill="#94a3b8" font-size="9" text-anchor="middle">cada entrada = 4 bytes (CS:IP) → Tipo N en dirección N×4</text>
+      <text x="220" y="196" fill="#64748b" font-size="8.5" text-anchor="middle">Tipo 0 → 00000–00003h · Tipo 1 → 00004–00007h · … · Tipo 255 → 003FC–003FFh</text>
+    </svg>
+  </div>
+
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🖨️ Ejemplo resuelto · cómo se usa el Tipo</div>
+    <div class="step">
+      <div class="s green-s"><b>1.</b> La impresora interrumpe → manda INTR al CPU.</div>
+      <div class="s green-s"><b>2.</b> La CPU reconoce (INTA) y la impresora le manda su <b>Tipo</b>, ej. el número <b>203</b> ("yo soy la impresora").</div>
+      <div class="s green-s"><b>3.</b> La CPU "sube al piso 203" del vector → ahí está el <b>puntero</b> a la primera instrucción de la ISR de la impresora.</div>
+      <div class="s green-s"><b>4.</b> Carga ese puntero y ejecuta la rutina. (Si fuera el mouse, devolvería otro tipo → puntero a la rutina del mouse.)</div>
+    </div>
+    <div class="note warn">⚠️ El dispositivo <strong>no elige cualquier número</strong>: los tipos <strong>dedicados</strong> (0–4) los fija el fabricante y no se pueden reutilizar.</div>
+    <details class="recall">
+      <summary>💡 ¿Qué tamaño tiene la IVT y por qué?</summary>
+      <div class="recall-a"><strong>1 KB (1024 bytes)</strong>. El Tipo es 1 byte → 2⁸ = <strong>256 entradas</strong>, y cada puntero ocupa <strong>4 bytes</strong> (CS + IP, dos registros de 16 bits): 256 × 4 = 1024. Está al principio de la memoria principal.</div>
+    </details>
+  </div>
+</div>
+
+<!-- ============ 05 ============ -->
+<div class="section-label" id="s05">05 — Tipos dedicados (0–4) <span class="tier key">★ "los 5 que se suelen preguntar"</span></div>
+<div class="dek">De los 256 tipos posibles, los <b>primeros 5 (0–4)</b> los fija el fabricante. <span class="q">"Los 5 que se suelen preguntar"</span>: división por 0 · paso a paso · NMI · breakpoint · overflow. (El Tipo 2 = NMI engancha con la sección siguiente.)</div>
+<div class="grid">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">🔢 Los 5 dedicados del 8086 · fijados por el fabricante</div>
+    <div class="cmatrix-wrap">
+      <div class="cmatrix" style="grid-template-columns:130px repeat(5,1fr)">
+        <div class="cm-corner">Tipo ↓ / atributo →</div>
+        <div class="cm-head">0<span class="sub">div. por cero</span></div>
+        <div class="cm-head">1<span class="sub">paso a paso</span></div>
+        <div class="cm-head is-key">2<span class="sub">no enmascarable</span></div>
+        <div class="cm-head">3<span class="sub">breakpoint</span></div>
+        <div class="cm-head">4<span class="sub">overflow</span></div>
+
+        <div class="cm-rl">Nombre</div>
+        <div class="cm-cell">Divide error</div>
+        <div class="cm-cell">Single step</div>
+        <div class="cm-cell cm-key">NMI</div>
+        <div class="cm-cell">Breakpoint</div>
+        <div class="cm-cell">Overflow</div>
+
+        <div class="cm-rl">Causa / disparo</div>
+        <div class="cm-cell">dividir por 0</div>
+        <div class="cm-cell">debug instrucción a instrucción (flag TF = Trap Flag)</div>
+        <div class="cm-cell cm-key">error grave de memoria/disco</div>
+        <div class="cm-cell">puntos de detención (debug)</div>
+        <div class="cm-cell">atrapa desbordamientos</div>
+
+        <div class="cm-rl">Instrucción asociada</div>
+        <div class="cm-cell">—</div>
+        <div class="cm-cell">—</div>
+        <div class="cm-cell cm-key">pin NMI</div>
+        <div class="cm-cell"><b>INT3</b> (1 byte)</div>
+        <div class="cm-cell"><b>INTO</b> (si OF=1)</div>
+      </div>
+    </div>
+    <div class="note warn">📄 El apunte además lista (no dedicados, casi nunca se preguntan): <strong>Tipo 5</strong> registro fuera de rango · <strong>Tipo 6</strong> opcode no definido · <strong>Tipo 14</strong> fallo de página · <strong>Tipo 16</strong> error de punto flotante. Las 224 entradas superiores (32–255) las carga el SO (Sistema Operativo) con las ISR de los periféricos.</div>
+    <div class="exam-q">
+      <div class="q">Nombrá los 5 tipos dedicados (0–4) del 8086 con su causa.</div>
+      <div class="a">Tipo <strong>0</strong> = división por cero · Tipo <strong>1</strong> = paso a paso (debug) · Tipo <strong>2</strong> = no enmascarable (NMI) · Tipo <strong>3</strong> = breakpoint · Tipo <strong>4</strong> = overflow. <em>El profe dijo: "esos son los 5 que se suelen preguntar."</em></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 06 ============ -->
+<div class="section-label" id="s06">06 — Interrupciones no enmascarables (NMI) <span class="tier key">★ clave</span></div>
+<div class="dek">La rama <b>no enmascarable</b> del hardware. Entra por otro pin, es <b>siempre Tipo 2</b> y el flag IF <b>no la afecta</b>: el CPU <em>para todo</em> y atiende (errores graves de memoria/disco → pantalla azul). Siempre la más prioritaria.</div>
+<div class="grid grid-2">
+
+  <div class="card red">
+    <div class="card-title">⚔️ Enmascarable vs No enmascarable</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Enmascarable (INTR)</h4>
+        <div class="vs-row">pin <b>INTR</b></div>
+        <div class="vs-row">IF=0 la <b>ignora</b></div>
+        <div class="vs-row">el dispositivo manda su <b>Tipo</b> (lee el vector)</div>
+        <div class="vs-row">atención <b>condicional</b></div>
+        <div class="vs-row">espera al fin de la instrucción en curso</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>No enmascarable (NMI)</h4>
+        <div class="vs-row">pin <b>NMI</b></div>
+        <div class="vs-row"><b>IF no la afecta</b></div>
+        <div class="vs-row">siempre <b>Tipo 2</b> (fijo, no lee vector)</div>
+        <div class="vs-row">atención <b>inevitable</b>, siempre prioritaria</div>
+        <div class="vs-row"><b>para todo</b>, no espera</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">💥 Qué es y cuándo ocurre</div>
+    <div class="op-rule">
+      Señal que entra por <strong>otro pin</strong> (NMI). Es <strong>siempre Tipo 2</strong> y el <strong>IF no tiene efecto</strong> → su atención es incondicional. Se usa en situaciones <strong>graves</strong>: error de paridad de memoria, malfuncionamiento del disco. Suele mostrar una pantalla con la causa y cerrar el sistema.
+    </div>
+    <div class="insight">💡 verbatim · ante una NMI "el CPU <strong>para todo. No importa si estoy en el medio del ciclo de instrucción, para sí y atiende</strong>" — esa es la diferencia clave con la enmascarable, que sí espera al fin de la instrucción.</div>
+    <div class="note danger">🚨 La <strong>pantalla azul</strong> de Windows ("fatal error") es el ejemplo: una NMI por error grave de memoria. Pero "no me pongan en el examen que se prendió fuego todo" — la analogía es didáctica; en el examen son <strong>errores de memoria/disco</strong>.</div>
+    <details class="recall">
+      <summary>💡 Diferencia entre interrupción enmascarable y no enmascarable</summary>
+      <div class="recall-a">La <strong>enmascarable</strong> entra por INTR y se puede ignorar con <strong>IF=0</strong> (el dispositivo manda su Tipo). La <strong>NMI</strong> entra por otro pin, es <strong>siempre Tipo 2</strong>, el <strong>IF no la afecta</strong>, su atención es <strong>inevitable y siempre prioritaria</strong> (errores graves de memoria/disco).</div>
+    </details>
+  </div>
+</div>
+
+<!-- ============ 07 ============ -->
+<div class="section-label" id="s07">07 — Anidamiento e instrucción STI <span class="tier key">★ clave</span></div>
+<div class="dek">¿Una interrupción puede interrumpir a otra? Al entrar a una ISR el CPU pone <b>IF=0</b> (cierra la puerta). Para permitir <b>anidamiento</b>, la primera instrucción de la ISR debe ser <b>STI</b> (IF=1, reabre). Sin STI, la nueva espera a que termine la actual.</div>
+<div class="grid grid-2">
+
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">🪆 Cómo se anida una interrupción dentro de otra</div>
+    <div class="op-rule">
+      Una ISR se <strong>anida</strong> dentro de otra cuando una nueva INTR interrumpe la ISR en curso. Pero al entrar a una ISR la CPU <strong>deshabilita automáticamente las enmascarables (IF=0)</strong> — así que sin permiso explícito no hay anidamiento.
+    </div>
+    <svg viewBox="0 0 880 415" width="100%" style="max-width:860px;display:block;margin:0.6rem auto;font-family:'JetBrains Mono',monospace">
+      <defs>
+        <marker id="nest-cya" markerWidth="8" markerHeight="8" refX="6.5" refY="4" viewBox="0 0 8 8" orient="auto-start-reverse"><path d="M0,0 L8,4 L0,8 z" fill="#06b6d4"/></marker>
+      </defs>
+      <!-- ============ CON STI ============ -->
+      <rect x="6" y="8" width="868" height="22" rx="4" fill="rgba(16,185,129,0.12)"/>
+      <text x="16" y="23" font-size="10" font-weight="700" fill="#4ade80">CON STI — la 1ª instrucción de la ISR reabre IF=1 → SÍ se anida (1Fh sube SOBRE 0Ah)</text>
+      <!-- event ticks -->
+      <line x1="196" y1="44" x2="196" y2="124" stroke="#4b5a74" stroke-width="1" stroke-dasharray="3 4"/>
+      <line x1="388" y1="44" x2="388" y2="124" stroke="#4b5a74" stroke-width="1" stroke-dasharray="3 4"/>
+      <line x1="536" y1="44" x2="536" y2="124" stroke="#4b5a74" stroke-width="1" stroke-dasharray="3 4"/>
+      <line x1="672" y1="44" x2="672" y2="124" stroke="#4b5a74" stroke-width="1" stroke-dasharray="3 4"/>
+      <text x="196" y="41" font-size="7.5" fill="#a78bfa" text-anchor="middle">↓ INTR 0Ah</text>
+      <text x="388" y="41" font-size="7.5" fill="#a78bfa" text-anchor="middle">↓ INTR 1Fh</text>
+      <text x="536" y="41" font-size="7.5" fill="#94a3b8" text-anchor="middle">IRET 1F</text>
+      <text x="672" y="41" font-size="7.5" fill="#94a3b8" text-anchor="middle">IRET 0A</text>
+      <!-- suspended (faint) -->
+      <rect x="196" y="102" width="476" height="22" fill="rgba(255,255,255,0.025)"/>
+      <rect x="388" y="76" width="148" height="22" fill="rgba(255,255,255,0.025)"/>
+      <!-- L0 Programa -->
+      <rect x="72" y="102" width="124" height="22" rx="3" fill="rgba(16,185,129,0.14)" stroke="#10b981" stroke-width="1.1"/>
+      <text x="134" y="117" font-size="8.5" fill="#6ee7b7" text-anchor="middle">Programa</text>
+      <rect x="672" y="102" width="150" height="22" rx="3" fill="rgba(16,185,129,0.14)" stroke="#10b981" stroke-width="1.1"/>
+      <text x="747" y="117" font-size="8.5" fill="#6ee7b7" text-anchor="middle">Programa</text>
+      <!-- L1 ISR 0Ah -->
+      <rect x="196" y="76" width="192" height="22" rx="3" fill="rgba(245,158,11,0.16)" stroke="#f59e0b" stroke-width="1.1"/>
+      <text x="292" y="91" font-size="8.5" fill="#fbbf24" text-anchor="middle">ISR 0Ah · STI→IF=1</text>
+      <rect x="536" y="76" width="136" height="22" rx="3" fill="rgba(245,158,11,0.16)" stroke="#f59e0b" stroke-width="1.1"/>
+      <text x="604" y="91" font-size="8.5" fill="#fbbf24" text-anchor="middle">ISR 0Ah (sigue)</text>
+      <!-- L2 ISR 1Fh -->
+      <rect x="388" y="50" width="148" height="22" rx="3" fill="rgba(6,182,212,0.16)" stroke="#06b6d4" stroke-width="1.1"/>
+      <text x="462" y="65" font-size="8.5" fill="#22d3ee" text-anchor="middle">ISR 1Fh (anidada)</text>
+      <!-- IF waveform CON -->
+      <text x="24" y="151" font-size="8" fill="#94a3b8">IF</text>
+      <text x="46" y="144" font-size="7" fill="#64748b">1</text>
+      <text x="46" y="165" font-size="7" fill="#64748b">0</text>
+      <polyline points="72,142 196,142 196,162 250,162 250,142 388,142 388,162 536,162 536,142 822,142" fill="none" stroke="#fbbf24" stroke-width="1.8"/>
+      <text x="250" y="139" font-size="7" fill="#4ade80" text-anchor="middle">↑ STI</text>
+      <!-- ============ SIN STI ============ -->
+      <rect x="6" y="202" width="868" height="22" rx="4" fill="rgba(239,68,68,0.12)"/>
+      <text x="16" y="217" font-size="10" font-weight="700" fill="#f87171">SIN STI — IF queda en 0 → la nueva ESPERA su turno (no se anida, corre DESPUÉS)</text>
+      <!-- event ticks -->
+      <line x1="196" y1="238" x2="196" y2="318" stroke="#4b5a74" stroke-width="1" stroke-dasharray="3 4"/>
+      <line x1="388" y1="238" x2="388" y2="318" stroke="#4b5a74" stroke-width="1" stroke-dasharray="3 4"/>
+      <line x1="560" y1="238" x2="560" y2="318" stroke="#4b5a74" stroke-width="1" stroke-dasharray="3 4"/>
+      <line x1="712" y1="238" x2="712" y2="318" stroke="#4b5a74" stroke-width="1" stroke-dasharray="3 4"/>
+      <text x="196" y="235" font-size="7.5" fill="#a78bfa" text-anchor="middle">↓ INTR 0Ah</text>
+      <text x="388" y="235" font-size="7.5" fill="#a78bfa" text-anchor="middle">↓ INTR 1Fh</text>
+      <text x="560" y="235" font-size="7.5" fill="#94a3b8" text-anchor="middle">IRET 0A</text>
+      <text x="712" y="235" font-size="7.5" fill="#94a3b8" text-anchor="middle">IRET 1F</text>
+      <!-- 1Fh waiting (no sube) -->
+      <rect x="388" y="244" width="172" height="22" rx="3" fill="rgba(6,182,212,0.05)" stroke="#06b6d4" stroke-width="1" stroke-dasharray="4 3"/>
+      <text x="474" y="259" font-size="8" fill="#22d3ee" text-anchor="middle">1Fh espera · IF=0 ✗</text>
+      <path d="M474,266 V280 H556" fill="none" stroke="#06b6d4" stroke-width="1.3" stroke-dasharray="3 3" marker-end="url(#nest-cya)"/>
+      <!-- suspended faint -->
+      <rect x="196" y="296" width="516" height="22" fill="rgba(255,255,255,0.025)"/>
+      <!-- L0 Programa -->
+      <rect x="72" y="296" width="124" height="22" rx="3" fill="rgba(16,185,129,0.14)" stroke="#10b981" stroke-width="1.1"/>
+      <text x="134" y="311" font-size="8.5" fill="#6ee7b7" text-anchor="middle">Programa</text>
+      <rect x="712" y="296" width="110" height="22" rx="3" fill="rgba(16,185,129,0.14)" stroke="#10b981" stroke-width="1.1"/>
+      <text x="767" y="311" font-size="8.5" fill="#6ee7b7" text-anchor="middle">Programa</text>
+      <!-- L1 ISR 0Ah (largo) -->
+      <rect x="196" y="270" width="364" height="22" rx="3" fill="rgba(245,158,11,0.16)" stroke="#f59e0b" stroke-width="1.1"/>
+      <text x="378" y="285" font-size="8.5" fill="#fbbf24" text-anchor="middle">ISR 0Ah  ·  IF = 0 todo el tiempo</text>
+      <!-- L1 ISR 1Fh (después, mismo nivel) -->
+      <rect x="560" y="270" width="152" height="22" rx="3" fill="rgba(6,182,212,0.16)" stroke="#06b6d4" stroke-width="1.1"/>
+      <text x="636" y="285" font-size="8.5" fill="#22d3ee" text-anchor="middle">ISR 1Fh</text>
+      <!-- IF waveform SIN -->
+      <text x="24" y="349" font-size="8" fill="#94a3b8">IF</text>
+      <text x="46" y="342" font-size="7" fill="#64748b">1</text>
+      <text x="46" y="363" font-size="7" fill="#64748b">0</text>
+      <polyline points="72,332 196,332 196,352 560,352 560,332 574,332 574,352 712,352 712,332 822,332" fill="none" stroke="#fbbf24" stroke-width="1.8"/>
+      <line x1="388" y1="328" x2="388" y2="352" stroke="#f87171" stroke-width="1" stroke-dasharray="2 2"/>
+      <text x="388" y="372" font-size="7.5" fill="#f87171" text-anchor="middle">1F llega, pero IF=0 → no entra</text>
+      <!-- caption -->
+      <text x="440" y="404" font-size="8" font-style="italic" fill="#64748b" text-anchor="middle">Anidar = subir un nivel en la pila (CON STI). Sin STI, se atienden en serie. Lo decide el programador: pone STI o no.</text>
+    </svg>
+    <div class="note ok">✓ <b>Cómo leerlo</b>: la <b>altura</b> es la profundidad de anidamiento (subir = una ISR interrumpe a otra); el eje horizontal es el <b>tiempo</b>. La pista <b>IF</b> de abajo muestra el flag a lo largo del tiempo. <b>CON STI</b>: la ISR 0Ah reabre IF=1 → la 1Fh sube sobre ella. <b>SIN STI</b>: IF se queda en 0 → la 1Fh no puede entrar y corre recién cuando 0Ah termina.</div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">🛠️ La regla del STI</div>
+    <div class="op-name">STI · Set Interrupt Flag</div>
+    <div class="op-notation">IF = 1 · primera instrucción de la ISR</div>
+    <div class="step">
+      <div class="s green-s"><b>1.</b> Al entrar a una ISR, la CPU pone <b>IF=0</b> automáticamente.</div>
+      <div class="s green-s"><b>2.</b> Si querés anidamiento → la <b>1ª instrucción de la ISR debe ser STI</b> (IF=1) → permite que otra interrupción la interrumpa.</div>
+      <div class="s green-s"><b>3.</b> Si NO escribís STI → IF queda en 0: la nueva INTR se <b>ignora/espera</b> hasta que la ISR actual termine.</div>
+    </div>
+    <div class="formula green-f">"Si deseo anidamiento, la 1ª instrucción de la ISR es STI."</div>
+    <div class="note ok">✓ <b>STI</b> es el mnemónico real del 8086 para lo que §02 llamó <b>EI</b> (poner IF=1). Su par para bajar el flag es <b>CLI</b> (≡ DI).</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🎯 Quién decide</div>
+    <div class="op-rule">
+      Lo decide el <strong>programador del driver</strong>: STI es la primera instrucción que escribe (o no) en la ISR, en assembler de bajo nivel.
+    </div>
+    <div class="insight">💡 de la clase · el anidamiento real ocurre solo si la nueva interrupción tiene <strong>mayor prioridad</strong>; si no, espera a que termine la actual.</div>
+    <details class="recall">
+      <summary>💡 ¿Cómo se logra el anidamiento y qué pasa si no se programa?</summary>
+      <div class="recall-a">Al entrar a una ISR la CPU pone <strong>IF=0</strong>. Para anidar, la <strong>1ª instrucción de la ISR debe ser STI</strong> (pone IF=1) y permite que otra interrupción la interrumpa. Sin STI, la nueva interrupción se ignora/espera hasta que la ISR actual termina.</div>
+    </details>
+  </div>
+</div>
+
+<!-- ============ 08 ============ -->
+<div class="section-label" id="s08">08 — Excepciones por software · instrucciones INT <span class="tier core">core</span></div>
+<div class="dek">La gran rama de <b>software</b>: no las causa un dispositivo, las <b>provoca el programa</b> con una instrucción (<code>INT 21h</code>, INT3, INTO). Predecibles, no enmascarables, sin etapa de Reconocimiento. Sirven para reusar rutinas del SO.</div>
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">🧾 Qué son</div>
+    <div class="op-name">Pseudo-interrupciones</div>
+    <div class="op-notation">programadas · sincrónicas · predecibles</div>
+    <div class="op-rule">
+      Instrucciones que provocan que la CPU ejecute una ISR del tipo indicado. <strong>No</strong> son interrupciones de hardware: las dispara el propio programa.
+    </div>
+    <div class="proplist pl-cyan">
+      <div>✓ predecibles (no son interrupciones reales)</div>
+      <div>✗ no respetan esquema de prioridades</div>
+      <div>✓ se anidan siempre dentro de una ISR</div>
+      <div>✗ no son enmascarables</div>
+      <div>✗ no ejecutan la etapa de Reconocimiento</div>
+      <div>→ al terminar, sigue con la instrucción <b>posterior</b> a la INT</div>
+    </div>
+    <div class="insight">💡 de la clase · ejemplo: para dibujar en pantalla pongo "Hola qué tal" en un registro y llamo a una rutina del SO con <strong>INT 21h</strong> → me ahorro programar el dibujado. "No es que ocurrió una interrupción, la creé por software."</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⌨️ Las instrucciones INT</div>
+    <div class="proplist pl-amber">
+      <div><b style="color:#fff">INT3</b> — inserta <b>breakpoints</b> en rutinas que se depuran (Tipo 3).</div>
+      <div><b style="color:#fff">INT XXh</b> — simula cualquier interrupción por hardware del tipo XX.</div>
+      <div><b style="color:#fff">INTO</b> — Tipo 4. Interrumpe <b>si OF=1</b> (overflow activo → ejecuta ISR₄); si OF=0 no hace nada.</div>
+    </div>
+    <div class="note ok">✓ INTO permite corregir errores de desbordamiento sin chequear el flag a mano.</div>
+  </div>
+</div>
+
+<!-- ============ 09 ============ -->
+<div class="section-label is-ctx" id="s09">09 — Excepciones del procesador · error y trampa <span class="tier ctx">contexto · detalle del apunte</span></div>
+<div class="dek">La sub-rama de excepciones que <b>detecta el propio procesador</b> al ejecutar: la de <b>error</b> (Tipo 0, división por 0 — vuelve a la MISMA instrucción) y la de <b>trampa</b> (Tipo 1, paso a paso con el flag TF, para depurar).</div>
+<div class="grid grid-2 is-ctx">
+
+  <div class="card purple">
+    <div class="card-title">➗ Interrupción de error (= excepción de SW, Tipo 0)</div>
+    <div class="op-name">Tipo 0 · división por cero</div>
+    <div class="op-rule">
+      Por error de software, no respeta prioridades. En el 8086 hay <strong>una sola: Tipo 0</strong> (error al dividir).
+    </div>
+    <div class="note warn">⚠️ Particularidad: la dirección de retorno apunta a la <strong>MISMA instrucción</strong> que falló (no a la próxima) → permite corregir y reintentar. No enmascarable.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🐾 Interrupción de trampa (= excepción de SW, Tipo 1)</div>
+    <div class="op-name">Tipo 1 · paso a paso (TF)</div>
+    <div class="op-rule">
+      Si el <strong>Trap Flag (TF)</strong> está activo, <strong>después de cada instrucción</strong> se produce una interrupción Tipo 1 (ejecuta ISR₁). Se usa para depuración (DEBUG del DOS). No enmascarable.
+    </div>
+    <div class="note danger">🚨 Ojo apunte vs clase: en una clase el profe dijo al pasar que la división por 0 "puede ser no enmascarable". En la clase principal la clasifica bien como <strong>interrupción de error Tipo 0</strong>, distinta de la NMI Tipo 2. Si cae en el examen, vale la clasificación de la clase principal.</div>
+  </div>
+</div>
+
+<!-- ============ 10 ============ -->
+<div class="section-label" id="s10">10 — Controlador PIC 8259A <span class="tier core">core</span></div>
+<div class="dek">Si varios dispositivos piden atención <b>a la vez</b>, ¿quién ordena la cola? El <b>PIC 8259A</b>: 8 entradas (IR0 = máxima prioridad → IR7), encadenable en cascada hasta 64. El <b>recepcionista</b> que prioriza antes de molestar al CPU.</div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🎛️ Qué administra</div>
+    <div class="op-name">PIC 8259A</div>
+    <div class="op-notation">Programmable Interrupt Controller</div>
+    <div class="op-rule">
+      Chip que acompañaba al 8086 y <strong>administra las prioridades</strong> cuando varios dispositivos mandan INTR al CPU. Manda <strong>una sola señal INTR por vez</strong>, según prioridad.
+    </div>
+    <div class="proplist pl-purple">
+      <div>8 entradas <b>IR0..IR7</b> · IR0 = mayor prioridad, IR7 = menor</div>
+      <div>8 chips en <b>cascada</b> → maneja 64 interrupciones</div>
+      <div>cada IRₓ se puede <b>enmascarar por separado</b></div>
+      <div>una IR de mayor prioridad interrumpe una ISR de menor</div>
+    </div>
+    <div class="insight">💡 de la clase · es el <strong>recepcionista del médico</strong>: recibe a todos, los ordena por prioridad; el procesador atiende de a uno. "Hoy está integrado en el procesador/chipset, ya no es un chip aparte."</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🔌 Diagrama de bloque</div>
+    <svg viewBox="0 0 420 220" width="100%" style="max-width:420px;display:block;margin:0.4rem auto;font-family:'JetBrains Mono',monospace;font-size:9px">
+      <!-- entradas IR -->
+      <g>
+        <text x="20" y="20" fill="#94a3b8">dispositivos</text>
+        <rect x="14" y="28" width="90" height="156" rx="4" fill="none" stroke="#2a2a3e" stroke-width="1"/>
+        <!-- IR0..IR7 -->
+        <text x="59" y="46" fill="#4ade80" text-anchor="middle">IR0 ▲ máx prioridad</text>
+        <text x="59" y="64" fill="#94a3b8" text-anchor="middle">IR1</text>
+        <text x="59" y="82" fill="#94a3b8" text-anchor="middle">IR2</text>
+        <text x="59" y="100" fill="#94a3b8" text-anchor="middle">IR3</text>
+        <text x="59" y="118" fill="#94a3b8" text-anchor="middle">IR4</text>
+        <text x="59" y="136" fill="#94a3b8" text-anchor="middle">IR5</text>
+        <text x="59" y="154" fill="#94a3b8" text-anchor="middle">IR6</text>
+        <text x="59" y="172" fill="#f87171" text-anchor="middle">IR7 ▼ mín prioridad</text>
+      </g>
+      <!-- líneas hacia el PIC -->
+      <line x1="104" y1="106" x2="160" y2="106" stroke="#06b6d4" stroke-width="1.3"/>
+      <!-- PIC -->
+      <rect x="160" y="74" width="110" height="64" rx="5" fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="215" y="100" fill="#06b6d4" text-anchor="middle" font-size="11">PIC 8259A</text>
+      <text x="215" y="116" fill="#94a3b8" text-anchor="middle">ordena por prioridad</text>
+      <!-- INTR al CPU -->
+      <line x1="270" y1="106" x2="320" y2="106" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrow2)"/>
+      <text x="295" y="98" fill="#f59e0b" text-anchor="middle">1 INTR</text>
+      <rect x="320" y="78" width="86" height="56" rx="5" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="363" y="110" fill="#a78bfa" text-anchor="middle" font-size="11">CPU</text>
+      <text x="215" y="200" fill="#64748b" text-anchor="middle">8 chips en cascada → 64 interrupciones</text>
+      <defs>
+        <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0 0 L10 5 L0 10 z" fill="#f59e0b"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</div>
+
+<!-- ============ 11 — NUEVO: interrupciones modernas (apunte §10–11, entra en el FINAL) ============ -->
+<div class="section-label" id="s11">11 — Interrupciones modernas · MSI / MSI-X <span class="tier final">★ final · no entró en el parcial</span></div>
+<div class="dek">La <b>"segunda parte"</b> del apunte (§10–11) que el profe difirió: <span class="q">"eso se toma más en el final"</span>. El modelo moderno <b>reemplaza</b> el esquema clásico de §03 y §10 (pin INTR/INTA + PIC + leer el Tipo en la IVT) por <b>mensajes escritos en memoria</b>. Mismo objetivo, otra plomería.</div>
+<div class="grid grid-2">
+
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="card-title">📨 Del pin físico al mensaje en memoria</div>
+    <div class="op-rule">
+      MSI (<strong>Message Signaled Interrupts</strong>) cambia <strong>cómo</strong> el dispositivo avisa al CPU. Empezó con el bus <strong>PCI v2.2</strong> (década del 90) y hoy se usa en <strong>PCI Express</strong> (la mayoría de las tarjetas de expansión). <strong>Reemplaza</strong> las viejas INT que obligaban al CPU a consultar al <strong>PIC</strong> para saber el origen de la interrupción.
+    </div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Modelo clásico (INTR + PIC)</h4>
+        <div class="vs-row">línea/<b>pin</b> de interrupción dedicado, aparte del bus de sistema</div>
+        <div class="vs-row">el CPU reconoce (INTR/INTA) y <b>consulta al PIC</b> el origen</div>
+        <div class="vs-row">lee el <b>Tipo</b> y entra a la <b>IVT</b> (§03 · §10)</div>
+        <div class="vs-row">necesita <b>hardware</b> de líneas de interrupción</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>Modelo MSI (mensaje)</h4>
+        <div class="vs-row">el dispositivo <b>escribe un mensaje</b> en posiciones de memoria específicas</div>
+        <div class="vs-row">el sistema interpreta esas <b>escrituras</b> como interrupciones</div>
+        <div class="vs-row"><b>sin pin físico</b>; el contenido viaja con el mensaje</div>
+        <div class="vs-row">menor <b>latencia</b></div>
+      </div>
+    </div>
+    <div class="insight">💡 Por qué baja la latencia: como el aviso es <strong>un valor en memoria</strong> y el contenido viaja con la interrupción, <strong>no hace falta un pin físico</strong> ni que el driver vaya a <strong>buscar datos al dispositivo</strong>.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🔄 Los 4 pasos del flujo MSI</div>
+    <div class="step">
+      <div class="s amber-s"><b>1.</b> Un dispositivo <b>PCIe</b> quiere interrumpir → envía un mensaje <b>TLP</b> (paquete de la capa de transacciones) <b>escribiendo en una posición de memoria</b> específica.</div>
+      <div class="s amber-s"><b>2.</b> El <b>controlador PCIe</b> (en el CPU o el chipset) usa el mensaje para determinar <b>qué interrupción</b> iniciar y en <b>qué procesador/núcleo</b>; el núcleo destino la ejecuta.</div>
+      <div class="s amber-s"><b>3.</b> El <b>SO</b> busca la <b>ISR</b> con el contenido del mensaje (valor) y la dirección a la que fue dirigido.</div>
+      <div class="s amber-s"><b>4.</b> Al terminar la ISR, el CPU <b>continúa</b> el programa que había sido interrumpido.</div>
+    </div>
+    <div class="note ok">✓ Paralelo con §03: el "Tipo + IVT" del modelo clásico acá es el <b>contenido + dirección del mensaje</b>. El retorno (paso 4) es igual: vuelve al programa.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">➕ MSI-X · el modelo extendido</div>
+    <div class="op-notation">introducido con PCI 3.0 · usado en PCI Express</div>
+    <div class="grid grid-3" style="margin-top:0.4rem">
+      <div class="stat"><div class="stat-num">2048</div><div class="stat-unit">mensajes</div><div class="stat-cap">interrupciones / dispositivo</div></div>
+      <div class="stat"><div class="stat-num">32</div><div class="stat-unit">bits</div><div class="stat-cap">por mensaje</div></div>
+      <div class="stat"><div class="stat-num">64</div><div class="stat-unit">bits</div><div class="stat-cap">direccionamiento requerido</div></div>
+    </div>
+    <div class="proplist pl-cyan">
+      <div>direcciones <b>dinámicas</b> → escribir en rangos de uno o varios procesadores</div>
+      <div>habilita el manejo de interrupciones en arquitecturas <b>NUMA</b></div>
+      <div>permite <b>enmascaramiento</b> de interrupciones</div>
+      <div>drivers: <b>una</b> rutina para todos los mensajes, o una <b>por mensaje</b></div>
+    </div>
+    <div class="note ok">✓ Sistemas actuales (Windows, Linux, FreeBSD, OpenBSD) <b>soportan MSI-X</b>.</div>
+  </div>
+
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🧩 LAPIC · x2APIC · IPI — el PIC, ahora integrado</div>
+    <div class="op-rule">
+      Para usar MSI en Intel hay que habilitar el <strong>LAPIC</strong> (Local Advanced Interrupt Controller): es la <strong>funcionalidad del PIC</strong> (§10) pero <strong>integrada en el circuito de cada procesador/núcleo</strong>, en lugar de un chip aparte como el 8259A.
+    </div>
+    <div class="proplist pl-green">
+      <div><b>LAPIC</b> maneja interrupciones <b>externas</b> + interrupciones <b>entre núcleos/procesadores</b> = <b>IPI</b> (Inter Processor Interrupts)</div>
+      <div><b>x2APIC</b> usa <b>32 bits</b> → direcciona <b>2³²−1</b> CPUs (modo físico) y <b>2²⁰−16</b> CPUs (modo lógico)</div>
+      <div>→ permite implementar el x2APIC en <b>clusters</b></div>
+    </div>
+    <div class="insight">💡 Hilo conductor: <strong>8259A (chip externo, §10) → LAPIC (integrado por núcleo)</strong>. Misma idea de "administrar prioridades de interrupción", modernizada para multi-núcleo.</div>
+  </div>
+
+  <div style="grid-column:1/-1">
+    <div class="exam-q">
+      <div class="q">¿En qué se diferencia el modelo MSI del clásico INTR + PIC?</div>
+      <div class="a">En el clásico, el dispositivo usa un <strong>pin de interrupción dedicado</strong> y el CPU <strong>consulta al PIC</strong> para saber el origen, luego lee el Tipo y entra a la IVT. En <strong>MSI</strong>, el dispositivo <strong>escribe un mensaje (TLP) en una posición de memoria</strong>; no hace falta pin físico, el contenido viaja con el mensaje y <strong>baja la latencia</strong>. Empezó con PCI v2.2 y se usa en PCIe.</div>
+    </div>
+    <details class="recall">
+      <summary>💡 ¿Qué agrega MSI-X sobre MSI? ¿Y qué es un IPI?</summary>
+      <div class="recall-a"><strong>MSI-X</strong> (PCI 3.0): hasta <strong>2048 mensajes de 32 bits por dispositivo</strong>, <strong>direccionamiento de 64 bits</strong>, direcciones <strong>dinámicas</strong> dirigibles a distintos procesadores (soporte <strong>NUMA</strong>) y <strong>enmascaramiento</strong>. Un <strong>IPI</strong> (Inter Processor Interrupt) es una interrupción <strong>entre núcleos/procesadores</strong>, manejada por el <strong>LAPIC</strong>.</div>
+    </details>
+  </div>
+</div>
+
+<!-- ============ 12 ============ -->
+<div class="section-label" id="s12">12 — Claves para el examen <span class="tier key">★ prioridad</span></div>
+<div class="grid" style="max-width:1400px;margin:0 auto">
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">💡 Tips de clase — claves para el final</div>
+    <div class="step">
+      <div class="s"><b>1.</b> El <b>ciclo de interrupción</b> son 4 etapas — Solicitud, Reconocimiento, Atención, Retorno — nombralas <b>completas y en castellano</b>. NO lo confundas con el ciclo de instrucción (es la trampa que el profe dice que cae siempre).</div>
+      <div class="s"><b>2.</b> La etapa de <b>Reconocimiento</b> es la más completa: INTR/INTA → IF=0 → lee el Tipo → entra a la IVT → <b>PUSH de CS:IP + flags</b>. No te la saltees.</div>
+      <div class="s"><b>3.</b> <b>IVT = 1 KB</b>: 256 entradas (Tipo de 1 byte) × 4 bytes (CS+IP) = 1024. Sabé deducir la cuenta, no solo el número.</div>
+      <div class="s"><b>4.</b> Los <b>5 tipos dedicados (0–4)</b>: 0 división por cero · 1 paso a paso · 2 NMI · 3 breakpoint · 4 overflow. "Los que se suelen preguntar."</div>
+      <div class="s"><b>5.</b> <b>Anidamiento</b>: al entrar a una ISR el IF se pone en 0; si querés anidar, la 1ª instrucción de la ISR es <b>STI</b>. Sin STI no hay anidamiento.</div>
+      <div class="s"><b>6.</b> <b>NMI</b> = Tipo 2, el IF no la afecta, "para todo". Diferenciala de la enmascarable, que espera al fin de la instrucción en curso.</div>
+      <div class="s"><b>7.</b> Vocabulario completo en castellano y no mezclar conceptos cercanos — el profe penaliza siglas sin explicar y confusiones (estilo confirmado en el parcial previo).</div>
+      <div class="s" style="border-left-color:var(--accent)"><b>8. <span style="color:#c4b5fd">Para el final ✦</span></b> — <b>MSI/MSI-X</b> reemplaza el modelo INTR+PIC por <b>mensajes (TLP) escritos en memoria</b> → menos latencia, sin pin físico. <b>LAPIC</b> = el PIC integrado en cada núcleo; <b>IPI</b> = interrupción entre procesadores; <b>x2APIC</b> escala a clusters. Esto <b>no entró en el parcial</b> pero sí en el final (apunte §10–11).</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 13 ============ -->
+<div class="section-label" id="s13">13 — Glosario del profe <span class="tier core">referencia</span></div>
+<div class="grid" style="max-width:1400px;margin:0 auto">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">🗣️ Cómo lo dice el profe → término formal del apunte</div>
+    <div class="glossary">
+      <div><dt>"le toca timbre al CPU".</dt> <dd>señal INTR (Interrupt Request / solicitud).</dd></div>
+      <div><dt>"el numerito" del dispositivo.</dt> <dd>Tipo de interrupción (1 byte que lo identifica).</dd></div>
+      <div><dt>"edificio de 256 pisos".</dt> <dd>Tabla de Vector de Interrupción (IVT).</dd></div>
+      <div><dt>"el recepcionista del médico".</dt> <dd>controlador PIC 8259A (maneja prioridades).</dd></div>
+      <div><dt>"pantalla azul / fatal error".</dt> <dd>NMI por error grave de memoria.</dd></div>
+      <div><dt>"rutina del driver" / ISR.</dt> <dd>Rutina de Servicio de la Interrupción.</dd></div>
+      <div><dt>"el flag IF" / EI · DI.</dt> <dd>Interrupt Flag; EI/STI=IF1, DI/CLI=IF0 (EI/DI = notación del profe; STI/CLI = mnemónicos reales del 8086).</dd></div>
+      <div><dt>"el CPU / el procesador".</dt> <dd>UCP (Unidad Central de Proceso).</dd></div>
+      <div><dt>INTR / INTA.</dt> <dd>Interrupt Request / Acknowledge ("ciclo INTA").</dd></div>
+      <div><dt>IRET.</dt> <dd>Interrupt Return: POP de CS:IP + flags al volver.</dd></div>
+      <div><dt>STI / CLI.</dt> <dd>Set/Clear Interrupt Flag (IF=1 / IF=0); STI ≡ EI, CLI ≡ DI. STI habilita anidamiento.</dd></div>
+      <div><dt>CS : IP.</dt> <dd>Code Segment + Instruction Pointer = Contador de Programa (4 bytes).</dd></div>
+      <div><dt>sufijo "h" (ej. 003FFh).</dt> <dd>número en hexadecimal (notación Intel); 003FFh = 1023.</dd></div>
+      <div><dt>MSI / MSI-X ✦.</dt> <dd>Message Signaled Interrupts (interrupciones señalizadas por mensaje); MSI-X = versión extendida (PCI 3.0).</dd></div>
+      <div><dt>TLP ✦.</dt> <dd>Transaction Layer Packet: el mensaje que el dispositivo PCIe escribe en memoria para interrumpir.</dd></div>
+      <div><dt>LAPIC / x2APIC ✦.</dt> <dd>Local APIC: el PIC integrado en cada núcleo; x2APIC = su modo extendido de 32 bits (clusters).</dd></div>
+      <div><dt>IPI ✦.</dt> <dd>Inter Processor Interrupt: interrupción entre núcleos/procesadores (la maneja el LAPIC).</dd></div>
+      <div><dt>NUMA ✦.</dt> <dd>arquitectura multi-procesador con memoria no uniforme; MSI-X dirige interrupciones a distintos procesadores.</dd></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Interrupciones y Excepciones · Arquitectura de Computadores · Universidad de Palermo</p>
+  <p class="out">Scope final integrador: entra toda la unidad, incluido el apunte §10–11 (MSI / MSI-X · PCIe / TLP · LAPIC / x2APIC · IPI · NUMA, marcado ✦). Temas afines que se rinden por su propia unidad: buses (U10) · nuevas tecnologías (U13) · assembler / DEBUG (U14).</p>
+</footer>
+
+<script>
+// Scroll-spy (IntersectionObserver) + barra de progreso. Sin dependencias.
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {};
+  links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id];
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+
+  var bar = document.getElementById('progress');
+  function onScroll() {
+    var h = document.documentElement;
+    var max = h.scrollHeight - h.clientHeight;
+    bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+  }
+  document.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+
+// Hover-dim para todos los diagramas SVG (layout fijo, sin dependencias).
+(function () {
+  document.querySelectorAll('.diagram').forEach(function (root) {
+    var all = root.querySelectorAll('.node, .link');
+    root.querySelectorAll('.node').forEach(function (node) {
+      node.addEventListener('mouseenter', function () {
+        var id = node.dataset.id;
+        all.forEach(function (el) {
+          var rel = el.dataset.id === id || el.dataset.from === id || el.dataset.to === id;
+          el.classList.toggle('dim', !rel);
+        });
+        node.classList.add('active');
+      });
+      node.addEventListener('mouseleave', function () {
+        all.forEach(function (el) { el.classList.remove('dim'); });
+        node.classList.remove('active');
+      });
+    });
+  });
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#arquitectura-de-computadores" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

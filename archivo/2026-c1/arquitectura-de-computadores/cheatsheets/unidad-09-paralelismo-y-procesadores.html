@@ -1,0 +1,2162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paralelismo y Procesadores de Alta Prestación — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --surface: #12121a; --card: #1a1a26; --border: #2a2a3e;
+    --accent: #7c3aed; --accent2: #06b6d4; --accent3: #f59e0b; --accent4: #10b981;
+    --red: #ef4444; --text: #e2e8f0; --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace; --display: 'Syne', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--display);
+    min-height: 100vh; padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+  header { text-align: center; margin-bottom: 2rem; }
+  .badge { display: inline-block; font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2); border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem; margin-bottom: 1rem; }
+  h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1; margin-bottom: 0.5rem; background: linear-gradient(135deg, #fff 30%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider { width: 60px; height: 3px; margin: 1.2rem auto 0; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+  .section-label { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--accent); margin: 2.5rem auto 1rem; max-width: 1400px; display: flex; align-items: center; gap: 0.8rem; scroll-margin-top: 1rem; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-label.is-ctx { color: var(--muted); }
+
+  /* dek — línea conectiva bajo cada section-label (qué es esto + de dónde viene) */
+  .dek { max-width: 1400px; margin: -0.5rem auto 1.1rem; font-family: var(--display); font-size: 0.85rem; line-height: 1.55; color: var(--muted); }
+  .dek b { color: var(--text); font-weight: 700; }
+  .dek .q { color: #fbbf24; font-style: italic; }
+  .dek a { color: var(--accent2); text-decoration: none; border-bottom: 1px dotted rgba(6,182,212,0.5); }
+
+  /* roadmap — mapa narrativo de la unidad (las dos preguntas) */
+  .roadmap { display: grid; gap: 0.7rem; }
+  .rm-lane { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; padding: 0.75rem 0.85rem; border-radius: 7px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+  .rm-q { font-family: var(--display); font-weight: 800; font-size: 0.84rem; color: #fff; flex-basis: 100%; margin-bottom: 0.1rem; }
+  .rm-q span { font-family: var(--mono); font-weight: 400; font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-left: 0.4rem; }
+  .rm-step { font-family: var(--mono); font-size: 0.66rem; color: var(--text); padding: 0.32rem 0.55rem; border-radius: 4px; background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.32); text-decoration: none; white-space: nowrap; }
+  .rm-lane.spatial .rm-step { background: rgba(6,182,212,0.12); border-color: rgba(6,182,212,0.32); }
+  .rm-step:hover { border-color: var(--accent2); color: #fff; }
+  .rm-arrow { color: var(--muted); font-size: 0.7rem; }
+  @media (max-width: 700px) { .rm-step { white-space: normal; } .rm-arrow { display: none; } }
+
+  .grid   { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid.is-ctx { opacity: 0.82; }
+  @media (max-width: 900px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+  @media (min-width: 901px) and (max-width: 1100px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+  .card-title { font-size: 0.7rem; font-family: var(--mono); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem; padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid var(--border); border-radius: 0 4px 4px 0; }
+  .op-rule strong { color: #fff; }
+
+  .formula { font-family: var(--mono); font-size: 0.82rem; color: #fff; background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.25); border-radius: 5px; padding: 0.5rem 0.7rem; text-align: center; margin: 0.5rem 0; }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+
+  .proplist { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.35rem; }
+  .proplist div { padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div { background: rgba(16,185,129,0.06); }
+
+  .step { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.4rem; }
+  .step .s { padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.03); border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0; }
+  .step .s b { color: #fff; }
+
+  .note { font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem; padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.06); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  .flag      { color: #f87171;        font-size: 0.55rem; margin-left: 0.5rem; }
+  .flag.info { color: var(--accent3); font-size: 0.55rem; margin-left: 0.5rem; }
+
+  .insight { font-family: var(--mono); font-size: 0.65rem; color: var(--accent3); background: rgba(245,158,11,0.06); border-left: 2px solid var(--accent3); border-radius: 0 4px 4px 0; padding: 0.4rem 0.6rem; margin-top: 0.5rem; }
+
+  .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+  .vs-side { padding: 0.8rem; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.35rem; }
+  .vs-side h4 { font-family: var(--display); font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+  .vs-mid { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.75rem; font-weight: 700; color: var(--accent3); padding: 0 0.7rem; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .vs-row { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .vs-row:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .versus { grid-template-columns: 1fr; }
+    .vs-mid { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0.4rem; text-align: center; }
+  }
+
+  .stat { text-align: center; padding: 0.8rem 0.4rem; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+  .stat-num { font-family: var(--display); font-size: 1.7rem; font-weight: 800; line-height: 1; background: linear-gradient(135deg, #fff 30%, var(--accent2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .stat-unit { font-family: var(--mono); font-size: 0.7rem; color: var(--accent2); letter-spacing: 0.08em; }
+  .stat-cap { font-family: var(--mono); font-size: 0.56rem; color: var(--muted); margin-top: 0.1rem; }
+
+  .recall { font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0; border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden; }
+  .recall summary { cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2); background: rgba(124,58,237,0.06); list-style: none; display: flex; align-items: center; gap: 0.5rem; user-select: none; }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before { content: '▸'; font-size: 0.7rem; color: var(--accent); transition: transform 0.15s; flex-shrink: 0; }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a { padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5; border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04); }
+  .recall-a strong { color: #fff; }
+
+  .tier { display: inline-flex; align-items: center; gap: 0.3rem; font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 3px; vertical-align: middle; line-height: 1; }
+  .tier::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .tier.core { color: var(--accent4); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.35); }
+  .tier.core::before { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .tier.key  { color: var(--accent3); background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.4); }
+  .tier.key::before  { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .tier.ctx  { color: var(--muted); background: rgba(148,163,184,0.06); border: 1px solid var(--border); }
+  .tier.ctx::before  { background: var(--muted); }
+
+  .scope { max-width: 1400px; margin: 0 auto 1rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent3); border-radius: 6px; padding: 0.8rem 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; align-items: center; }
+  .scope-label { font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent3); font-weight: 700; writing-mode: vertical-rl; transform: rotate(180deg); border-right: 1px solid var(--border); padding-right: 0.7rem; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+  .scope-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spill { font-family: var(--mono); font-size: 0.6rem; padding: 0.22rem 0.55rem; border-radius: 3px; border: 1px solid var(--border); color: var(--muted); }
+  .spill.in  { color: var(--accent4); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
+  .spill.key { color: var(--accent3); border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+  .spill.cut { color: var(--muted); border-style: dashed; text-decoration: line-through; opacity: 0.75; }
+  @media (max-width: 600px) {
+    .scope { grid-template-columns: 1fr; }
+    .scope-label { writing-mode: horizontal-tb; transform: none; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.4rem; }
+  }
+
+  .cmatrix-wrap { overflow-x: auto; max-width: 1400px; margin: 0.5rem auto; }
+  .cmatrix { display: grid; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-family: var(--mono); font-size: 0.66rem; min-width: 560px; }
+  .cmatrix > div { padding: 0.5rem 0.6rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .cmatrix .cm-corner, .cmatrix .cm-rl { background: rgba(255,255,255,0.03); color: var(--muted); font-size: 0.6rem; letter-spacing: 0.04em; display: flex; align-items: center; }
+  .cmatrix .cm-rl { color: #fff; font-weight: 700; }
+  .cmatrix .cm-head { font-family: var(--display); font-weight: 700; color: #fff; font-size: 0.78rem; text-align: center; display: block; }
+  .cmatrix .cm-head .sub { display: block; font-family: var(--mono); font-size: 0.5rem; color: var(--muted); margin-top: 0.2rem; letter-spacing: 0.04em; }
+  .cmatrix .cm-head.is-key { color: var(--accent3); }
+  .cmatrix .cm-head.is-key::after { content: '★'; margin-left: 0.3rem; color: var(--accent3); font-size: 0.6rem; }
+  .cmatrix .ok { color: var(--accent4); font-weight: 700; }
+  .cmatrix .no { color: #f87171; font-weight: 700; }
+
+  /* timeline */
+  .timeline { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding: 1.2rem 0.5rem 0.5rem; position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 0.5rem; right: 0.5rem; top: 1.95rem; height: 2px; background: var(--border); }
+  .tl-item { display: flex; flex-direction: column; align-items: center; min-width: 130px; flex: 1; position: relative; }
+  .tl-year { font-family: var(--mono); font-size: 0.6rem; color: var(--accent2); margin-bottom: 0.4rem; font-weight: 700; letter-spacing: 0.1em; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--accent2); position: relative; z-index: 1; flex-shrink: 0; }
+  .tl-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text); text-align: center; margin-top: 0.5rem; line-height: 1.3; padding: 0 0.2rem; }
+  .tl-sub { font-family: var(--mono); font-size: 0.55rem; color: var(--muted); text-align: center; margin-top: 0.2rem; line-height: 1.3; padding: 0 0.2rem; }
+  .tl-item.gen0 .tl-dot { background: #a78bfa; border-color: #a78bfa; }
+  .tl-item.gen1 .tl-dot { background: var(--accent2); border-color: var(--accent2); }
+  .tl-item.gen2 .tl-dot { background: var(--accent3); border-color: var(--accent3); }
+  .tl-item.gen3 .tl-dot { background: var(--accent4); border-color: var(--accent4); }
+
+  .exam-q { position: relative; margin: 0.6rem 0; padding: 0.7rem 0.9rem 0.7rem 2.7rem; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.3); border-left: 2px solid var(--red); border-radius: 0 6px 6px 0; font-family: var(--mono); font-size: 0.7rem; }
+  .exam-q::before { content: 'Q'; position: absolute; left: 0.65rem; top: 0.7rem; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--red); color: #fff; font-family: var(--display); font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+  .exam-q .q { color: #fff; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.4; }
+  .exam-q .a { color: var(--muted); line-height: 1.55; }
+  .exam-q .a strong { color: var(--text); }
+
+  .diagram .node, .diagram .link { transition: opacity 0.2s ease; }
+  .diagram .dim { opacity: 0.35; }
+  .diagram .node.active { filter: drop-shadow(0 0 10px currentColor); }
+
+  .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .toc-rail { position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem; }
+  .toc-rail a { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; font-family: var(--mono); font-size: 0.55rem; color: var(--muted); padding: 0.12rem 0.25rem; border-radius: 3px; }
+  .toc-rail a .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; transition: all 0.2s; }
+  .toc-rail a .lbl { opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap; }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  footer { text-align: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+  footer .out { color: var(--muted); margin-top: 0.5rem; opacity: 0.85; }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1, .stat-num { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .scope, .cmatrix, .exam-q, .recall, .stat, .timeline { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="toc-rail">
+  <a href="#s01"><span class="dot"></span><span class="lbl">01 · Pipeline básico</span></a>
+  <a href="#s02"><span class="dot"></span><span class="lbl">02 · Paralelismo T vs E ★</span></a>
+  <a href="#s03"><span class="dot"></span><span class="lbl">03 · Superescalar</span></a>
+  <a href="#s04"><span class="dot"></span><span class="lbl">04 · Problemas ★</span></a>
+  <a href="#s05"><span class="dot"></span><span class="lbl">05 · Pipeline moderno ★</span></a>
+  <a href="#s06"><span class="dot"></span><span class="lbl">06 · CISC vs RISC</span></a>
+  <a href="#s07"><span class="dot"></span><span class="lbl">07 · Flynn</span></a>
+  <a href="#s08"><span class="dot"></span><span class="lbl">08 · Multiproc · SMP ★</span></a>
+  <a href="#s09"><span class="dot"></span><span class="lbl">09 · Multihilo / NUMA</span></a>
+  <a href="#s10"><span class="dot"></span><span class="lbl">10 · Evolución</span></a>
+  <a href="#s10b"><span class="dot"></span><span class="lbl">10b · 3 formas de escalar ★</span></a>
+  <a href="#s11"><span class="dot"></span><span class="lbl">11 · Auto-test</span></a>
+  <a href="#s12"><span class="dot"></span><span class="lbl">12 · Claves</span></a>
+</nav>
+
+<header>
+  <div class="badge">Arquitectura de Computadores · Unidad 09 — Paralelismo y Procesadores de Alta Prestación</div>
+  <h1>Paralelismo y Procesadores</h1>
+  <p class="subtitle">pipeline · superescalar · problemas y soluciones · pipeline moderno · CISC/RISC · Flynn · SMP · multihilo · clusters</p>
+  <div class="divider"></div>
+</header>
+
+<div class="scope">
+  <div class="scope-label">Scope · FINAL</div>
+  <div class="scope-pills">
+    <span class="spill key">★ pipeline moderno (Front End + Back End)</span>
+    <span class="spill key">★ problemas del pipeline + soluciones</span>
+    <span class="spill key">★ paralelismo temporal vs espacial (TRAMPA)</span>
+    <span class="spill key">★ 5 características del SMP</span>
+    <span class="spill in">pipeline básico · IPC · Henry Ford</span>
+    <span class="spill in">superescalar Pentium (2 ALUs · Harvard)</span>
+    <span class="spill in">superpipelining · ILP</span>
+    <span class="spill in">Flynn (SISD/SIMD/MISD/MIMD)</span>
+    <span class="spill in">predictores de saltos (3 tipos)</span>
+    <span class="spill in">multihilo / Hyper-threading</span>
+    <span class="spill in">CISC vs RISC · unidades de ejecución</span>
+    <span class="spill in">clusters · UMA/NUMA · Zen / chiplets</span>
+    <span class="spill cut">nº exacto de transistores · GHz / fechas por chip</span>
+    <span class="spill cut">diagrama del ARM Cortex A8</span>
+    <span class="spill cut">TILE/Mosaico · GPU/Media Engine/PCIe del 13900K</span>
+  </div>
+</div>
+<div style="max-width:1400px;margin:0 auto 0.6rem;font-family:var(--mono);font-size:0.68rem;color:var(--muted);line-height:1.5;border-left:2px solid var(--accent3);padding:0.4rem 0.7rem;background:rgba(245,158,11,0.05);border-radius:0 4px 4px 0">
+  📌 <strong style="color:var(--accent3)">Final integrador</strong> — cubre toda la materia. Dentro de esta unidad <strong style="color:var(--text)">entra prácticamente todo el apunte</strong>: los temas que en el parcial eran "contexto" (multihilo, CISC/RISC, clusters/NUMA, unidades de ejecución, Zen/chiplets) <strong style="color:var(--text)">ahora también son exigibles</strong>. Lo único afuera son los <span style="text-decoration:line-through">detalles numéricos exactos de cada chip</span>, que el profe no toma ni en el final.
+</div>
+
+<!-- ============ MAPA ============ -->
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto 0.4rem">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🗺️ Mapa de la unidad — el hilo que conecta todo</div>
+    <div class="op-rule">Toda la unidad responde <strong>dos preguntas</strong>: primero cómo exprimir <strong>un</strong> procesador, después cómo sumar <strong>muchos</strong>. Cada sección es un paso en una de las dos — seguí las flechas.</div>
+    <div class="roadmap">
+      <div class="rm-lane">
+        <div class="rm-q">① ¿Cómo hago UN procesador más rápido? <span>paralelismo dentro del chip</span></div>
+        <a class="rm-step" href="#s01">pipeline</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s02">temporal vs espacial</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s03">superescalar</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s04">problemas + soluciones</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s05">pipeline moderno</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s06">CISC vs RISC</a>
+      </div>
+      <div class="rm-lane spatial">
+        <div class="rm-q">② ¿Cómo consigo MÁS poder? <span>replicar el procesador</span></div>
+        <a class="rm-step" href="#s07">Flynn (clasifica)</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s08">SMP + multicore</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s09">multihilo · clusters · NUMA</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s10">evolución</a>
+      </div>
+    </div>
+    <div class="insight">💡 El puente entre las dos: un pipeline (y hasta un superescalar) sigue siendo <strong>un</strong> procesador. Cuando una sola vía ya no alcanza, se replica el procesador entero → ahí arranca la pregunta ②.</div>
+  </div>
+</div>
+
+<!-- ============ 01 ============ -->
+<div class="section-label" id="s01">01 — Pipeline · cauce segmentado · vía de ejecución <span class="tier key">⚡ sustrato</span></div>
+<div class="dek">El ladrillo de toda la unidad. Un procesador ejecuta las instrucciones de a una, en 4 etapas; el pipeline las <b>solapa</b> como una línea de montaje → termina <b>una por ciclo</b> en vez de una cada cuatro.</div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🏭 Definición · analogía Henry Ford</div>
+    <div class="op-name">Pipeline = cauce segmentado = vía de ejecución</div>
+    <div class="op-notation">3 sinónimos verbatim del profe</div>
+    <div class="op-rule">
+      Se divide el ciclo de instrucción (IF · ID · OF · EX) en <strong>etapas independientes</strong> que trabajan en paralelo sobre <strong>distintas instrucciones</strong>. Mientras una instrucción se ejecuta, la siguiente se decodifica y la tercera se busca → todo a la vez.
+    </div>
+    <div class="op-rule" style="margin-bottom:0">
+      Analogía: la <strong>línea de montaje</strong> de Henry Ford. Cada operario hace una tarea fija; los autos van pasando por sus manos. Un auto tarda lo mismo en armarse, pero salen <strong>uno por unidad de tiempo</strong> en vez de uno cada N.
+    </div>
+    <div class="insight">💡 de la clase · El pipeline no acelera UNA instrucción — acelera el <strong>throughput</strong>: muchas instrucciones en paralelo. Cada una sigue tardando lo mismo en cruzar las 4 etapas.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">📊 IPC · de 0,25 a 1 (ideal)</div>
+    <div class="grid grid-2" style="margin-top:0.3rem">
+      <div class="stat"><div class="stat-num">0,25</div><div class="stat-unit">IPC sin pipeline</div><div class="stat-cap">4 ciclos por instrucción</div></div>
+      <div class="stat"><div class="stat-num">1,0</div><div class="stat-unit">IPC con pipeline</div><div class="stat-cap">1 instrucción por ciclo (ideal)</div></div>
+    </div>
+    <div class="formula cyan-f">IPC = instrucciones por ciclo de reloj</div>
+    <svg viewBox="0 0 500 170" width="100%" style="display:block;margin:0.5rem auto;max-width:500px" role="img" aria-label="Diagrama de pipeline de 4 etapas con 4 instrucciones escalonadas">
+      <g font-family="JetBrains Mono,monospace" font-size="9">
+        <text x="20" y="22" fill="#94a3b8">tiempo →</text>
+        <!-- column labels -->
+        <text x="100" y="22" fill="#94a3b8" text-anchor="middle">t1</text>
+        <text x="160" y="22" fill="#94a3b8" text-anchor="middle">t2</text>
+        <text x="220" y="22" fill="#94a3b8" text-anchor="middle">t3</text>
+        <text x="280" y="22" fill="#94a3b8" text-anchor="middle">t4</text>
+        <text x="340" y="22" fill="#94a3b8" text-anchor="middle">t5</text>
+        <text x="400" y="22" fill="#94a3b8" text-anchor="middle">t6</text>
+        <text x="460" y="22" fill="#94a3b8" text-anchor="middle">t7</text>
+        <!-- rows -->
+        <g>
+          <text x="14" y="50" fill="#a78bfa">I1</text>
+          <rect x="70" y="38" width="60" height="18" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="100" y="51" fill="#a78bfa" text-anchor="middle">IF</text>
+          <rect x="130" y="38" width="60" height="18" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="160" y="51" fill="#06b6d4" text-anchor="middle">ID</text>
+          <rect x="190" y="38" width="60" height="18" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="220" y="51" fill="#f59e0b" text-anchor="middle">OF</text>
+          <rect x="250" y="38" width="60" height="18" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="280" y="51" fill="#10b981" text-anchor="middle">EX</text>
+        </g>
+        <g>
+          <text x="14" y="78" fill="#a78bfa">I2</text>
+          <rect x="130" y="66" width="60" height="18" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="160" y="79" fill="#a78bfa" text-anchor="middle">IF</text>
+          <rect x="190" y="66" width="60" height="18" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="220" y="79" fill="#06b6d4" text-anchor="middle">ID</text>
+          <rect x="250" y="66" width="60" height="18" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="280" y="79" fill="#f59e0b" text-anchor="middle">OF</text>
+          <rect x="310" y="66" width="60" height="18" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="340" y="79" fill="#10b981" text-anchor="middle">EX</text>
+        </g>
+        <g>
+          <text x="14" y="106" fill="#a78bfa">I3</text>
+          <rect x="190" y="94" width="60" height="18" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="220" y="107" fill="#a78bfa" text-anchor="middle">IF</text>
+          <rect x="250" y="94" width="60" height="18" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="280" y="107" fill="#06b6d4" text-anchor="middle">ID</text>
+          <rect x="310" y="94" width="60" height="18" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="340" y="107" fill="#f59e0b" text-anchor="middle">OF</text>
+          <rect x="370" y="94" width="60" height="18" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="400" y="107" fill="#10b981" text-anchor="middle">EX</text>
+        </g>
+        <g>
+          <text x="14" y="134" fill="#a78bfa">I4</text>
+          <rect x="250" y="122" width="60" height="18" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="280" y="135" fill="#a78bfa" text-anchor="middle">IF</text>
+          <rect x="310" y="122" width="60" height="18" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="340" y="135" fill="#06b6d4" text-anchor="middle">ID</text>
+          <rect x="370" y="122" width="60" height="18" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="400" y="135" fill="#f59e0b" text-anchor="middle">OF</text>
+          <rect x="430" y="122" width="60" height="18" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="460" y="135" fill="#10b981" text-anchor="middle">EX</text>
+        </g>
+        <text x="230" y="160" fill="#fbbf24" text-anchor="middle">→ una instrucción nueva sale cada ciclo</text>
+      </g>
+    </svg>
+  </div>
+
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1rem auto 0">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">🧮 La cuenta del profe — cuántos ciclos ahorra el pipeline</div>
+    <div class="op-rule">El primer resultado tarda lo mismo (hay que <strong>llenar</strong> las etapas); a partir de ahí sale <strong>uno por ciclo</strong>. Ciclos para ejecutar <em>n</em> instrucciones en un pipeline de <em>k</em> etapas:</div>
+    <div class="formula">ciclos = k (llenar el pipe) + (n − 1) &nbsp;·&nbsp; vs &nbsp; n × k sin pipeline</div>
+    <div class="versus" style="margin-top:0.6rem">
+      <div class="vs-side">
+        <h4>SIN pipeline · 5 sumas</h4>
+        <div class="vs-row">cada suma cruza las 4 etapas de punta a punta antes de arrancar la siguiente</div>
+        <div class="vs-row">5 × 4 = <strong>20 ciclos</strong></div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>CON pipeline de 4 etapas · 5 sumas</h4>
+        <div class="vs-row">4 ciclos para llenar + 1 por cada suma restante</div>
+        <div class="vs-row">4 + (5 − 1) = <strong>8 ciclos</strong></div>
+      </div>
+    </div>
+    <div class="grid grid-2" style="gap:0.7rem;margin-top:0.6rem">
+      <div class="stat"><div class="stat-num">2,5×</div><div class="stat-unit">más rápido</div><div class="stat-cap">20 ÷ 8 en este ejemplo</div></div>
+      <div class="stat"><div class="stat-num">→ IPC≈1</div><div class="stat-unit">en régimen</div><div class="stat-cap">cuanto más largo el lote, más se acerca a 1</div></div>
+    </div>
+    <div class="insight">💡 Por eso el pipeline <strong>no</strong> acelera una instrucción suelta (las 4 etapas siguen tardando lo mismo): gana cuando hay <strong>muchas</strong> instrucciones seguidas. El ahorro tiende a IPC = 1 a medida que <em>n</em> crece.</div>
+  </div>
+</div>
+
+<!-- ============ 02 ============ -->
+<div class="section-label" id="s02">02 — Paralelismo temporal vs espacial <span class="tier key">⚡⚡ ★ TRAMPA dictada</span></div>
+<div class="dek">El pipeline trae un tipo de paralelismo. Hay <b>dos</b>, y el profe los marca como la <span class="q">TRAMPA</span> del examen: no confundir <b>solapar en el tiempo</b> (pipeline) con <b>duplicar hardware</b> (varios pipelines).</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">⚔️ La TRAMPA del examen — el profe lo cruzó</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Paralelismo TEMPORAL</h4>
+        <div class="vs-row">una <strong>sola operación</strong> dividida en etapas que trabajan a la vez</div>
+        <div class="vs-row">se solapa en el TIEMPO (etapa N de I1 + etapa N-1 de I2)</div>
+        <div class="vs-row">ejemplo: <strong>el pipeline</strong></div>
+        <div class="vs-row">analogía: la línea de Ford</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>Paralelismo ESPACIAL</h4>
+        <div class="vs-row"><strong>múltiples operaciones</strong> ejecutándose simultáneamente en hardware distinto</div>
+        <div class="vs-row">se duplica el HARDWARE (2 ALUs, 2 núcleos)</div>
+        <div class="vs-row">ejemplos: <strong>superescalar · multicore · SIMD</strong></div>
+        <div class="vs-row">analogía: 2 líneas de Ford en paralelo</div>
+      </div>
+    </div>
+    <div class="note danger">🚨 TRAMPA TEXTUAL (clase 2026-05-11): "a veces se confunden en los exámenes, <strong>me ponen cruzado los tipos de paralelismos</strong>." Es la única trampa que el profe verbalizó como recurrente. <strong>Pipeline = TEMPORAL · Superescalar/multicore = ESPACIAL.</strong></div>
+  </div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">📊 El test infalible — contá los resultados por ciclo</div>
+    <div class="op-rule">No te fíes de <em>"hace varias cosas a la vez"</em>: los <strong>dos</strong> paralelismos hacen eso. La pregunta que <strong>no falla</strong>: <strong>¿cuántos resultados (números) entrega la última etapa por ciclo?</strong> El pipeline entrega <strong>1 por ciclo</strong> por más larga que sea la vía (hasta un superpipeline de 31 etapas). Tener <strong>varias vías en paralelo</strong> entrega <strong>N por ciclo</strong> → eso es el superescalar.</div>
+    <div class="formula cyan-f">pipeline (temporal) → 1 resultado / ciclo &nbsp;·&nbsp; superescalar de N vías (espacial) → N resultados / ciclo</div>
+    <svg viewBox="0 0 720 168" width="100%" style="display:block;margin:0.6rem auto;max-width:720px" role="img" aria-label="Grilla de tiempos: en el pipeline escalar la columna t4 tiene una sola etapa EX; en el superescalar de 2 vías la columna t4 tiene dos EX simultáneas">
+      <g font-family="JetBrains Mono,monospace" font-size="9">
+        <text x="105" y="15" fill="#67e8f9" text-anchor="middle" font-size="10">Pipeline escalar · 1 vía</text>
+        <text x="455" y="15" fill="#fbbf24" text-anchor="middle" font-size="10">Superescalar · 2 vías</text>
+        <line x1="355" y1="22" x2="355" y2="132" stroke="#2a2a3e" stroke-width="1"/>
+        <!-- LEFT: highlight columna t4 -->
+        <rect x="112" y="36" width="28" height="66" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="43" y="31" fill="#94a3b8" text-anchor="middle">t1</text>
+        <text x="71" y="31" fill="#94a3b8" text-anchor="middle">t2</text>
+        <text x="99" y="31" fill="#94a3b8" text-anchor="middle">t3</text>
+        <text x="127" y="31" fill="#34d399" text-anchor="middle">t4</text>
+        <text x="155" y="31" fill="#94a3b8" text-anchor="middle">t5</text>
+        <text x="183" y="31" fill="#94a3b8" text-anchor="middle">t6</text>
+        <text x="12" y="51" fill="#a78bfa">I1</text>
+        <text x="12" y="73" fill="#a78bfa">I2</text>
+        <text x="12" y="95" fill="#a78bfa">I3</text>
+        <rect x="30"  y="40" width="26" height="16" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="43"  y="51" fill="#a78bfa" text-anchor="middle">IF</text>
+        <rect x="58"  y="40" width="26" height="16" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="71"  y="51" fill="#67e8f9" text-anchor="middle">ID</text>
+        <rect x="86"  y="40" width="26" height="16" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="99"  y="51" fill="#fbbf24" text-anchor="middle">OF</text>
+        <rect x="114" y="40" width="26" height="16" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="127" y="51" fill="#6ee7b7" text-anchor="middle">EX</text>
+        <rect x="58"  y="62" width="26" height="16" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="71"  y="73" fill="#a78bfa" text-anchor="middle">IF</text>
+        <rect x="86"  y="62" width="26" height="16" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="99"  y="73" fill="#67e8f9" text-anchor="middle">ID</text>
+        <rect x="114" y="62" width="26" height="16" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="127" y="73" fill="#fbbf24" text-anchor="middle">OF</text>
+        <rect x="142" y="62" width="26" height="16" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="155" y="73" fill="#6ee7b7" text-anchor="middle">EX</text>
+        <rect x="86"  y="84" width="26" height="16" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="99"  y="95" fill="#a78bfa" text-anchor="middle">IF</text>
+        <rect x="114" y="84" width="26" height="16" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="127" y="95" fill="#67e8f9" text-anchor="middle">ID</text>
+        <rect x="142" y="84" width="26" height="16" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="155" y="95" fill="#fbbf24" text-anchor="middle">OF</text>
+        <rect x="170" y="84" width="26" height="16" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="183" y="95" fill="#6ee7b7" text-anchor="middle">EX</text>
+        <text x="14" y="120" fill="#34d399">t4: 1 EX → 1 resultado/ciclo</text>
+        <!-- RIGHT: highlight columna t4 -->
+        <rect x="472" y="36" width="28" height="88" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="1" stroke-dasharray="3 2"/>
+        <text x="403" y="31" fill="#94a3b8" text-anchor="middle">t1</text>
+        <text x="431" y="31" fill="#94a3b8" text-anchor="middle">t2</text>
+        <text x="459" y="31" fill="#94a3b8" text-anchor="middle">t3</text>
+        <text x="487" y="31" fill="#34d399" text-anchor="middle">t4</text>
+        <text x="515" y="31" fill="#94a3b8" text-anchor="middle">t5</text>
+        <text x="372" y="51"  fill="#a78bfa">I1</text>
+        <text x="372" y="73"  fill="#a78bfa">I2</text>
+        <text x="372" y="95"  fill="#a78bfa">I3</text>
+        <text x="372" y="117" fill="#a78bfa">I4</text>
+        <rect x="390" y="40" width="26" height="16" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="403" y="51" fill="#a78bfa" text-anchor="middle">IF</text>
+        <rect x="418" y="40" width="26" height="16" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="431" y="51" fill="#67e8f9" text-anchor="middle">ID</text>
+        <rect x="446" y="40" width="26" height="16" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="459" y="51" fill="#fbbf24" text-anchor="middle">OF</text>
+        <rect x="474" y="40" width="26" height="16" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="487" y="51" fill="#6ee7b7" text-anchor="middle">EX</text>
+        <rect x="390" y="62" width="26" height="16" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="403" y="73" fill="#a78bfa" text-anchor="middle">IF</text>
+        <rect x="418" y="62" width="26" height="16" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="431" y="73" fill="#67e8f9" text-anchor="middle">ID</text>
+        <rect x="446" y="62" width="26" height="16" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="459" y="73" fill="#fbbf24" text-anchor="middle">OF</text>
+        <rect x="474" y="62" width="26" height="16" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="487" y="73" fill="#6ee7b7" text-anchor="middle">EX</text>
+        <rect x="418" y="84" width="26" height="16" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="431" y="95" fill="#a78bfa" text-anchor="middle">IF</text>
+        <rect x="446" y="84" width="26" height="16" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="459" y="95" fill="#67e8f9" text-anchor="middle">ID</text>
+        <rect x="474" y="84" width="26" height="16" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="487" y="95" fill="#fbbf24" text-anchor="middle">OF</text>
+        <rect x="502" y="84" width="26" height="16" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="515" y="95" fill="#6ee7b7" text-anchor="middle">EX</text>
+        <rect x="418" y="106" width="26" height="16" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="431" y="117" fill="#a78bfa" text-anchor="middle">IF</text>
+        <rect x="446" y="106" width="26" height="16" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="459" y="117" fill="#67e8f9" text-anchor="middle">ID</text>
+        <rect x="474" y="106" width="26" height="16" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="487" y="117" fill="#fbbf24" text-anchor="middle">OF</text>
+        <rect x="502" y="106" width="26" height="16" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="515" y="117" fill="#6ee7b7" text-anchor="middle">EX</text>
+        <text x="372" y="140" fill="#34d399">t4: 2 EX → 2 resultados/ciclo</text>
+      </g>
+    </svg>
+    <div class="note ok">💡 Mirá la columna <strong>t4</strong>: el escalar tiene <strong>1 sola celda EX</strong> (verde) → 1 resultado. El superescalar tiene <strong>2 EX en el mismo ciclo</strong> → 2 resultados. Eso —y no "solapar etapas"— es el paralelismo <strong>espacial</strong>. El pipeline básico (§01) también vive acá: <strong>cada vía es un pipeline</strong>; el superescalar agrega <strong>vías en paralelo</strong>.</div>
+  </div>
+</div>
+
+<!-- ============ 03 ============ -->
+<div class="section-label" id="s03">03 — Superescalar (Pentium 1993) · ILP <span class="tier key">⚡ rúbrica dictada</span></div>
+<div class="dek">Aplicá el paralelismo <b>espacial</b> dentro de un chip y obtenés un <b>superescalar</b>: varias instrucciones por ciclo. El Pentium (1993) fue el primero — y el profe dictó exactamente qué hay que saber de él.</div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🐙 Definición</div>
+    <div class="op-name">Procesador superescalar</div>
+    <div class="op-notation">"calcula más de un escalar por ciclo"</div>
+    <div class="op-rule">
+      Tiene <strong>múltiples unidades de ejecución</strong> (más de una ALU, FPU…) y emite <strong>más de una instrucción por ciclo</strong> en paralelo (ILP = Instruction-Level Parallelism). Es paralelismo <strong>espacial</strong>.
+    </div>
+    <div class="op-rule" style="border-left-color:#06b6d4;background:rgba(6,182,212,0.06);margin-bottom:0">
+      <strong>Escalar</strong> (def. que leyó el profe): "una cantidad que queda completamente definida por <strong>un solo número</strong> y una unidad de medida; no tiene dirección ni sentido". El superescalar calcula <strong>varios de esos números por ciclo</strong>.
+    </div>
+    <div class="insight">💡 <strong>ILP vs paralelismo de máquina</strong> · el <strong>ILP</strong> es el paralelismo que <em>trae el programa</em> (instrucciones independientes que se podrían solapar); el <strong>paralelismo de máquina</strong> es lo que el chip <em>realmente aprovecha</em> (depende de nº de vías, prebúsqueda, OoO, compilador). <strong>Cuello de botella:</strong> con 3 pipelines pero solo 2 decodificadores, el IPC máx es <strong>2</strong>, no 3.</div>
+    <svg viewBox="0 0 360 180" width="100%" style="display:block;margin:0.4rem auto;max-width:360px" role="img" aria-label="Pentium 1993: bus de 64 bits hacia dos ALUs en paralelo">
+      <g font-family="JetBrains Mono,monospace" font-size="9">
+        <rect x="20" y="20" width="320" height="32" rx="4" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.5"/>
+        <text x="180" y="40" fill="#06b6d4" text-anchor="middle" font-size="10">Bus de datos · 64 bits</text>
+        <line x1="120" y1="52" x2="120" y2="78" stroke="#06b6d4" stroke-width="1.5"/>
+        <line x1="240" y1="52" x2="240" y2="78" stroke="#06b6d4" stroke-width="1.5"/>
+        <text x="180" y="68" fill="#94a3b8" text-anchor="middle" font-size="8">2 instrucciones de 32 bits a la vez</text>
+        <rect x="60" y="82" width="120" height="44" rx="5" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="120" y="102" fill="#f59e0b" text-anchor="middle" font-size="11">ALU U</text>
+        <text x="120" y="116" fill="#94a3b8" text-anchor="middle" font-size="8">pipeline principal</text>
+        <rect x="180" y="82" width="120" height="44" rx="5" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="240" y="102" fill="#f59e0b" text-anchor="middle" font-size="11">ALU V</text>
+        <text x="240" y="116" fill="#94a3b8" text-anchor="middle" font-size="8">pipeline secundario</text>
+        <text x="180" y="156" fill="#fbbf24" text-anchor="middle">Pentium 1993 · primer x86 superescalar</text>
+        <text x="180" y="170" fill="#94a3b8" text-anchor="middle" font-size="8">arquitectura Harvard interna (caché datos / caché instrucciones separados)</text>
+      </g>
+    </svg>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">📊 Rúbrica del profe — qué SÍ y qué NO</div>
+    <div class="op-rule" style="margin-bottom:0">Cita verbatim (2026-05-11): "<strong>te voy a preguntar si tenía 3,1 millones de transistores? ¡NO!</strong> Pero <strong>sí tenés que saber</strong> que el Pentium era un procesador superescalar, que tenía un bus capaz de enviar 2 instrucciones de 32 bits porque tenía <strong>2 ALUs</strong>, que tenía <strong>arquitectura Harvard</strong>. <strong>Esas cosas básicas</strong>, no el detalle así de un numerito."</div>
+    <div class="proplist pl-purple" style="margin-top:0.6rem">
+      <div>✓ <strong>superescalar</strong></div>
+      <div>✓ <strong>2 ALUs en paralelo</strong></div>
+      <div>✓ bus de 64 bits → 2 instr × 32 bits</div>
+      <div>✓ <strong>arquitectura Harvard interna</strong> (caché instrucciones ≠ datos)</div>
+    </div>
+    <div class="note warn">🚫 NO: cantidad exacta de transistores, fechas exactas, GHz por modelo.</div>
+  </div>
+
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">⚡ Superpipelining · Pentium 4 lleva el pipeline al extremo</div>
+    <div class="op-rule">Dividir el pipeline en <strong>muchas más etapas</strong>, cada una más corta. Como cada etapa hace menos trabajo por ciclo, el reloj puede ir más rápido → sube la <strong>frecuencia</strong> (más GHz). El Pentium 4 llegó a <strong>20–31 etapas</strong> ("pipeline profundo").</div>
+
+    <div class="op-rule" style="border-left-color:#f59e0b;background:rgba(245,158,11,0.06)"><strong>¿Qué es un salto?</strong> Una instrucción que <strong>rompe la ejecución secuencial</strong>: en vez de continuar con la instrucción de la dirección siguiente, el flujo "salta" a otra dirección. Aparecen con <code>if</code>, <code>while</code>, <code>for</code>, llamadas a función, <code>return</code>, <code>jmp</code>. <strong>Por qué molesta al pipe:</strong> para no frenarse, el pipeline va <strong>precargando las instrucciones que siguen en secuencia</strong> — pero si el salto se toma, esas eran del camino equivocado y hay que <strong>descartarlas</strong>. <span style="color:var(--muted)">(es el problema de "Control" ↓, se ataca con el predictor de saltos)</span></div>
+
+    <svg viewBox="0 0 700 180" width="100%" style="display:block;margin:0.6rem auto;max-width:700px" role="img" aria-label="Un salto bifurca el flujo: el pipeline precarga el camino secuencial; si el salto se toma, esas instrucciones se descartan (flush)">
+      <defs>
+        <marker id="arrG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#10b981"/></marker>
+        <marker id="arrR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#ef4444"/></marker>
+      </defs>
+      <g font-family="JetBrains Mono,monospace" font-size="9">
+        <text x="350" y="14" fill="#94a3b8" text-anchor="middle" font-size="8.5">Un salto bifurca el flujo · el pipe apuesta por un camino y precarga; si erra, descarta lo cargado</text>
+        <!-- instrucción de salto -->
+        <rect x="24" y="70" width="132" height="38" rx="5" fill="rgba(245,158,11,0.16)" stroke="#f59e0b" stroke-width="1.4"/>
+        <text x="90" y="88" fill="#f59e0b" text-anchor="middle" font-size="11" font-weight="700">SALTO</text>
+        <text x="90" y="101" fill="#94a3b8" text-anchor="middle" font-size="7">if · while · call · jmp</text>
+        <!-- camino TOMADO: hacia el destino -->
+        <path d="M156,82 C 240,48 300,44 352,44" fill="none" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrG)"/>
+        <text x="250" y="40" fill="#10b981" text-anchor="middle" font-size="7.5">si se TOMA</text>
+        <rect x="356" y="26" width="186" height="36" rx="5" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-width="1.3"/>
+        <text x="449" y="44" fill="#10b981" text-anchor="middle" font-size="9" font-weight="700">DESTINO del salto</text>
+        <text x="449" y="56" fill="#94a3b8" text-anchor="middle" font-size="7">otra dirección de memoria</text>
+        <!-- camino SECUENCIAL: lo que el pipe precargó -->
+        <path d="M90,108 L 90,126" fill="none" stroke="#ef4444" stroke-width="1.5" marker-end="url(#arrR)"/>
+        <rect x="24"  y="132" width="78" height="32" rx="4" fill="rgba(239,68,68,0.10)" stroke="#ef4444" stroke-width="1" stroke-dasharray="4 2"/>
+        <rect x="110" y="132" width="78" height="32" rx="4" fill="rgba(239,68,68,0.10)" stroke="#ef4444" stroke-width="1" stroke-dasharray="4 2"/>
+        <rect x="196" y="132" width="78" height="32" rx="4" fill="rgba(239,68,68,0.10)" stroke="#ef4444" stroke-width="1" stroke-dasharray="4 2"/>
+        <text x="63"  y="152" fill="#f87171" text-anchor="middle" font-size="9">i+1</text>
+        <text x="149" y="152" fill="#f87171" text-anchor="middle" font-size="9">i+2</text>
+        <text x="235" y="152" fill="#f87171" text-anchor="middle" font-size="9">i+3</text>
+        <!-- etiqueta especulativas -->
+        <text x="300" y="142" fill="#94a3b8" font-size="8">← el pipe YA cargó las instrucciones secuenciales</text>
+        <text x="300" y="156" fill="#f87171" font-size="8.5">si el salto se TOMA → se descartan todas (FLUSH = burbuja)</text>
+      </g>
+    </svg>
+
+    <div class="op-rule" style="border-left-color:#ef4444;background:rgba(239,68,68,0.06)"><strong>El trade-off del "pipeline profundo"</strong>: más etapas = más instrucciones <strong>en vuelo</strong> al mismo tiempo. Cuando el procesador <strong>predice mal un salto</strong>, debe vaciar TODAS las que están en vuelo y recargar desde la dirección correcta. → cuanto más profundo el pipe, <strong>más instrucciones se tiran por cada fallo</strong> y mayor la penalización. Subís frecuencia, pero <strong>cada salto mal predicho cuesta carísimo</strong> — ese es el "cuello de botella en saltos" del P4.</div>
+    <div class="grid grid-2" style="gap:0.7rem;margin-top:0.6rem">
+      <div class="stat"><div class="stat-num">~2–4</div><div class="stat-unit">ciclos perdidos</div><div class="stat-cap">pipeline corto · pocas etapas</div></div>
+      <div class="stat"><div class="stat-num">~20–30</div><div class="stat-unit">ciclos perdidos</div><div class="stat-cap">pipeline profundo · P4 (20–31 etapas)</div></div>
+    </div>
+
+    <div class="insight">💡 de la clase · "Tienen que saber esto sí o sí: cómo el superpipelining permite frecuencias más altas a costa de cuellos de botella en saltos."</div>
+  </div>
+</div>
+
+<!-- ============ 04 ============ -->
+<div class="section-label" id="s04">04 — Problemas del pipeline + soluciones <span class="tier key">⚡⚡ ★ pregunta dictada</span></div>
+<div class="dek">Solapar y duplicar suena ideal, pero <b>rompe cosas</b>. Estos son los <b>3 problemas</b> que aparecen (datos · control · estructura) y la solución de cada uno — pregunta dictada por el profe.</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">🚧 Los 3 problemas + cómo se resuelven (rúbrica del profe)</div>
+    <div class="op-rule">Cita verbatim (clase 2026-05-11): "<strong>¿Cuáles son los problemas de los pipes?</strong> Eso se puede preguntar, por ejemplo, en una pregunta de examen. <strong>Entonces la respuesta es esta…</strong>" — y enumeró 3.</div>
+    <div class="cmatrix-wrap">
+      <div class="cmatrix" style="grid-template-columns:140px 1fr 1fr 1fr">
+        <div class="cm-corner">problema</div>
+        <div class="cm-head is-key">Datos</div>
+        <div class="cm-head is-key">Control</div>
+        <div class="cm-head is-key">Estructura</div>
+
+        <div class="cm-rl">¿qué pasa?</div>
+        <div>una instrucción necesita el resultado de otra que <strong>aún no terminó</strong></div>
+        <div>un <strong>salto</strong> cambia el flujo → las instrucciones ya cargadas en el pipeline no sirven</div>
+        <div>dos instrucciones <strong>compiten</strong> por el mismo recurso a la vez</div>
+
+        <div class="cm-rl">ejemplo</div>
+        <div>I2 lee R1 e I1 escribe R1 (todavía no escribió)</div>
+        <div>if/while/jump → ¿qué traemos a continuación?</div>
+        <div>2 instrucciones quieren la ALU o el bus en el mismo ciclo</div>
+
+        <div class="cm-rl">solución</div>
+        <div class="ok"><strong>Forwarding</strong> + Ejecución <strong>fuera de orden (OoO)</strong> + <strong>registros de renombramiento</strong></div>
+        <div class="ok"><strong>Predictores de saltos</strong> dinámicos (tabla histórica, &gt;95%)</div>
+        <div class="ok"><strong>Duplicar unidades</strong> (más ALUs · más caches · separar instrucción/datos = Harvard)</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="grid grid-3" style="margin-top:1.2rem">
+
+  <div class="card purple">
+    <div class="card-title">🔁 Forwarding</div>
+    <div class="op-rule">Cortocircuito interno: el resultado de I1 se le pasa <strong>directo</strong> a I2 desde la salida de la ALU, sin esperar a que se escriba en el registro.</div>
+    <div class="insight">💡 de la clase (oral 2026-06-15) · El profe pregunta "¿qué ganás con eso?" y "¿qué pasaría si no lo tuvieras?" → <strong>menor latencia</strong>. Sin forwarding, I2 esperaría a que el resultado se escriba y se vuelva a leer; ese ciclo escritura→lectura tiene <strong>mucha más latencia</strong> que pasar el dato directo. Por eso evita el stall.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🐙 Ejecución fuera de orden (OoO)</div>
+    <div class="op-rule">El procesador no se queda esperando una instrucción "trabada" — busca otra <strong>más adelante</strong> que pueda ejecutar ya, y completa el resultado en orden al final.</div>
+    <div class="insight">💡 "Procesadores <strong>obedientes</strong>" (in-order) vs "<strong>desobedientes</strong>" (out-of-order).</div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">🎯 Predictor de saltos</div>
+    <div class="op-rule">El procesador <strong>apuesta</strong> a qué rama del salto tomar antes de saber. Tabla histórica de saltos con dinámicos → <strong>&gt;95% acierto</strong>. Si falla, vacía el pipeline.</div>
+    <div class="insight">💡 Ejemplo del profe: un <code>while</code> con 100 iteraciones — el predictor "aprende" que se va a repetir.</div>
+  </div>
+
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🎯 Predictores de saltos — los 3 tipos (la solución al problema de Control)</div>
+    <div class="op-rule">El predictor <strong>apuesta</strong> qué rama tomará el salto <strong>antes</strong> de evaluar la condición, para no frenar el pipeline. Hay tres familias, de peor a mejor acierto:</div>
+    <div class="cmatrix-wrap">
+      <div class="cmatrix" style="grid-template-columns:150px 1fr 110px">
+        <div class="cm-corner">tipo</div>
+        <div class="cm-head">cómo predice</div>
+        <div class="cm-head">acierto</div>
+
+        <div class="cm-rl">Estáticos</div>
+        <div>predicen <strong>siempre lo mismo</strong> (siempre se toma / nunca se toma). Es "tirar la moneda".</div>
+        <div>~50%</div>
+
+        <div class="cm-rl">Selectivos</div>
+        <div>salto <strong>hacia adelante</strong> → no se toma; <strong>hacia atrás</strong> (loops) → se toma. Aprovecha que los bucles se repiten.</div>
+        <div>medio</div>
+
+        <div class="cm-rl">Dinámicos ★</div>
+        <div class="ok">guardan una <strong>tabla histórica</strong> (BTB) y ajustan la predicción según lo ocurrido antes. Son los que usan los chips modernos.</div>
+        <div class="ok">&gt;95%</div>
+      </div>
+    </div>
+    <div class="insight">💡 Ejemplo del profe · un <code>while</code> de 100 iteraciones: el predictor dinámico falla casi solo al entrar y al salir → ~97% de acierto. Cuanto más profundo el pipeline, más caro cada fallo (§03).</div>
+  </div>
+</div>
+
+<!-- ============ 05 ============ -->
+<div class="section-label" id="s05">05 — Pipeline moderno · Front End + Back End <span class="tier key">⚡⚡ ★ "lo que vamos a ver ahora"</span></div>
+<div class="dek">Juntá todo lo anterior —pipeline profundo + superescalar + las soluciones a los 3 problemas— y llegás al pipeline real de hoy: <b>Front End en orden + Back End fuera de orden</b>. <span class="q">ES la pregunta de la unidad.</span></div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="card-title">🏗️ El pipeline de un procesador moderno</div>
+    <div class="op-rule">Cita verbatim (clase 2026-05-11): "<strong>Si en el examen yo les pregunto: ¿cuál es el pipeline de los procesadores modernos? Es lo que vamos a ver ahora.</strong>" → Ya no alcanza con las 4 etapas clásicas (IF·ID·OF·EX). El apunte enumera <strong>9 etapas</strong> (sobre el Intel Core 2) divididas en <strong>Front End</strong> (1-5, trabajan <strong>en orden</strong>) y <strong>Back End</strong> (6-9, trabajan <strong>fuera de orden</strong>). <span style="color:var(--muted)">Ojo: los chips reales tienen más (Core 2 Duo 14 · i7 ~20); estas "9 etapas" son el modelo didáctico del apunte — es lo que hay que saber recitar.</span></div>
+    <svg viewBox="0 0 960 256" width="100%" style="display:block;margin:0.5rem auto;max-width:960px" role="img" aria-label="Las 9 etapas del pipeline moderno: Front End 1-5 en orden, Back End 6-9 fuera de orden">
+      <defs>
+        <marker id="arrFE" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#06b6d4"/></marker>
+        <marker id="arrBE" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#10b981"/></marker>
+      </defs>
+      <g font-family="JetBrains Mono,monospace">
+        <text x="480" y="14" fill="#94a3b8" text-anchor="middle" font-size="9">Pipeline moderno · 9 etapas (apunte · Intel Core 2)</text>
+        <!-- FRONT END -->
+        <rect x="8" y="24" width="944" height="100" rx="8" fill="rgba(6,182,212,0.05)" stroke="#06b6d4" stroke-width="1.4" stroke-dasharray="5 3"/>
+        <text x="20" y="42" fill="#06b6d4" font-size="11" font-weight="700">FRONT END · EN ORDEN — busca + decodifica + asigna (CISC → µops)</text>
+        <!-- FE box 1 -->
+        <rect x="20" y="54" width="172" height="48" rx="5" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.2"/>
+        <circle cx="36" cy="78" r="9" fill="#06b6d4"/><text x="36" y="81.5" font-size="10" fill="#0a0a0f" text-anchor="middle" font-weight="700">1</text>
+        <text x="112" y="75" font-size="8.5" fill="#67e8f9" text-anchor="middle">Búsqueda L1</text>
+        <text x="112" y="89" font-size="6.5" fill="#94a3b8" text-anchor="middle">trae la instrucción</text>
+        <!-- FE box 2 -->
+        <rect x="204" y="54" width="172" height="48" rx="5" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.2"/>
+        <circle cx="220" cy="78" r="9" fill="#06b6d4"/><text x="220" y="81.5" font-size="10" fill="#0a0a0f" text-anchor="middle" font-weight="700">2</text>
+        <text x="296" y="75" font-size="8.5" fill="#67e8f9" text-anchor="middle">Cola de instr.</text>
+        <text x="296" y="89" font-size="6.5" fill="#94a3b8" text-anchor="middle">esperan decode</text>
+        <!-- FE box 3 -->
+        <rect x="388" y="54" width="172" height="48" rx="5" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.2"/>
+        <circle cx="404" cy="78" r="9" fill="#06b6d4"/><text x="404" y="81.5" font-size="10" fill="#0a0a0f" text-anchor="middle" font-weight="700">3</text>
+        <text x="480" y="75" font-size="8.5" fill="#67e8f9" text-anchor="middle">Predecode</text>
+        <text x="480" y="89" font-size="6.5" fill="#94a3b8" text-anchor="middle">tipo·longitud·recursos</text>
+        <!-- FE box 4 -->
+        <rect x="572" y="54" width="172" height="48" rx="5" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.2"/>
+        <circle cx="588" cy="78" r="9" fill="#06b6d4"/><text x="588" y="81.5" font-size="10" fill="#0a0a0f" text-anchor="middle" font-weight="700">4</text>
+        <text x="664" y="75" font-size="8.5" fill="#67e8f9" text-anchor="middle">Decode</text>
+        <text x="664" y="89" font-size="6.5" fill="#94a3b8" text-anchor="middle">CISC → µops RISC</text>
+        <!-- FE box 5 (frontera) -->
+        <rect x="756" y="54" width="172" height="48" rx="5" fill="rgba(245,158,11,0.10)" stroke="#f59e0b" stroke-width="1.3"/>
+        <circle cx="772" cy="78" r="9" fill="#f59e0b"/><text x="772" y="81.5" font-size="10" fill="#0a0a0f" text-anchor="middle" font-weight="700">5</text>
+        <text x="848" y="75" font-size="8.5" fill="#fbbf24" text-anchor="middle">Asignación</text>
+        <text x="848" y="89" font-size="6.5" fill="#94a3b8" text-anchor="middle">Allocator · frontera FE/BE</text>
+        <!-- FE arrows -->
+        <line x1="192" y1="78" x2="204" y2="78" stroke="#06b6d4" stroke-width="1" marker-end="url(#arrFE)"/>
+        <line x1="376" y1="78" x2="388" y2="78" stroke="#06b6d4" stroke-width="1" marker-end="url(#arrFE)"/>
+        <line x1="560" y1="78" x2="572" y2="78" stroke="#06b6d4" stroke-width="1" marker-end="url(#arrFE)"/>
+        <line x1="744" y1="78" x2="756" y2="78" stroke="#06b6d4" stroke-width="1" marker-end="url(#arrFE)"/>
+        <!-- gap connector -->
+        <text x="480" y="140" fill="#94a3b8" text-anchor="middle" font-size="8.5">↓ las µops decodificadas pasan al Back End (entran EN ORDEN) ↓</text>
+        <!-- BACK END -->
+        <rect x="8" y="148" width="944" height="100" rx="8" fill="rgba(16,185,129,0.05)" stroke="#10b981" stroke-width="1.4" stroke-dasharray="5 3"/>
+        <text x="20" y="166" fill="#10b981" font-size="11" font-weight="700">BACK END · FUERA DE ORDEN — ejecuta (OoO) y retira en orden</text>
+        <!-- BE box 6 -->
+        <rect x="20" y="178" width="222" height="48" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.2"/>
+        <circle cx="36" cy="202" r="9" fill="#10b981"/><text x="36" y="205.5" font-size="10" fill="#0a0a0f" text-anchor="middle" font-weight="700">6</text>
+        <text x="138" y="199" font-size="8.5" fill="#6ee7b7" text-anchor="middle">ROB (Reorder Buffer)</text>
+        <text x="138" y="213" font-size="6.5" fill="#94a3b8" text-anchor="middle">µops entran EN ORDEN</text>
+        <!-- BE box 7 -->
+        <rect x="251" y="178" width="222" height="48" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.2"/>
+        <circle cx="267" cy="202" r="9" fill="#10b981"/><text x="267" y="205.5" font-size="10" fill="#0a0a0f" text-anchor="middle" font-weight="700">7</text>
+        <text x="369" y="199" font-size="8.5" fill="#6ee7b7" text-anchor="middle">Estación de reserva</text>
+        <text x="369" y="213" font-size="6.5" fill="#94a3b8" text-anchor="middle">schedulers → puertos (OoO)</text>
+        <!-- BE box 8 -->
+        <rect x="482" y="178" width="222" height="48" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.2"/>
+        <circle cx="498" cy="202" r="9" fill="#10b981"/><text x="498" y="205.5" font-size="10" fill="#0a0a0f" text-anchor="middle" font-weight="700">8</text>
+        <text x="600" y="199" font-size="8.5" fill="#6ee7b7" text-anchor="middle">Ejecución</text>
+        <text x="600" y="213" font-size="6.5" fill="#94a3b8" text-anchor="middle">unidades · según flujo de datos</text>
+        <!-- BE box 9 -->
+        <rect x="713" y="178" width="222" height="48" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.2"/>
+        <circle cx="729" cy="202" r="9" fill="#10b981"/><text x="729" y="205.5" font-size="10" fill="#0a0a0f" text-anchor="middle" font-weight="700">9</text>
+        <text x="831" y="199" font-size="8.5" fill="#6ee7b7" text-anchor="middle">Retiro (Retirement)</text>
+        <text x="831" y="213" font-size="6.5" fill="#94a3b8" text-anchor="middle">escribe EN ORDEN original</text>
+        <!-- BE arrows -->
+        <line x1="242" y1="202" x2="251" y2="202" stroke="#10b981" stroke-width="1" marker-end="url(#arrBE)"/>
+        <line x1="473" y1="202" x2="482" y2="202" stroke="#10b981" stroke-width="1" marker-end="url(#arrBE)"/>
+        <line x1="704" y1="202" x2="713" y2="202" stroke="#10b981" stroke-width="1" marker-end="url(#arrBE)"/>
+      </g>
+    </svg>
+
+    <div class="op-rule" style="margin:0.8rem 0 0;border-left-color:#a78bfa"><strong>Las 9 etapas en orden</strong> — esta es la respuesta a la pregunta ⚡⚡ de la unidad: "¿cuál es el pipeline de un procesador moderno?"</div>
+    <div class="step" style="margin-top:0.5rem">
+      <div class="s" style="border-left-color:#06b6d4"><b>▸ FRONT END · en orden</b> — busca, decodifica y asigna recursos</div>
+      <div class="s"><b>1 · Búsqueda en caché L1</b> — trae la instrucción (si falla, baja al subsistema de memoria).</div>
+      <div class="s"><b>2 · Cola de instrucciones</b> — buffer donde varias instrucciones esperan ser decodificadas.</div>
+      <div class="s"><b>3 · Predecodificación (PD)</b> — agrega bits que indican tipo, longitud y recursos; hasta 6 instr./ciclo.</div>
+      <div class="s"><b>4 · Decodificación</b> — traduce cada instrucción CISC en <b>1 a 4 micro-ops RISC</b> (hay caché de µops).</div>
+      <div class="s"><b>5 · Asignación (Allocator)</b> — reserva los recursos (registros, ROB, buffers). <b>Frontera Front End / Back End.</b></div>
+      <div class="s" style="border-left-color:#10b981"><b>▸ BACK END · fuera de orden</b> — ejecuta en el orden más eficiente y retira en orden</div>
+      <div class="s"><b>6 · ROB (Reorder Buffer)</b> — las µops entran <b>en orden</b>; guarda el orden original del programa.</div>
+      <div class="s"><b>7 · Estación de reserva / ventana de instrucciones</b> — los schedulers despachan las µops <b>fuera de orden</b> por los puertos (12 en Golden Cove).</div>
+      <div class="s"><b>8 · Ejecución</b> — las unidades (ALU, FPU, AVX, AGU…) procesan las µops según el flujo de datos.</div>
+      <div class="s"><b>9 · Retiro (Retirement)</b> — el ROB escribe los resultados <b>en el orden original</b>, para que el programa parezca secuencial.</div>
+    </div>
+    <div class="grid grid-3" style="margin-top:0.7rem">
+      <div class="stat"><div class="stat-num">9</div><div class="stat-unit">etapas</div><div class="stat-cap">vs 4 del ciclo clásico</div></div>
+      <div class="stat"><div class="stat-num">90 → 502</div><div class="stat-unit">entradas ROB</div><div class="stat-cap">crecimiento del buffer · Golden Cove</div></div>
+      <div class="stat"><div class="stat-num">CISC → µops</div><div class="stat-unit">RISC internas</div><div class="stat-cap">el Front End decodifica</div></div>
+    </div>
+    <div class="insight">💡 Idea central · El Front End trabaja <strong>en orden</strong> (decodifica y prepara). El Back End trabaja <strong>desordenado</strong> (ejecuta lo que está listo). El Retire vuelve a orden al final para que el programa parezca secuencial.</div>
+  </div>
+</div>
+
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🗃️ Buffers del back end <span class="tier key">detalle del pipeline · el profe: «muy importante» del ROB</span></div>
+    <div class="op-rule">No es una pregunta aparte: es <strong>parte del pipeline moderno</strong> de arriba. El profe los explicó dentro de las 9 etapas (clase 2026-05-11) y dijo <strong>«muy importante»</strong> del ROB y la estación de reserva. Acá los <strong>tres buffers del back end</strong> agrupados para repaso: <strong>ROB + estación de reserva + buffer de almacenamiento</strong>.</div>
+    <div class="cmatrix-wrap">
+      <div class="cmatrix" style="grid-template-columns:230px 1fr">
+        <div class="cm-corner">buffer</div>
+        <div class="cm-head">qué hace en el back end</div>
+        <div class="cm-rl">ROB · Reorder Buffer</div>
+        <div>las µops <strong>entran en orden</strong> y guarda el <strong>orden original del programa</strong>; al retirar reordena las escrituras a ese orden. Buffer <strong>clave del OoO</strong> (90 → 502 entradas en Golden Cove).</div>
+        <div class="cm-rl" style="flex-direction:column;align-items:flex-start;gap:0.15rem">Estación de reserva<span class="sub" style="font-size:0.5rem;color:var(--muted)">= ventana de instrucciones</span></div>
+        <div>aloja las µops <strong>esperando despacho</strong>; los <em>schedulers</em> las mandan <strong>fuera de orden</strong> por los <strong>puertos</strong> a las unidades de ejecución.</div>
+        <div class="cm-rl" style="flex-direction:column;align-items:flex-start;gap:0.15rem">Buffer de almacenamiento<span class="sub" style="font-size:0.5rem;color:var(--muted)">store buffer</span></div>
+        <div>registros temporales que sostienen resultados intermedios para el <strong>forwarding</strong> entre instrucciones.</div>
+      </div>
+    </div>
+    <div class="note warn">⚠️ No confundir con los buffers del <strong>front end</strong>: <strong>cola de instrucciones</strong> (etapa 2), <strong>caché de µops</strong> (etapa 4) y la <strong>BPU + BTB</strong> (predicción de saltos). El <strong>Allocator</strong> (etapa 5) es la frontera y reserva los recursos: registros, ROB, buffers.</div>
+  </div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">🛠️ Unidades de ejecución del Back End <span class="tier ctx">referencia · etapa 8</span></div>
+    <div class="op-rule">Despachadas por los puertos, las µops caen en una de estas <strong>unidades de ejecución</strong>. Un núcleo moderno tiene <strong>varias de cada tipo</strong> (por eso es superescalar). No hay que memorizar la lista — sí reconocer las siglas:</div>
+    <div class="cmatrix-wrap">
+      <div class="cmatrix" style="grid-template-columns:160px 1fr">
+        <div class="cm-corner">unidad</div>
+        <div class="cm-head">qué hace</div>
+        <div class="cm-rl">ALU</div><div>aritmética y lógica con <strong>enteros</strong></div>
+        <div class="cm-rl">FPU</div><div>aritmética en <strong>punto flotante</strong> (números reales)</div>
+        <div class="cm-rl">AGU</div><div>Address Generation Unit — calcula <strong>direcciones</strong> para load / store</div>
+        <div class="cm-rl">LEA</div><div>Load Effective Address — carga un <strong>puntero</strong> a un dato</div>
+        <div class="cm-rl">SHIFT</div><div>corrimiento de bits</div>
+        <div class="cm-rl">BRANCH</div><div>resuelve y predice <strong>saltos</strong></div>
+        <div class="cm-rl">FMA</div><div>Fused Multiply-Add — multiplica y suma en flotante en <strong>una sola</strong> operación</div>
+        <div class="cm-rl">MMX · SSE · AVX · AVX2</div><div>unidades <strong>vectoriales SIMD</strong> de 64 · 128 · 256 · 512 bits</div>
+        <div class="cm-rl">AMX</div><div>cálculo avanzado de <strong>matrices</strong> (cifrado, IA)</div>
+      </div>
+    </div>
+    <div class="insight">💡 Son las "manos del pulpo" (analogía del profe): el superescalar tiene <strong>muchas</strong> unidades para ejecutar varias µops por ciclo. Las SIMD (SSE / AVX) son las que hacen el cálculo vectorial de Flynn (§07).</div>
+  </div>
+</div>
+
+<!-- ============ 06 · CISC vs RISC ============ -->
+<div class="section-label" id="s06">06 — CISC vs RISC <span class="tier core">cierra el Front End: CISC → µops</span></div>
+<div class="dek">El Front End que acabamos de ver <b>decodifica CISC → micro-ops RISC</b>. ¿Qué son esas dos siglas? Las <b>dos filosofías para diseñar el set de instrucciones (ISA)</b> — entenderlas explica por qué el chip moderno traduce de una a la otra.</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">⚔️ Dos filosofías de ISA (set de instrucciones)</div>
+    <div class="op-rule">La <strong>ISA</strong> (Instruction Set Architecture) es el repertorio de instrucciones que el procesador entiende. Hay dos maneras de diseñarlo: <strong>CISC</strong> (pocas instrucciones potentes y complejas) y <strong>RISC</strong> (muchas instrucciones simples que corren en 1 ciclo).</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>CISC · Complex Instruction Set</h4>
+        <div class="vs-row">instrucciones <strong>complejas</strong>, pocas operaciones por programa</div>
+        <div class="vs-row">tarda <strong>varios ciclos</strong> · tamaño <strong>variable</strong> (1–N bytes)</div>
+        <div class="vs-row">control <strong>microprogramado</strong> (ROM de control) · <strong>muchos modos de direccionamiento</strong></div>
+        <div class="vs-row"><strong>muchas instrucciones acceden a memoria</strong> (no solo load/store)</div>
+        <div class="vs-row">familia <strong>x86</strong> (Intel · AMD) · 68000 · VAX</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>RISC · Reduced Instruction Set</h4>
+        <div class="vs-row">instrucciones <strong>simples</strong>, muchas por programa · <strong>1 ciclo</strong> c/u (pipeline-friendly)</div>
+        <div class="vs-row"><strong>misma longitud</strong> (ej. 32 bits) · decodificación rápida</div>
+        <div class="vs-row">control <strong>cableado</strong> (más veloz) · pocos modos de direccionamiento</div>
+        <div class="vs-row"><strong>solo LOAD y STORE</strong> tocan memoria · el resto es <strong>registro a registro</strong></div>
+        <div class="vs-row"><strong>ARM</strong> · MIPS · PowerPC · SPARC · RISC-V</div>
+      </div>
+    </div>
+    <div class="insight">💡 de la clase · "Esto tiene más sentido <strong>antes</strong>". Hoy los procesadores son <strong>híbridos</strong>: el Front End del x86 toma instrucciones CISC y las <strong>descompone en micro-operaciones RISC</strong> (µops) — para que el Back End pueda ejecutarlas rápido en el pipeline. Por eso CISC vs RISC conecta directo con el pipeline moderno (sección anterior).</div>
+  </div>
+</div>
+
+<!-- ============ 07 · Flynn ============ -->
+<div class="section-label" id="s07">07 — Taxonomía de Flynn <span class="tier core">SISD · SIMD · MISD · MIMD</span></div>
+<div class="dek">Hasta acá todo fue <b>un</b> procesador. Flynn da el marco para <b>clasificar cualquier arquitectura</b> según cuántos flujos de instrucciones y datos maneja — y su conclusión, <b>los modernos son MIMD = multinúcleo</b>, abre la segunda mitad de la unidad: <span class="q">varios procesadores</span>.</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto 1rem">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🗂️ ¿Qué es la taxonomía de Flynn?</div>
+    <div class="op-rule"><strong>Taxonomía = clasificación.</strong> Michael Flynn (doble n) clasificó las arquitecturas de computadores según <strong>dos ejes</strong>: cuántos <strong>flujos de instrucciones</strong> y cuántos <strong>flujos de datos</strong> maneja el procesador a la vez. No mira si es RISC/CISC ni Harvard — solo <strong>cuán paralelo</strong> es el procesamiento. Cruzar los 2 ejes (1 o varios × 1 o varios) da <strong>4 categorías</strong>.</div>
+    <div class="formula cyan-f"><strong>S</strong>ingle / <strong>M</strong>ultiple &nbsp;·&nbsp; <strong>I</strong>nstruction (instrucciones) &nbsp;·&nbsp; <strong>D</strong>ata (datos)</div>
+    <div class="proplist pl-green" style="margin-top:0.6rem">
+      <div>✓ <strong>lo que hay que saber:</strong> los procesadores modernos (multinúcleo) son <strong>MIMD</strong></div>
+      <div>✓ <strong>SIMD</strong> = una instrucción sobre un array → cálculo vectorial (SSE/AVX, GPU, MMX del Pentium)</div>
+      <div>✓ <strong>MISD</strong> prácticamente no se usa (sin implementación comercial)</div>
+    </div>
+    <div class="insight">💡 Ejemplo SIMD del apunte · retoque fotográfico: cada pixel = 4 bytes (RGB+alfa). Un <strong>SISD</strong> trae 1 pixel por vez; un <strong>SIMD de 512 bits</strong> trae <strong>16 pixeles a la vez</strong> y los modifica todos con <strong>una sola instrucción</strong>.</div>
+  </div>
+</div>
+<div class="cmatrix-wrap">
+  <div class="cmatrix" style="grid-template-columns:130px repeat(4,1fr)">
+    <div class="cm-corner">flujos →</div>
+    <div class="cm-head">SISD<span class="sub">Single Instr · Single Data</span></div>
+    <div class="cm-head">SIMD<span class="sub">Single Instr · Multiple Data</span></div>
+    <div class="cm-head">MISD<span class="sub">Multiple Instr · Single Data</span></div>
+    <div class="cm-head is-key">MIMD<span class="sub">Multiple Instr · Multiple Data</span></div>
+
+    <div class="cm-rl">instrucciones</div>
+    <div>1 flujo</div>
+    <div>1 flujo</div>
+    <div>varios flujos</div>
+    <div>varios flujos</div>
+
+    <div class="cm-rl">datos</div>
+    <div>1 flujo</div>
+    <div>varios flujos</div>
+    <div>1 flujo</div>
+    <div>varios flujos</div>
+
+    <div class="cm-rl">ejemplo</div>
+    <div>PC clásico (1 núcleo simple)</div>
+    <div>GPU · AVX vectorial</div>
+    <div>casos tolerantes a fallos · poco usado</div>
+    <div><strong>PCs y servidores modernos</strong> (multicore)</div>
+
+    <div class="cm-rl">paralelismo</div>
+    <div>—</div>
+    <div>datos en paralelo</div>
+    <div>raro</div>
+    <div>tareas en paralelo · multinúcleo</div>
+  </div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0.8rem auto 0">
+  <div class="insight" style="max-width:1400px;margin:0 auto">💡 Mnemónico: <strong>S</strong>ingle / <strong>M</strong>ultiple · <strong>I</strong>nstruction / <strong>D</strong>ata. "Los procesadores modernos son <strong>MIMD</strong>" (varios núcleos ejecutando varios flujos sobre varios datos).</div>
+</div>
+
+<!-- ============ 08 · Multiprocesadores + SMP ============ -->
+<div class="section-label" id="s08">08 — Multiprocesadores · SMP <span class="tier key">⚡⚡ ★ las 5 características</span></div>
+<div class="dek">Flynn cerró diciendo: los modernos son <b>MIMD</b> = varios procesadores. Pero <span class="q">¿cómo se organizan esos procesadores?</span> Hay un mapa de opciones — y el profe pidió específicamente <b>el simétrico (SMP)</b>, que es justo el que implementa todo chip multinúcleo.</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto 1rem">
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="card-title">🧩 ¿Qué es un multiprocesador? ¿Hay otros tipos?</div>
+    <div class="op-rule"><strong>Multiprocesador</strong> = un sistema con <strong>2 o más procesadores</strong> trabajando juntos. No hay uno solo: se clasifican por <strong>dos ejes</strong> independientes.</div>
+    <div class="cmatrix-wrap">
+      <div class="cmatrix" style="grid-template-columns:130px 1fr 1fr">
+        <div class="cm-corner">eje</div>
+        <div class="cm-head">opción A</div>
+        <div class="cm-head">opción B</div>
+        <div class="cm-rl">¿la memoria?</div>
+        <div><strong>Compartida</strong> — todos ven la misma RAM, un solo equipo → <strong>SMP · multicore</strong> <span style="color:#94a3b8">(acceso UMA)</span></div>
+        <div><strong>Distribuida</strong> — cada nodo su RAM, unidos por red → <strong>clusters</strong> <span style="color:#94a3b8">(acceso NUMA, §09)</span></div>
+        <div class="cm-rl">¿los roles?</div>
+        <div class="ok"><strong>Simétrico (SMP)</strong> ★ — todos los procesadores iguales; cualquiera hace cualquier tarea</div>
+        <div><strong>Asimétrico</strong> — roles distintos: maestro/esclavo, o cores <strong>P+E</strong> heterogéneos (Intel desde Alder Lake)</div>
+      </div>
+    </div>
+    <div class="insight">💡 <strong>Por qué el foco es el SMP:</strong> es el modelo <strong>memoria compartida + simétrico</strong> que usa todo procesador multinúcleo de escritorio — los cores comparten RAM y caché L3, y un único SO reparte el trabajo entre cores iguales. Clusters (distribuida) y cores P+E (asimétricos) son las variantes, contexto. Por eso el profe pide <strong>las 5 características del SMP</strong> ↓.</div>
+  </div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">🎯 Pregunta hipotética dictada — las 5 características del SMP</div>
+    <div class="op-rule">Cita verbatim (clase 2026-05-11): "<strong>si yo les pregunto, por ejemplo, cuáles son las características de un sistema de multiprocesamiento simétrico…</strong>" — y enumeró 5. Para responder bien, las 5 tienen que ir.</div>
+    <div class="proplist pl-amber">
+      <div><b style="color:#fff">1.</b> los procesadores comparten el <strong>mismo espacio de memoria y de E/S</strong></div>
+      <div><b style="color:#fff">2.</b> todos los procesadores tienen los <strong>mismos tiempos de acceso</strong> a memoria/E/S</div>
+      <div><b style="color:#fff">3.</b> todos ejecutan los <strong>mismos algoritmos</strong> (cualquier núcleo puede hacer cualquier tarea)</div>
+      <div><b style="color:#fff">4.</b> hay un <strong>único SO</strong> integrado que coordina a todos</div>
+      <div><b style="color:#fff">5.</b> es <strong>transparente al usuario</strong> (no sabe si hay 1, 4 u 8 núcleos)</div>
+    </div>
+    <div class="note ok">✓ "Simétrico" = todos los procesadores son iguales en capacidades, acceso a memoria y permisos. La asimetría aparece en sistemas con cores Performance + Efficient (Intel desde Alder Lake), donde un SO híbrido decide qué core ejecuta qué.</div>
+    <div class="exam-q">
+      <div class="q">¿Cuáles son las características de un sistema de multiprocesamiento simétrico (SMP)?</div>
+      <div class="a"><strong>Las 5:</strong> (1) mismo espacio de memoria y E/S, (2) mismos tiempos de acceso, (3) mismos algoritmos, (4) SO único integrado, (5) transparente al usuario. Una respuesta con 3 o 4 puede ser incompleta — el profe enumeró 5.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 09 ============ -->
+<div class="section-label" id="s09">09 — Multihilo · Clusters · UMA/NUMA <span class="tier core">cierra el hilo de multiprocesadores · entra al final</span></div>
+<div class="dek">La memoria compartida del SMP se apoya en <b>un bus común</b> → eso lo limita. Acá: cómo se escala más allá (<b>clusters</b> = varios equipos en red), cómo se mide el acceso a memoria (<b>UMA</b> parejo en SMP · <b>NUMA</b> desparejo en clusters), y <b>multihilo</b> = exprimir las burbujas del pipeline con un segundo hilo.</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto 1.2rem">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">🧬 ¿Qué es un hilo? — instrucción · programa · proceso · hilo <span class="tier ctx">base conceptual</span></div>
+    <div class="op-rule">Cuatro niveles que se anidan: una <strong>instrucción</strong> es la operación mínima del CPU; un <strong>programa</strong> es el archivo en disco (estático); un <strong>proceso</strong> es ese programa <strong>en ejecución</strong>, con su propia memoria; un <strong>hilo</strong> es un <strong>flujo secuencial de instrucciones dentro del proceso</strong>. Un proceso puede tener <strong>varios hilos</strong> que comparten su memoria.</div>
+    <svg viewBox="0 0 720 195" width="100%" style="display:block;margin:0.6rem auto;max-width:720px" role="img" aria-label="Un programa en disco se carga como un proceso, que contiene uno o más hilos; cada hilo es una secuencia de instrucciones y todos comparten la memoria del proceso">
+      <defs><marker id="arrHj" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#94a3b8"/></marker></defs>
+      <g font-family="JetBrains Mono,monospace">
+        <rect x="8" y="66" width="104" height="54" rx="5" fill="rgba(148,163,184,0.06)" stroke="#94a3b8" stroke-width="1.2"/>
+        <text x="60" y="90" fill="#cbd5e1" text-anchor="middle" font-size="10">Programa</text>
+        <text x="60" y="106" fill="#94a3b8" text-anchor="middle" font-size="7">archivo en disco</text>
+        <line x1="114" y1="93" x2="146" y2="93" stroke="#94a3b8" stroke-width="1.3" marker-end="url(#arrHj)"/>
+        <rect x="152" y="16" width="560" height="164" rx="8" fill="rgba(124,58,237,0.04)" stroke="#7c3aed" stroke-width="1.3" stroke-dasharray="5 3"/>
+        <text x="166" y="36" fill="#a78bfa" font-size="9" font-weight="700">Proceso · instancia viva, con su propia memoria</text>
+        <rect x="166" y="44" width="532" height="18" rx="3" fill="rgba(148,163,184,0.07)" stroke="#2a2a3e"/>
+        <text x="432" y="56" fill="#94a3b8" text-anchor="middle" font-size="7.5">memoria compartida (código + datos)</text>
+        <rect x="166" y="72" width="258" height="98" rx="5" fill="rgba(6,182,212,0.06)" stroke="#06b6d4" stroke-width="1.2"/>
+        <text x="180" y="90" fill="#67e8f9" font-size="8">Hilo 1 · flujo de instrucciones</text>
+        <text x="186" y="112" fill="#cbd5e1" font-size="8">load r1, [a]</text>
+        <text x="186" y="130" fill="#cbd5e1" font-size="8">add r1, r1, 4</text>
+        <text x="186" y="148" fill="#cbd5e1" font-size="8">store [a], r1</text>
+        <rect x="440" y="72" width="258" height="98" rx="5" fill="rgba(6,182,212,0.06)" stroke="#06b6d4" stroke-width="1.2"/>
+        <text x="454" y="90" fill="#67e8f9" font-size="8">Hilo 2 · flujo de instrucciones</text>
+        <text x="460" y="112" fill="#cbd5e1" font-size="8">load r2, [b]</text>
+        <text x="460" y="130" fill="#cbd5e1" font-size="8">mul r2, r2, 2</text>
+        <text x="460" y="148" fill="#cbd5e1" font-size="8">store [b], r2</text>
+      </g>
+    </svg>
+    <div class="proplist pl-cyan" style="margin-top:0.5rem">
+      <div><strong>instrucción</strong> ⊂ <strong>hilo</strong> ⊂ <strong>proceso</strong> · el <strong>programa</strong> es el archivo que, al ejecutarse, genera el proceso</div>
+    </div>
+    <div class="insight">💡 Conexión con la unidad · El <strong>superescalar</strong> acelera <strong>UN</strong> hilo (varias instrucciones del mismo flujo por ciclo = ILP, §02–03). El <strong>multinúcleo</strong> corre <strong>VARIOS</strong> hilos a la vez (TLP, §08). Los hilos de un proceso <strong>comparten memoria</strong> (rápido, pero hay que sincronizar); los procesos están <strong>aislados</strong>.</div>
+  </div>
+</div>
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">🧵 Multihilo / Hyper-threading</div>
+    <div class="op-rule">El <strong>Front End envía 2 hilos</strong> a la vez por el pipeline: cuando un hilo deja <strong>burbujas</strong> (agujeros por dependencias, saltos o estructura), el <strong>otro hilo aprovecha esos huecos</strong> → más instrucciones en vuelo, mejor eficiencia. El núcleo físico se presenta al SO como <strong>2 procesadores lógicos</strong> (un i9 de 8 núcleos → el SO ve <strong>16</strong>).</div>
+    <div class="proplist pl-cyan">
+      <div><b style="color:#fff">Nombre:</b> Intel = <strong>Hyper-Threading (HT)</strong> · AMD = <strong>SMT</strong>. Estreno: <strong>Pentium 4 HT (2002)</strong>, luego en la arquitectura Core.</div>
+      <div><b style="color:#fff">Costo:</b> necesita más registros y hardware de control → más consumo y más caro.</div>
+    </div>
+    <div class="insight">💡 No multiplica núcleos: <strong>rellena las burbujas</strong> de un hilo con trabajo de otro. Por eso "2 lógicos por núcleo físico" rinde menos que 2 núcleos reales, pero sale casi gratis en silicio.</div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">🌐 Clusters + RAID + UMA / NUMA / CC-NUMA</div>
+    <div class="proplist pl-purple">
+      <div><b style="color:#fff">Cluster:</b> varias computadoras completas (<strong>nodos</strong>) unidas por red (LAN — fibra/Ethernet) que funcionan como una sola</div>
+      <div><b style="color:#fff">RAID:</b> arreglo de discos con uno <strong>redundante</strong> — si un disco falla, reconstruye el dato</div>
+      <div><b style="color:#fff">UMA:</b> Uniform — <strong>mismo tiempo</strong> de acceso a memoria para todos (lo que cumple el SMP)</div>
+      <div><b style="color:#fff">NUMA:</b> Non-Uniform — tiempos <strong>distintos</strong> (cada CPU tiene memoria "cerca"); típico en clusters</div>
+      <div><b style="color:#fff">CC-NUMA:</b> NUMA + <strong>coherencia de caché</strong> entre nodos</div>
+    </div>
+    <div class="insight">💡 SMP = UMA (memoria compartida pareja) · clusters = NUMA (memoria distribuida despareja). La coherencia de caché evita que un núcleo lea un dato viejo que otro ya cambió.</div>
+  </div>
+
+</div>
+
+<!-- ============ 10 ============ -->
+<div class="section-label is-ctx" id="s10">10 — Evolución · de Pentium a Golden Cove <span class="tier ctx">contexto</span></div>
+<div class="dek">Todo lo visto, en una línea de tiempo: cómo cada idea —superescalar → superpipelining → multinúcleo → P+E / chiplets— fue apareciendo en un procesador real.</div>
+<div class="grid grid-1 is-ctx" style="max-width:1400px;margin:0 auto">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">📅 30 años de procesadores</div>
+    <div class="timeline">
+      <div class="tl-item gen0">
+        <span class="tl-year">1993</span>
+        <span class="tl-dot"></span>
+        <span class="tl-label">Pentium</span>
+        <span class="tl-sub">primer x86 superescalar · 2 ALUs · Harvard interno</span>
+      </div>
+      <div class="tl-item gen1">
+        <span class="tl-year">2000</span>
+        <span class="tl-dot"></span>
+        <span class="tl-label">Pentium 4</span>
+        <span class="tl-sub">superpipelining · 20-31 etapas · cuello en saltos</span>
+      </div>
+      <div class="tl-item gen2">
+        <span class="tl-year">2006</span>
+        <span class="tl-dot"></span>
+        <span class="tl-label">Core 2 Duo</span>
+        <span class="tl-sub">multinúcleo doméstico · SMP de 2 cores</span>
+      </div>
+      <div class="tl-item gen3">
+        <span class="tl-year">2021+</span>
+        <span class="tl-dot"></span>
+        <span class="tl-label">Golden Cove · Zen 4</span>
+        <span class="tl-sub">P+E cores · ROB 502 · chiplets (AMD)</span>
+      </div>
+    </div>
+    <div class="insight">💡 Analogía de la pizza (clase 2026-05-18) · Cuando hago chips grandes hay más probabilidad de que tengan zonas falladas (como una pizza grande quemada en una esquina); con chips pequeños (<strong>chiplets</strong>) la probabilidad de defecto baja → mejor <strong>yield</strong> (rendimiento de fabricación). Por eso AMD partió el procesador en piezas.</div>
+  </div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">🧩 Chiplets / MCM + arquitectura Zen <span class="tier ctx">contexto · cómo se arma un CPU hoy</span></div>
+    <div class="op-rule">Un "procesador" moderno ya no es <strong>un</strong> chip: es un <strong>MCM (Multi-Chip Module)</strong> = varios chips ("chiplets") interconectados por un bus de alta velocidad (AMD lo llama <strong>Infinity Fabric</strong>).</div>
+    <div class="proplist pl-cyan">
+      <div><b style="color:#fff">CCD</b> (Core Complex Die): el chiplet con los <strong>núcleos</strong></div>
+      <div><b style="color:#fff">IOD</b> (Input/Output Die): el chiplet controlador de <strong>E/S</strong> y memoria</div>
+      <div><b style="color:#fff">Ventaja (yield):</b> los chips chicos fallan menos en fabricación; si uno sale defectuoso se descarta solo ese, no todo el procesador</div>
+      <div><b style="color:#fff">Bonus:</b> cada chiplet puede usar <strong>distinto proceso de fabricación</strong> (ej. CCD a 7 nm + IOD a 12 nm) → abarata costos</div>
+    </div>
+    <div class="op-rule" style="margin-bottom:0"><strong>Arquitectura Zen (AMD, 2017+)</strong> popularizó los chiplets en escritorio: Ryzen 3600 = 1 CCD (7 nm) + 1 IOD (12 nm); Zen 2 corre en la <strong>PS5 y Xbox Series</strong>. Cada núcleo tiene su Front End, rename, schedulers y unidades de ejecución, con L2 propio y <strong>L3 compartido</strong>.</div>
+    <div class="note warn">🚫 El <strong>concepto</strong> de chiplet/MCM sí entra. La <strong>nomenclatura comercial</strong> de Intel ("TILE / Mosaico" en los Core Ultra) y los nombres en código (Zen 4/5) <strong>el profe dijo que no los toma</strong>.</div>
+  </div>
+</div>
+
+<!-- ============ 10b · Síntesis ============ -->
+<div class="section-label" id="s10b">10b — Síntesis · las 3 formas de escalar <span class="tier key">★ panorama</span></div>
+<div class="dek">Las cuatro arquitecturas de la unidad son <b>tres movimientos</b> sobre el mismo pipeline base: hacerlo <b>más profundo</b>, <b>más ancho</b>, o <b>replicar el núcleo entero</b>. Acá juntas, en un cuadro.</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="card-title">🪜 Profundidad · ancho · replicación</div>
+    <div class="op-rule">Partís de un <strong>pipeline</strong> (una vía de N etapas). Lo hacés <strong>más profundo</strong> (superpipeline: más etapas → más GHz), <strong>más ancho</strong> (superescalar: más vías → más instrucciones por ciclo), o <strong>replicás el núcleo entero</strong> (multinúcleo: más hilos a la vez). Son <strong>ejes ortogonales</strong> — un CPU moderno usa los tres a la vez.</div>
+    <svg viewBox="0 0 720 250" width="100%" style="display:block;margin:0.6rem auto;max-width:720px" role="img" aria-label="Las cuatro formas: pipeline (una vía), superpipeline (más etapas finas), superescalar (varias vías) y multinúcleo (varios núcleos completos)">
+      <g font-family="JetBrains Mono,monospace">
+        <text x="10" y="46" fill="#a78bfa" font-size="11" font-weight="700">Pipeline</text>
+        <rect x="120" y="30" width="64" height="24" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="152" y="46" fill="#a78bfa" text-anchor="middle" font-size="8">IF</text>
+        <rect x="190" y="30" width="64" height="24" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="222" y="46" fill="#67e8f9" text-anchor="middle" font-size="8">ID</text>
+        <rect x="260" y="30" width="64" height="24" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="292" y="46" fill="#fbbf24" text-anchor="middle" font-size="8">OF</text>
+        <rect x="330" y="30" width="64" height="24" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="362" y="46" fill="#6ee7b7" text-anchor="middle" font-size="8">EX</text>
+        <text x="412" y="46" fill="#94a3b8" font-size="8">1 vía · temporal · 1 resultado/ciclo</text>
+
+        <text x="10" y="100" fill="#67e8f9" font-size="11" font-weight="700">Superpipeline</text>
+        <rect x="120" y="84" width="28" height="24" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/>
+        <rect x="152" y="84" width="28" height="24" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/>
+        <rect x="184" y="84" width="28" height="24" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/>
+        <rect x="216" y="84" width="28" height="24" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/>
+        <rect x="248" y="84" width="28" height="24" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/>
+        <rect x="280" y="84" width="28" height="24" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/>
+        <rect x="312" y="84" width="28" height="24" fill="rgba(16,185,129,0.20)" stroke="#10b981"/>
+        <rect x="344" y="84" width="28" height="24" fill="rgba(16,185,129,0.20)" stroke="#10b981"/>
+        <text x="412" y="100" fill="#94a3b8" font-size="8">misma vía, +etapas más finas → +GHz · sigue 1/ciclo</text>
+
+        <text x="10" y="152" fill="#fbbf24" font-size="11" font-weight="700">Superescalar</text>
+        <rect x="120" y="132" width="64" height="20" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="152" y="146" fill="#a78bfa" text-anchor="middle" font-size="7">IF</text>
+        <rect x="190" y="132" width="64" height="20" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="222" y="146" fill="#67e8f9" text-anchor="middle" font-size="7">ID</text>
+        <rect x="260" y="132" width="64" height="20" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="292" y="146" fill="#fbbf24" text-anchor="middle" font-size="7">OF</text>
+        <rect x="330" y="132" width="64" height="20" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="362" y="146" fill="#6ee7b7" text-anchor="middle" font-size="7">EX</text>
+        <rect x="120" y="156" width="64" height="20" fill="rgba(124,58,237,0.20)" stroke="#7c3aed"/><text x="152" y="170" fill="#a78bfa" text-anchor="middle" font-size="7">IF</text>
+        <rect x="190" y="156" width="64" height="20" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/><text x="222" y="170" fill="#67e8f9" text-anchor="middle" font-size="7">ID</text>
+        <rect x="260" y="156" width="64" height="20" fill="rgba(245,158,11,0.20)" stroke="#f59e0b"/><text x="292" y="170" fill="#fbbf24" text-anchor="middle" font-size="7">OF</text>
+        <rect x="330" y="156" width="64" height="20" fill="rgba(16,185,129,0.20)" stroke="#10b981"/><text x="362" y="170" fill="#6ee7b7" text-anchor="middle" font-size="7">EX</text>
+        <text x="412" y="156" fill="#94a3b8" font-size="8">+vías en paralelo · espacial (ILP) · N/ciclo</text>
+
+        <text x="10" y="214" fill="#34d399" font-size="11" font-weight="700">Multinúcleo</text>
+        <rect x="120" y="190" width="125" height="42" rx="5" fill="rgba(16,185,129,0.06)" stroke="#10b981"/>
+        <text x="182" y="208" fill="#6ee7b7" text-anchor="middle" font-size="9">Núcleo 1</text>
+        <text x="182" y="222" fill="#94a3b8" text-anchor="middle" font-size="6.5">superescalar + profundo</text>
+        <rect x="255" y="190" width="125" height="42" rx="5" fill="rgba(16,185,129,0.06)" stroke="#10b981"/>
+        <text x="317" y="208" fill="#6ee7b7" text-anchor="middle" font-size="9">Núcleo 2</text>
+        <text x="317" y="222" fill="#94a3b8" text-anchor="middle" font-size="6.5">superescalar + profundo</text>
+        <text x="412" y="214" fill="#94a3b8" font-size="8">+núcleos completos · 1 hilo c/u · de hilo (TLP)</text>
+      </g>
+    </svg>
+    <div class="cmatrix-wrap">
+      <div class="cmatrix" style="grid-template-columns:140px repeat(4,1fr)">
+        <div class="cm-corner">eje / técnica</div>
+        <div class="cm-head">Pipeline<span class="sub">segmentación</span></div>
+        <div class="cm-head">Superpipeline<span class="sub">+ profundo</span></div>
+        <div class="cm-head">Superescalar<span class="sub">+ ancho</span></div>
+        <div class="cm-head">Multinúcleo<span class="sub">+ núcleos</span></div>
+
+        <div class="cm-rl">qué se replica</div>
+        <div>nada (se divide)</div>
+        <div>etapas más finas</div>
+        <div>la vía ×N (más ALUs)</div>
+        <div>el núcleo entero ×N</div>
+
+        <div class="cm-rl">instr. por ciclo</div>
+        <div>1</div>
+        <div>1</div>
+        <div>N (2·4·6)</div>
+        <div>N por núcleo</div>
+
+        <div class="cm-rl">IPC máx</div>
+        <div>1</div>
+        <div>1 <span style="color:#94a3b8">(+ GHz)</span></div>
+        <div>N</div>
+        <div>N × núcleos</div>
+
+        <div class="cm-rl">paralelismo</div>
+        <div><strong style="color:#34d399">temporal</strong></div>
+        <div><strong style="color:#34d399">temporal</strong> (fino)</div>
+        <div><strong style="color:#fbbf24">espacial</strong> (ILP)</div>
+        <div><strong style="color:#f87171">de hilo</strong> (TLP)</div>
+
+        <div class="cm-rl">nº de hilos</div>
+        <div>1</div>
+        <div>1</div>
+        <div>1</div>
+        <div>varios</div>
+
+        <div class="cm-rl">lo aprovecha</div>
+        <div>HW solo</div>
+        <div>HW solo</div>
+        <div>HW solo</div>
+        <div>SW + SO</div>
+
+        <div class="cm-rl">ejemplo</div>
+        <div>4 etapas clásicas</div>
+        <div>Pentium 4 (20–31)</div>
+        <div>Pentium 1993 (2 ALUs)</div>
+        <div>Core 2 Duo · i7</div>
+      </div>
+    </div>
+    <div class="insight">💡 Eje 1 (profundidad + ancho) exprime <strong>un</strong> hilo → lo hace el hardware solo, sin tocar el programa. Eje 2 (replicación) corre <strong>varios</strong> hilos → hay que programarlos. Por eso el multinúcleo necesita software con hilos (§09) y el superescalar acelera el binario viejo sin cambiarlo.</div>
+  </div>
+</div>
+
+<!-- ============ 11 ============ -->
+<div class="section-label" id="s11">11 — Auto-test (recuperación activa) <span class="tier key">⚡ lo que más cae</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🧠 Tapá la respuesta y respondé</div>
+    <details class="recall">
+      <summary>El pipeline es paralelismo… ¿temporal o espacial? (TRAMPA)</summary>
+      <div class="recall-a"><strong>Temporal.</strong> Una sola operación se divide en etapas que trabajan a la vez sobre instrucciones distintas. El paralelismo <strong>espacial</strong> es duplicar hardware (2 ALUs = superescalar, 2 núcleos = multicore).</div>
+    </details>
+    <details class="recall">
+      <summary>¿Por qué el pipeline básico ideal tiene IPC = 1?</summary>
+      <div class="recall-a">Porque después de llenarse, <strong>una instrucción nueva sale en cada ciclo</strong>: aunque cada una sigue tardando 4 ciclos en cruzar las etapas, el throughput es 1/ciclo. Sin pipeline sería 0,25.</div>
+    </details>
+    <details class="recall">
+      <summary>¿Qué resuelve la ejecución fuera de orden (OoO)?</summary>
+      <div class="recall-a">El problema de <strong>datos</strong>: si una instrucción está esperando el resultado de otra, el procesador busca <strong>más adelante</strong> una instrucción que pueda ejecutar ya. Acompañado de registros de renombramiento para evitar falsas dependencias.</div>
+    </details>
+    <details class="recall">
+      <summary>¿Qué procesador fue el primer x86 superescalar y qué hay que saber de él?</summary>
+      <div class="recall-a">El <strong>Pentium (1993)</strong>. Hay que saber: <strong>superescalar</strong>, <strong>2 ALUs</strong> (pipelines U y V), bus de 64 bits que envía <strong>2 instrucciones de 32 bits</strong>, <strong>arquitectura Harvard interna</strong>. NO hay que saber 3,1 millones de transistores.</div>
+    </details>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">📝 Respuestas modelo (las 3 preguntas dictadas)</div>
+    <div class="exam-q">
+      <div class="q">¿Cuál es el pipeline de los procesadores modernos?</div>
+      <div class="a">Se divide en <strong>Front End</strong> (en orden: búsqueda → decodificación CISC→µops → asignación) y <strong>Back End</strong> (fuera de orden: el ROB guarda el orden, los schedulers despachan por puertos a las unidades de ejecución — ALU, FPU, AVX, AGU — → ejecución → <strong>retiro</strong> que reordena al final). El <strong>ROB</strong> (Reorder Buffer, 502 entradas en Golden Cove) conserva el orden original del programa.</div>
+    </div>
+    <div class="exam-q">
+      <div class="q">¿Cuáles son los problemas del pipeline y cómo se resuelven?</div>
+      <div class="a"><strong>Datos</strong> (instrucción necesita resultado pendiente) → forwarding + OoO + renombramiento. <strong>Control</strong> (saltos) → predictor de saltos dinámico (&gt;95%). <strong>Estructura</strong> (compiten por recurso) → duplicar unidades (más ALUs, Harvard separa instrucción/datos).</div>
+    </div>
+    <div class="exam-q">
+      <div class="q">¿Pipeline = paralelismo temporal o espacial?</div>
+      <div class="a"><strong>Temporal</strong>. Una sola operación dividida en etapas que se solapan en el tiempo. El paralelismo espacial es duplicar hardware (superescalar, multicore, SIMD).</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 12 ============ -->
+<div class="section-label" id="s12">12 — Claves para el examen</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">💡 Tips de clase — claves para el examen</div>
+    <div class="step">
+      <div class="s"><b>1.</b> El profe dictó <b>4 preguntas hipotéticas</b> en clase (los ⚡⚡ ★): pipeline moderno · problemas del pipeline · paralelismo T vs E (TRAMPA) · 5 características del SMP. Son lo más probable que entre.</div>
+      <div class="s"><b>2.</b> <b>TRAMPA</b>: pipeline = <b>TEMPORAL</b> · superescalar/multicore = <b>ESPACIAL</b>. "Me los ponen cruzado en los exámenes".</div>
+      <div class="s"><b>3.</b> Del <b>Pentium 1993</b>: superescalar · 2 ALUs · bus 64 bits → 2 instrucciones 32 bits · Harvard interno. NO los 3,1 millones de transistores.</div>
+      <div class="s"><b>4.</b> Pipeline moderno: <b>Front End</b> (en orden, decodifica CISC → µops) + <b>Back End</b> (fuera de orden, muchas unidades) + <b>ROB</b>. 9 etapas. El <b>retiro</b> al final reordena.</div>
+      <div class="s"><b>5.</b> Las 3 categorías de problemas del pipeline van con sus 3 soluciones: <b>datos → forwarding+OoO+renombramiento</b> · <b>control → predictor de saltos</b> · <b>estructura → duplicar unidades</b>.</div>
+      <div class="s"><b>6.</b> Las <b>5</b> del SMP (no 3 ni 4): memoria/ES compartidas · mismos tiempos · mismos algoritmos · SO único · transparente al usuario.</div>
+      <div class="s"><b>7.</b> Procesadores modernos son <b>MIMD</b> (Flynn). El pipeline está en todos.</div>
+      <div class="s"><b>8.</b> En el examen, las etapas SIEMPRE en <b>castellano completo</b> (búsqueda de la instrucción, decodificación, búsqueda de operandos, ejecución) — no FI/DI/FO/EX sueltas. (Rúbrica heredada de la unidad 8.)</div>
+      <div class="s"><b>9.</b> NO entra <b>ni en el final</b>: cantidad exacta de transistores · GHz/fechas exactas por modelo · diagrama del Cortex A8 · nomenclatura TILE/Mosaico · GPU integrada / Media Engine / PCIe lanes del 13900K. Es la rúbrica general del profe ("no el detalle de un numerito").</div>
+      <div class="s"><b>10. Técnica de respuesta (el profe lo ató al final):</b> respondé con el <b>lenguaje de la materia</b> y en <b>5–6 renglones</b>, no en uno — y explicá el <b>porqué</b>, no solo el qué. El profe <b>profundiza si la respuesta es vaga</b> y corrige el vocabulario en el momento (nada de "un cacho", "un pedazo", "va más rápido"). "Ojo con el lenguaje, es importante para el final" (2026-06-15).</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Paralelismo y Procesadores de Alta Prestación · Arquitectura de Computadores · Universidad de Palermo</p>
+  <p class="out">Fuera de alcance (tampoco en el final): cantidad exacta de transistores y fechas exactas de chips · diagrama del ARM Cortex A8 · Intel Core Ultra / TILEs / nombres en código Zen 4/5 · GPU integrada, Media Engine, lanes PCIe del Core i9 13900K.</p>
+</footer>
+
+<script>
+(function () {
+  document.querySelectorAll('.diagram').forEach(function (root) {
+    var all = root.querySelectorAll('.node, .link');
+    root.querySelectorAll('.node').forEach(function (node) {
+      node.addEventListener('mouseenter', function () {
+        var id = node.dataset.id;
+        all.forEach(function (el) {
+          var rel = el.dataset.id === id || el.dataset.from === id || el.dataset.to === id;
+          el.classList.toggle('dim', !rel);
+        });
+        node.classList.add('active');
+      });
+      node.addEventListener('mouseleave', function () {
+        all.forEach(function (el) { el.classList.remove('dim'); });
+        node.classList.remove('active');
+      });
+    });
+  });
+})();
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#arquitectura-de-computadores" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

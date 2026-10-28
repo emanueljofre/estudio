@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memorias Físicas — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  header { text-align: center; margin-bottom: 2rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px; margin: 1.2rem auto 0; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .section-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--accent);
+    margin: 2.5rem auto 1rem; max-width: 1400px;
+    display: flex; align-items: center; gap: 0.8rem; scroll-margin-top: 1rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-label.is-ctx { color: var(--muted); }
+
+  .grid   { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid.is-ctx { opacity: 0.82; }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem; font-family: var(--mono); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule {
+    font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border); border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  .formula {
+    font-family: var(--mono); font-size: 0.82rem; color: #fff;
+    background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 5px; padding: 0.5rem 0.7rem; text-align: center; margin: 0.5rem 0;
+  }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+  .formula.green-f { background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.25); }
+
+  .proplist {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    display: grid; gap: 0.35rem;
+  }
+  .proplist div { padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div { background: rgba(16,185,129,0.06); }
+
+  .step { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.4rem; }
+  .step .s {
+    padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0;
+  }
+  .step .s b { color: #fff; }
+  .step.amber-s .s { border-left-color: var(--accent3); }
+  .step.cyan-s .s  { border-left-color: var(--accent2); }
+  .step.green-s .s { border-left-color: var(--accent4); }
+  .step.red-s .s   { border-left-color: var(--red); }
+
+  .note {
+    font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem;
+    padding: 0.35rem 0.55rem; border-radius: 4px; line-height: 1.45;
+  }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.06); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  .flag      { color: #f87171;        font-size: 0.55rem; margin-left: 0.5rem; font-family: var(--mono); letter-spacing: 0.05em; }
+  .flag.info { color: var(--accent3); font-size: 0.55rem; margin-left: 0.5rem; }
+
+  .insight {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--accent3);
+    background: rgba(245,158,11,0.06); border-left: 2px solid var(--accent3);
+    border-radius: 0 4px 4px 0; padding: 0.4rem 0.6rem; margin-top: 0.5rem; line-height: 1.45;
+  }
+
+  .matrix {
+    display: inline-grid; gap: 0.15rem 0.55rem; font-family: var(--mono);
+    font-size: 0.8rem; color: var(--text); padding: 0.3rem 0.65rem; position: relative;
+  }
+  .matrix::before, .matrix::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 7px;
+    border: 1.5px solid var(--accent2);
+  }
+  .matrix::before { left: 0; border-right: none; }
+  .matrix::after  { right: 0; border-left: none; }
+  .matrix span { text-align: center; }
+  .matrix .hl { color: var(--accent3); font-weight: 700; }
+  .mwrap { display: flex; justify-content: center; align-items: center; gap: 0.6rem; margin: 0.6rem 0; flex-wrap: wrap; }
+
+  .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+  .vs-side {
+    padding: 0.8rem; font-family: var(--mono); font-size: 0.72rem;
+    color: var(--muted); display: flex; flex-direction: column; gap: 0.35rem;
+  }
+  .vs-side h4 {
+    font-family: var(--display); font-size: 0.8rem; font-weight: 700;
+    color: #fff; margin-bottom: 0.3rem;
+  }
+  .vs-mid {
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.75rem; font-weight: 700;
+    color: var(--accent3); padding: 0 0.7rem;
+    border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  }
+  .vs-row { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .vs-row:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .versus { grid-template-columns: 1fr; }
+    .vs-mid {
+      border: none; border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border); padding: 0.4rem; text-align: center;
+    }
+  }
+
+  .stat { text-align: center; padding: 0.8rem 0.4rem; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+  .stat-num {
+    font-family: var(--display); font-size: 2rem; font-weight: 800; line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .stat-unit { font-family: var(--mono); font-size: 0.72rem; color: var(--accent2); letter-spacing: 0.08em; }
+  .stat-cap { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); margin-top: 0.1rem; }
+
+  .recall {
+    font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0;
+    border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden;
+  }
+  .recall summary {
+    cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2);
+    background: rgba(124,58,237,0.06); list-style: none;
+    display: flex; align-items: center; gap: 0.5rem; user-select: none;
+  }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before {
+    content: '▸'; font-size: 0.7rem; color: var(--accent);
+    transition: transform 0.15s; flex-shrink: 0;
+  }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a {
+    padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5;
+    border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04);
+  }
+  .recall-a strong { color: #fff; }
+
+  table.cheat { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.72rem; }
+  table.cheat th {
+    padding: .4rem .6rem; text-align: left; background: rgba(255,255,255,.05);
+    border-bottom: 1px solid var(--border); color: var(--muted);
+  }
+  table.cheat td { padding: .4rem .6rem; border-bottom: 1px solid var(--border); color: var(--muted); }
+  table.cheat td.k { color: #fff; }
+
+  /* ===== v0.6 ===== */
+
+  .tier {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
+    text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 3px;
+    vertical-align: middle; line-height: 1;
+  }
+  .tier::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .tier.core { color: var(--accent4); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.35); }
+  .tier.core::before { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .tier.key  { color: var(--accent3); background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.4); }
+  .tier.key::before  { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .tier.ctx  { color: var(--muted); background: rgba(148,163,184,0.06); border: 1px solid var(--border); }
+  .tier.ctx::before  { background: var(--muted); }
+
+  .scope {
+    max-width: 1400px; margin: 0 auto 1rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3); border-radius: 6px;
+    padding: 0.8rem 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; align-items: center;
+  }
+  .scope-label {
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--accent3); font-weight: 700;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    border-right: 1px solid var(--border); padding-right: 0.7rem; align-self: stretch;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scope-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spill {
+    font-family: var(--mono); font-size: 0.6rem; padding: 0.22rem 0.55rem;
+    border-radius: 3px; border: 1px solid var(--border); color: var(--muted);
+  }
+  .spill.in  { color: var(--accent4); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
+  .spill.key { color: var(--accent3); border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+  .spill.cut { color: var(--muted); border-style: dashed; text-decoration: line-through; opacity: 0.75; }
+  @media (max-width: 600px) {
+    .scope { grid-template-columns: 1fr; }
+    .scope-label { writing-mode: horizontal-tb; transform: none; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.4rem; }
+  }
+
+  .worked {
+    font-family: var(--mono); font-size: 0.74rem;
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    border-left: 2px solid var(--accent3); border-radius: 0 6px 6px 0;
+    padding: 0.7rem 0.9rem; margin: 0.6rem 0;
+  }
+  .worked .wr { display: grid; grid-template-columns: 110px 1fr; gap: 0.7rem; align-items: baseline; padding: 0.18rem 0; }
+  .worked .wl { font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .worked .wb { color: var(--text); letter-spacing: 0.06em; }
+  .worked .hi  { color: var(--accent3); font-weight: 700; }
+  .worked .hc  { color: var(--accent2); }
+  .worked .res { color: #fff; font-weight: 700; }
+  .worked .wr.total { border-top: 1px solid var(--border); margin-top: 0.2rem; padding-top: 0.35rem; }
+
+  .cmatrix-wrap { overflow-x: auto; max-width: 1400px; margin: 0.5rem auto; }
+  .cmatrix {
+    display: grid; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+    font-family: var(--mono); font-size: 0.66rem; min-width: 560px;
+  }
+  .cmatrix > div {
+    padding: 0.5rem 0.6rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .cmatrix .cm-corner, .cmatrix .cm-rl {
+    background: rgba(255,255,255,0.03); color: var(--muted);
+    font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.06em;
+    display: flex; align-items: center;
+  }
+  .cmatrix .cm-head {
+    font-family: var(--display); font-weight: 700; color: #fff; font-size: 0.78rem;
+    text-align: center; position: relative; display: block;
+  }
+  .cmatrix .cm-head .sub { display: block; font-family: var(--mono); font-size: 0.5rem; color: var(--muted); margin-top: 0.2rem; letter-spacing: 0.04em; }
+  .cmatrix .cm-head.is-key { color: var(--accent3); }
+  .cmatrix .cm-head.is-key::after { content: '★'; position: absolute; top: 0.35rem; right: 0.5rem; color: var(--accent3); font-size: 0.6rem; }
+  .cmatrix .is-dim { opacity: 0.5; }
+  .cmatrix .cm-key { background: rgba(245,158,11,0.05); }
+  .cmatrix .ok { color: var(--accent4); font-weight: 700; }
+  .cmatrix .no { color: #f87171; font-weight: 700; }
+
+  .exam-q {
+    position: relative; margin: 0.6rem 0; padding: 0.7rem 0.9rem 0.7rem 2.7rem;
+    background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.3);
+    border-left: 2px solid var(--red); border-radius: 0 6px 6px 0;
+    font-family: var(--mono); font-size: 0.7rem;
+  }
+  .exam-q::before {
+    content: 'Q'; position: absolute; left: 0.65rem; top: 0.7rem;
+    width: 1.35rem; height: 1.35rem; border-radius: 50%;
+    background: var(--red); color: #fff; font-family: var(--display); font-weight: 800;
+    display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+  }
+  .exam-q .q { color: #fff; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.4; }
+  .exam-q .a { color: var(--muted); line-height: 1.55; }
+  .exam-q .a strong { color: var(--text); }
+
+  /* timeline */
+  .timeline { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding: 1.2rem 0.5rem 0.5rem; position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 0.5rem; right: 0.5rem; top: 1.95rem; height: 2px; background: var(--border); }
+  .tl-item { display: flex; flex-direction: column; align-items: center; min-width: 110px; flex: 1; position: relative; }
+  .tl-year { font-family: var(--mono); font-size: 0.6rem; color: var(--accent2); margin-bottom: 0.4rem; font-weight: 700; letter-spacing: 0.1em; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--accent2); position: relative; z-index: 1; flex-shrink: 0; }
+  .tl-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text); text-align: center; margin-top: 0.5rem; line-height: 1.3; padding: 0 0.2rem; }
+  .tl-sub { font-family: var(--mono); font-size: 0.55rem; color: var(--muted); text-align: center; margin-top: 0.2rem; line-height: 1.3; padding: 0 0.2rem; }
+  .tl-item.g1 .tl-dot { background: #a78bfa; border-color: #a78bfa; }
+  .tl-item.g2 .tl-dot { background: var(--accent2); border-color: var(--accent2); }
+  .tl-item.g3 .tl-dot { background: var(--accent3); border-color: var(--accent3); }
+
+  /* TOC + progress */
+  .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .toc-rail { position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem; }
+  .toc-rail a { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; font-family: var(--mono); font-size: 0.55rem; color: var(--muted); padding: 0.12rem 0.25rem; border-radius: 3px; }
+  .toc-rail a .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; transition: all 0.2s; }
+  .toc-rail a .lbl { opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap; }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  footer {
+    text-align: center; margin-top: 3rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.65rem; color: var(--muted);
+  }
+  footer .out { color: #64748b; font-size: 0.6rem; margin-top: 0.4rem; }
+
+  /* SVG helpers */
+  .svg-wrap { display: block; margin: 0.6rem auto; }
+  .svg-cap { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); text-align: center; margin-top: 0.3rem; }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1, .stat-num { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .scope, .cmatrix, .worked, .exam-q, .recall, .stat, .versus, .timeline { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<nav class="toc-rail" id="toc" aria-label="Secciones">
+  <a href="#s01"><span class="dot"></span><span class="lbl">01 · Qué es</span></a>
+  <a href="#s02"><span class="dot"></span><span class="lbl">02 · Jerarquía</span></a>
+  <a href="#s03"><span class="dot"></span><span class="lbl">03 · SRAM vs DRAM</span></a>
+  <a href="#s04"><span class="dot"></span><span class="lbl">04 · Cómo se guarda un bit</span></a>
+  <a href="#s05"><span class="dot"></span><span class="lbl">05 · Registros</span></a>
+  <a href="#s06"><span class="dot"></span><span class="lbl">06 · ROM → Flash</span></a>
+  <a href="#s07"><span class="dot"></span><span class="lbl">07 · DDR ★</span></a>
+  <a href="#s08"><span class="dot"></span><span class="lbl">08 · Latencia y ancho de banda ★</span></a>
+  <a href="#s09"><span class="dot"></span><span class="lbl">09 · HBM / GDDR ★</span></a>
+  <a href="#s10"><span class="dot"></span><span class="lbl">10 · Banco de memoria</span></a>
+  <a href="#s11"><span class="dot"></span><span class="lbl">11 · Referencia rápida</span></a>
+  <a href="#s12"><span class="dot"></span><span class="lbl">12 · Examen</span></a>
+</nav>
+
+<header>
+  <div class="badge">Arquitectura de Computadores · Unidad 06 — Memorias Físicas</div>
+  <h1>Memorias Físicas</h1>
+  <p class="subtitle">tipos · jerarquía · DDR · latencia · ancho de banda · HBM/GDDR</p>
+  <div class="divider"></div>
+</header>
+
+<div class="scope">
+  <div class="scope-label">Scope · final</div>
+  <div class="scope-pills">
+    <span class="spill key">★ propiedades de la memoria física</span>
+    <span class="spill key">★ volátil vs no volátil</span>
+    <span class="spill key">★ MOSFET: 3 partes</span>
+    <span class="spill key">★ celda DRAM + refresco</span>
+    <span class="spill key">★ datos en RAM vs PROM</span>
+    <span class="spill key">★ DDR (doble flanco, concepto)</span>
+    <span class="spill key">★ ancho de banda «por unidad de tiempo»</span>
+    <span class="spill key">★ latencia + cálculo en ciclos</span>
+    <span class="spill in">jerarquía · SRAM vs DRAM · RAM = acceso aleatorio</span>
+    <span class="spill in">flip-flop · registros (×2 / ÷2) · familia ROM→Flash</span>
+    <span class="spill in">banco de memoria (2ᵖ) · HBM/GDDR · SDRAM · entrelazado · paridad/ECC (básico)</span>
+    <span class="spill">circuito integrado → Unidad 01 · caché y memoria virtual → Unidad 07</span>
+    <span class="spill cut">electrónica interna del flip-flop / MOSFET (cómo conduce)</span>
+    <span class="spill cut">bits internos del decodificador / MUX</span>
+    <span class="spill cut">señales de control en detalle (CS/OE/WE)</span>
+    <span class="spill cut">sigla DIMM · SATA / M.2 / PCIe / chipset</span>
+    <span class="spill cut">valores numéricos por generación DDR (V / MHz / CAS)</span>
+  </div>
+</div>
+
+<!-- ============ 01 ============ -->
+<div class="section-label" id="s01">01 — Memoria física: qué es <span class="tier core">core</span></div>
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">💾 Definición</div>
+    <div class="op-name">Memoria física</div>
+    <div class="op-notation">hardware tangible · estado sólido</div>
+    <div class="op-rule">
+      Unidad que almacena <strong>datos e instrucciones</strong> (ceros y unos) en chips soldados o insertados en ranuras de la placa madre, conectada al CPU por un <strong>bus</strong>. Es de <strong>lecto-escritura</strong> y un <strong>dispositivo pasivo</strong> (la maneja el CPU u otro master, como el ADM / Acceso Directo a Memoria).
+    </div>
+    <div class="insight">💡 de la clase · El profe la llama "el procesador"/CPU; el apunte aclara UCP. Lo importante es el <strong>tipo</strong> de memoria, no dónde está físicamente.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🏷️ Características</div>
+    <div class="proplist pl-cyan">
+      <div><strong style="color:#fff">Capacidad</strong> — bits → bytes → … → GB</div>
+      <div><strong style="color:#fff">Tiempos de acceso</strong> — qué tan rápido responde</div>
+      <div><strong style="color:#fff">Volatilidad</strong> — ¿pierde datos sin energía?</div>
+      <div><strong style="color:#fff">Encapsulado</strong> — SIMM, DIMM, DDR1–5…</div>
+    </div>
+    <div class="op-rule" style="margin-top:.7rem">
+      <strong>Volátil</strong> (pierde sin energía): caché y RAM. <strong>No volátil</strong> (conserva): ROM, Flash, SSD, disco.
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">🧮 Cálculo de capacidad</div>
+    <div class="op-rule">
+      Una memoria de <strong>n bits de palabra</strong> direccionada con <strong>p bits</strong> tiene capacidad:
+    </div>
+    <div class="formula green-f">capacidad = 2<sup>p</sup> × n bits</div>
+    <div class="formula green-f">16 bits palabra · 10 bits dirección → 2<sup>10</sup>×16 = 1024×16 = <strong>2 KB</strong></div>
+    <div class="note ok">✓ Los <strong>p</strong> bits de dirección fijan el tamaño máximo: 32 bits → 2³² = 4 GB direccionables (ver §10).</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🎲 RAM = Random Access Memory</div>
+    <div class="op-rule">
+      <strong>Acceso aleatorio</strong>: se lee/escribe <strong>cualquier celda directamente</strong> y <strong>toda celda tarda lo mismo</strong> (la dirección entra al decodificador y selecciona la palabra). Se opone al <strong>acceso secuencial</strong> (cinta/disco), que obliga a recorrer hasta el dato.
+    </div>
+    <div class="note ok">✓ El profe lo marca importante: "Random Access" = aleatorio, no secuencial.</div>
+  </div>
+
+</div>
+
+<!-- ============ 02 ============ -->
+<div class="section-label" id="s02">02 — Jerarquía de memorias <span class="tier core">core</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🔺 La pirámide</div>
+    <div class="op-rule">
+      Niveles según velocidad/costo/capacidad. <strong>Arriba</strong>: más rápidas, más caras, menos capacidad. <strong>Abajo</strong>: más lentas, más baratas, más capacidad. Idea: tener lo más usado en memoria rápida para que el CPU no espere.
+    </div>
+    <svg class="svg-wrap" viewBox="0 0 380 232" width="100%" style="max-width:400px" font-family="JetBrains Mono,monospace">
+      <!-- niveles, ancho creciente hacia abajo -->
+      <g text-anchor="middle">
+        <rect x="150" y="8"   width="80"  height="28" rx="3" fill="rgba(124,58,237,0.22)" stroke="#7c3aed"/>
+        <text x="190" y="26" font-size="10" fill="#fff">Registros</text>
+        <text x="304" y="26" font-size="8.5" fill="#94a3b8" text-anchor="end">~0,25 ns · &lt;½ KB</text>
+
+        <rect x="125" y="42"  width="130" height="28" rx="3" fill="rgba(6,182,212,0.20)" stroke="#06b6d4"/>
+        <text x="190" y="60" font-size="10" fill="#fff">Caché L1/L2/L3 · SRAM</text>
+        <text x="304" y="60" font-size="8.5" fill="#94a3b8" text-anchor="end">1–40 ns · KB–MB</text>
+
+        <rect x="100" y="76"  width="180" height="28" rx="3" fill="rgba(16,185,129,0.18)" stroke="#10b981"/>
+        <text x="190" y="94" font-size="10" fill="#fff">Memoria principal · DRAM</text>
+        <text x="304" y="94" font-size="8.5" fill="#94a3b8" text-anchor="end">100–120 ns · GB</text>
+
+        <rect x="75"  y="110" width="230" height="28" rx="3" fill="rgba(245,158,11,0.16)" stroke="#f59e0b"/>
+        <text x="190" y="128" font-size="10" fill="#fff">SSD (NVMe / SATA)</text>
+        <text x="318" y="128" font-size="8.5" fill="#94a3b8" text-anchor="end">~50 µs · TB</text>
+
+        <rect x="50"  y="144" width="280" height="28" rx="3" fill="rgba(148,163,184,0.14)" stroke="#94a3b8"/>
+        <text x="190" y="162" font-size="10" fill="#e2e8f0">Disco rígido (magnético)</text>
+        <text x="322" y="162" font-size="8.5" fill="#94a3b8" text-anchor="end">~10 ms · TB</text>
+
+        <rect x="25"  y="178" width="330" height="28" rx="3" fill="rgba(148,163,184,0.08)" stroke="#475569"/>
+        <text x="190" y="196" font-size="10" fill="#94a3b8">Cinta magnética (backup)</text>
+        <text x="346" y="196" font-size="8.5" fill="#64748b" text-anchor="end">seg–min · TB</text>
+      </g>
+      <text x="12" y="20" font-size="8" fill="#a78bfa" transform="rotate(90 12 110)" text-anchor="middle">más rápido / caro ↑   ↓ más capacidad / barato</text>
+    </svg>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">📊 Saltos de magnitud (latencia)</div>
+    <div class="grid grid-4" style="margin-top:0.3rem">
+      <div class="stat"><div class="stat-num">1</div><div class="stat-unit">ns</div><div class="stat-cap">caché L1</div></div>
+      <div class="stat"><div class="stat-num">100</div><div class="stat-unit">ns</div><div class="stat-cap">RAM (100×)</div></div>
+      <div class="stat"><div class="stat-num">50</div><div class="stat-unit">µs</div><div class="stat-cap">SSD (500×)</div></div>
+      <div class="stat"><div class="stat-num">10</div><div class="stat-unit">ms</div><div class="stat-cap">disco</div></div>
+    </div>
+    <div class="note warn">⚠️ Con un CPU de 4 GHz, un acceso a RAM puede costar <strong>~400 ciclos</strong> esperando ("400 trabajitos" que el CPU no hace).</div>
+    <div class="worked">
+      <div class="wr"><span class="wl">CPU 4 GHz</span><span class="wb">T<sub>ciclo</sub> = 1 / 4 GHz = <span class="hi">0,25 ns</span></span></div>
+      <div class="wr"><span class="wl">L1 = 1 ns</span><span class="wb">1 ÷ 0,25 = <span class="res">4 ciclos</span></span></div>
+      <div class="wr"><span class="wl">L2 = 4 ns</span><span class="wb">4 ÷ 0,25 = <span class="res">16 ciclos</span></span></div>
+      <div class="wr total"><span class="wl">RAM = 100 ns</span><span class="wb">100 ÷ 0,25 = <span class="res">400 ciclos</span></span></div>
+    </div>
+    <div class="note ok">✓ Latencia (ns) ↔ ciclos: <strong>ciclos = latencia ÷ T<sub>ciclo</sub></strong>. Es "la parte numérica" que el profe toma en el final.</div>
+    <div class="insight">💡 de la clase · <strong>Set de trabajo</strong> (working set): si las instrucciones que se repiten ahora entran en caché, la app corre casi sin tocar la RAM.</div>
+    <div class="insight">💡 ojo · "Eso de la izquierda [dentro de la UCP / placa / gabinete], tómenlo con pinzas" — en Apple M o celulares la RAM va junto al CPU. Lo que importa es el <strong>tipo</strong>, no la ubicación.</div>
+  </div>
+
+</div>
+
+<!-- ============ 03 ============ -->
+<div class="section-label" id="s03">03 — SRAM vs DRAM <span class="tier core">core</span></div>
+<div class="cmatrix-wrap">
+  <div class="cmatrix" style="grid-template-columns:150px 1fr 1fr">
+    <div class="cm-corner">Atributo ↓ / Tipo →</div>
+    <div class="cm-head is-key">SRAM<span class="sub">Static · con flip-flops · = caché</span></div>
+    <div class="cm-head is-key">DRAM<span class="sub">Dynamic · MOSFET+capacitor · = RAM principal</span></div>
+
+    <div class="cm-rl">Velocidad / acceso</div>
+    <div class="cm-key"><span class="ok">Más rápida</span> (~10 ns)</div>
+    <div class="cm-key">Más lenta (~100 ns, 10×)</div>
+
+    <div class="cm-rl">Transistores por bit</div>
+    <div class="cm-key">4 a 6</div>
+    <div class="cm-key"><span class="ok">1 transistor + 1 capacitor</span></div>
+
+    <div class="cm-rl">Densidad (espacio)</div>
+    <div class="cm-key">Menor (ocupa más)</div>
+    <div class="cm-key"><span class="ok">Mayor</span> (ocupa menos)</div>
+
+    <div class="cm-rl">Costo por bit</div>
+    <div class="cm-key">Mayor</div>
+    <div class="cm-key"><span class="ok">Menor</span> (muy barata)</div>
+
+    <div class="cm-rl">¿Refresco?</div>
+    <div class="cm-key"><span class="ok">No</span></div>
+    <div class="cm-key"><span class="no">Sí</span> (el capacitor se descarga)</div>
+
+    <div class="cm-rl">Uso típico</div>
+    <div class="cm-key">Caché (L1/L2/L3)</div>
+    <div class="cm-key">Memoria principal (RAM)</div>
+  </div>
+</div>
+<div class="grid grid-2">
+  <div class="card green">
+    <div class="card-title">🤔 ¿Por qué no "todo caché"?</div>
+    <div class="op-rule">
+      La SRAM es más rápida, pero usa <strong>4–6 transistores por bit</strong>: más transistores → más volumen, más costo, más calor y consumo. Poner GB de caché no es práctico. Por eso la RAM principal es DRAM (barata y densa) y la caché es chica y rápida.
+    </div>
+  </div>
+  <div class="card red">
+    <div class="card-title">⚔️ Trampa de nombres <span class="flag">la marcó en clase</span></div>
+    <div class="note danger">🚨 <strong>SRAM ≠ SDRAM</strong>. La "S" significa cosas distintas: <strong>S</strong>tatic RAM (estática, caché) vs <strong>S</strong>ynchronous DRAM (dinámica sincronizada con el reloj, RAM principal, antecesora de DDR). Repetido en clase 04-06 y 04-13.</div>
+    <details class="recall">
+      <summary>💡 ¿Cuál es la diferencia entre SRAM y SDRAM?</summary>
+      <div class="recall-a">SRAM = Static RAM (con flip-flops, caché). SDRAM = Synchronous DRAM (dinámica sincronizada con reloj, RAM principal). <strong>Static vs Synchronous.</strong></div>
+    </details>
+  </div>
+</div>
+
+<!-- ============ 04 ============ -->
+<div class="section-label" id="s04">04 — Cómo se guarda un bit <span class="tier core">core</span></div>
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">⚡ Celda DRAM · MOSFET + capacitor</div>
+    <svg class="svg-wrap" viewBox="0 0 300 150" width="100%" style="max-width:300px" font-family="JetBrains Mono,monospace">
+      <!-- linea de seleccion (palabra) -->
+      <line x1="20" y1="40" x2="280" y2="40" stroke="#f59e0b" stroke-width="2"/>
+      <text x="20" y="32" font-size="9" fill="#f59e0b">línea de selección (palabra)</text>
+      <!-- linea de bit (dato) -->
+      <line x1="90" y1="40" x2="90" y2="135" stroke="#06b6d4" stroke-width="2"/>
+      <text x="96" y="130" font-size="9" fill="#06b6d4">línea de bit (dato)</text>
+      <!-- MOSFET (transistor) como caja -->
+      <rect x="110" y="55" width="46" height="30" rx="3" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="133" y="74" font-size="10" fill="#a78bfa" text-anchor="middle">MOSFET</text>
+      <!-- compuerta conectada a seleccion -->
+      <line x1="133" y1="40" x2="133" y2="55" stroke="#f59e0b" stroke-width="1.5"/>
+      <!-- conexion a bit line -->
+      <line x1="110" y1="70" x2="90" y2="70" stroke="#06b6d4" stroke-width="1.5"/>
+      <!-- conexion a capacitor -->
+      <line x1="156" y1="70" x2="210" y2="70" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="210" y1="70" x2="210" y2="95" stroke="#94a3b8" stroke-width="1.5"/>
+      <!-- capacitor -->
+      <line x1="195" y1="95" x2="225" y2="95" stroke="#10b981" stroke-width="2.5"/>
+      <line x1="195" y1="103" x2="225" y2="103" stroke="#10b981" stroke-width="2.5"/>
+      <line x1="210" y1="103" x2="210" y2="120" stroke="#94a3b8" stroke-width="1.5"/>
+      <line x1="200" y1="120" x2="220" y2="120" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="232" y="106" font-size="10" fill="#10b981">capacitor</text>
+    </svg>
+    <div class="step cyan-s">
+      <div class="s"><b>Selección=1 + dato=1</b> → el MOSFET conduce y <b>carga</b> el capacitor (= guarda un 1).</div>
+      <div class="s"><b>Selección=1 + dato=0</b> → el capacitor se <b>descarga</b> (= guarda un 0).</div>
+      <div class="s"><b>Refresco:</b> el capacitor se descarga solo con el tiempo → un pulso automático <b>reaviva los "1"</b>. Es la causa de que DRAM sea más lenta que SRAM.</div>
+    </div>
+    <div class="insight">💡 de la clase · Cada palabra DRAM = 8 celdas (8 bits); un módulo tiene "miles de millones" de estas celdas.</div>
+    <div class="note ok">✓ <strong>¿Qué tiene un MOSFET?</strong> 3 terminales: <strong>fuente, compuerta (gate) y drenaje</strong>. Es un <strong>conmutador</strong> (switch): la compuerta (línea de selección) habilita o corta el paso de corriente. Eso SÍ lo pregunta el profe; la física de <em>cómo conduce</em> el canal, no.</div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">🔁 Flip-flop tipo D (biestable)</div>
+    <svg class="svg-wrap" viewBox="0 0 260 130" width="100%" style="max-width:260px" font-family="JetBrains Mono,monospace">
+      <rect x="90" y="25" width="80" height="80" rx="4" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="130" y="50" font-size="11" fill="#fff" text-anchor="middle">FF-D</text>
+      <text x="130" y="64" font-size="7.5" fill="#94a3b8" text-anchor="middle">1 bit</text>
+      <!-- entradas -->
+      <text x="84" y="48" font-size="10" fill="#06b6d4" text-anchor="end">D</text>
+      <line x1="70" y1="44" x2="90" y2="44" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="84" y="92" font-size="10" fill="#06b6d4" text-anchor="end">CLK</text>
+      <line x1="70" y1="88" x2="90" y2="88" stroke="#06b6d4" stroke-width="1.5"/>
+      <polygon points="90,82 98,88 90,94" fill="none" stroke="#06b6d4" stroke-width="1"/>
+      <text x="130" y="20" font-size="9" fill="#f59e0b" text-anchor="middle">SET</text>
+      <line x1="130" y1="22" x2="130" y2="25" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="130" y="122" font-size="9" fill="#f59e0b" text-anchor="middle">CLR</text>
+      <line x1="130" y1="105" x2="130" y2="116" stroke="#f59e0b" stroke-width="1.5"/>
+      <!-- salidas -->
+      <text x="178" y="48" font-size="10" fill="#10b981">Q</text>
+      <line x1="170" y1="44" x2="190" y2="44" stroke="#10b981" stroke-width="1.5"/>
+      <text x="178" y="92" font-size="10" fill="#10b981">Q̄</text>
+      <line x1="170" y1="88" x2="190" y2="88" stroke="#10b981" stroke-width="1.5"/>
+    </svg>
+    <div class="op-rule">Almacena <strong>1 bit</strong> (dos estados → "biestable"). Es <strong>lógica secuencial</strong> (la salida depende del estado anterior) y volátil. Base de la SRAM y los registros.</div>
+    <div class="cmatrix-wrap">
+      <div class="cmatrix" style="grid-template-columns:1.2fr 1fr 1fr;min-width:0">
+        <div class="cm-head">Modo</div><div class="cm-head">Entradas</div><div class="cm-head">Resultado</div>
+        <div class="cm-rl">Sincrónico</div><div class="cm-key">D + CLK (SET=CLR=0)</div><div class="cm-key">D pasa a Q en el <span class="hi" style="color:#f59e0b">flanco ↑</span></div>
+        <div class="cm-rl">Asincrónico</div><div class="cm-key">SET=1, CLR=0</div><div class="cm-key">guarda 1</div>
+        <div class="cm-rl">Asincrónico</div><div class="cm-key">SET=0, CLR=1</div><div class="cm-key">guarda 0</div>
+        <div class="cm-rl">Prohibida</div><div class="cm-key">SET=1, CLR=1</div><div class="cm-key"><span class="no">no permitida</span></div>
+      </div>
+    </div>
+    <div class="insight">💡 de la clase · Concatenando <strong>n</strong> flip-flops se forma un <strong>registro</strong>. CPU de 64 bits → 64 flip-flops por registro.</div>
+    <div class="note danger">🚨 NO se pide la electrónica interna del flip-flop: "no es electrónica, es arquitectura".</div>
+  </div>
+
+</div>
+
+<!-- ============ 05 ============ -->
+<div class="section-label" id="s05">05 — Registros: desplazamiento y rotación <span class="tier core">core</span></div>
+<div class="grid grid-2">
+
+  <div class="card amber">
+    <div class="card-title">↔️ Desplazamiento = ×2 / ÷2</div>
+    <div class="op-rule">Un registro = n flip-flops concatenados. Con cada CLK los bits corren; según la dirección, <strong>multiplica o divide por 2</strong> (la base).</div>
+    <div class="worked">
+      <div class="wr"><span class="wl">desplazar →</span><span class="wb">divide por 2 (inyecta 0 por la izquierda)</span></div>
+      <div class="wr"><span class="wl">inicio</span><span class="wb"><span class="hc">1011</span> = 11</span></div>
+      <div class="wr"><span class="wl">1 corrimiento</span><span class="wb"><span class="hc">0101</span> = 5</span></div>
+      <div class="wr"><span class="wl">2 corrimientos</span><span class="wb"><span class="hc">0010</span> = 2</span></div>
+    </div>
+    <div class="worked">
+      <div class="wr"><span class="wl">desplazar ←</span><span class="wb">multiplica por 2 (inyecta 0 por la derecha)</span></div>
+      <div class="wr"><span class="wl">inicio</span><span class="wb"><span class="hi">0011</span> = 3</span></div>
+      <div class="wr"><span class="wl">1 corrimiento</span><span class="wb"><span class="hi">0110</span> = 6</span></div>
+      <div class="wr"><span class="wl">2 corrimientos</span><span class="wb"><span class="hi">1100</span> = 12</span></div>
+    </div>
+    <div class="insight">💡 de la clase · "Muy potente: con solo un corrimiento de bits, multiplicar o dividir por 2."</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🔄 Rotación y conversión serie/paralelo</div>
+    <div class="op-rule">
+      <strong>Rotación:</strong> se conecta la salida serie con la entrada serie → los bits rotan en círculo (vuelven a su lugar tras n pulsos).
+    </div>
+    <div class="proplist pl-cyan">
+      <div><strong style="color:#fff">Paralelo → serie</strong>: cargo n bits juntos, salgo de a 1 bit por CLK</div>
+      <div><strong style="color:#fff">Serie → paralelo</strong>: entro de a 1 bit, leo los n juntos</div>
+    </div>
+    <div class="note ok">✓ Aplicación real: el bus <strong>USB</strong> (Universal Serial Bus) transmite de a 1 bit; el registro hace la conversión.</div>
+  </div>
+
+</div>
+
+<!-- ============ 06 ============ -->
+<div class="section-label" id="s06">06 — Memorias de solo lectura: ROM → Flash <span class="tier core">core</span></div>
+<div class="cmatrix-wrap">
+  <div class="cmatrix" style="grid-template-columns:120px repeat(5,1fr)">
+    <div class="cm-corner">↓ / Tipo →</div>
+    <div class="cm-head">ROM</div>
+    <div class="cm-head">PROM</div>
+    <div class="cm-head">EPROM</div>
+    <div class="cm-head">EEPROM</div>
+    <div class="cm-head is-key">Flash</div>
+
+    <div class="cm-rl">Significado (inglés)</div>
+    <div><strong style="color:#fff">R</strong>ead-<strong style="color:#fff">O</strong>nly <strong style="color:#fff">M</strong>emory</div>
+    <div><strong style="color:#fff">P</strong>rogrammable ROM</div>
+    <div><strong style="color:#fff">E</strong>rasable Programmable ROM</div>
+    <div><strong style="color:#fff">E</strong>lectrically <strong style="color:#fff">E</strong>rasable PROM</div>
+    <div class="cm-key">no es sigla — por el borrado en bloque "<strong>in a flash</strong>"</div>
+
+    <div class="cm-rl">Cómo se graba/borra</div>
+    <div>grabada de fábrica (con <strong style="color:#f59e0b">diodos</strong>)</div>
+    <div>usuario quema fusibles (programador)</div>
+    <div>se borra con <strong style="color:#f59e0b">luz UV</strong> (toda de una)</div>
+    <div>borrable <strong style="color:#10b981">eléctricamente, celda a celda</strong></div>
+    <div class="cm-key">deriva de EEPROM; lee/escribe <strong>muchas celdas a la vez</strong></div>
+
+    <div class="cm-rl">Veces programable</div>
+    <div>0 (solo lectura)</div>
+    <div>1 sola vez</div>
+    <div>múltiples</div>
+    <div>múltiples</div>
+    <div class="cm-key">múltiples (más rápida)</div>
+
+    <div class="cm-rl">¿Dónde/cuándo se usa(ba)?</div>
+    <div>cartuchos de consola, tablas de caracteres, firmware fijo de fábrica</div>
+    <div>firmware en prototipos y equipos de baja tirada (se graba 1 vez)</div>
+    <div>BIOS de PCs 80s–90s (chip con ventanita de cuarzo para UV)</div>
+    <div>config/calibración, EEPROM I²C en sensores y electrodomésticos</div>
+    <div class="cm-key">pendrives, SSD, tarjetas SD/microSD, BIOS/UEFI y celulares actuales</div>
+
+    <div class="cm-rl">¿Volátil?</div>
+    <div><span class="ok">No</span></div>
+    <div><span class="ok">No</span></div>
+    <div><span class="ok">No</span></div>
+    <div><span class="ok">No</span></div>
+    <div class="cm-key"><span class="ok">No</span></div>
+  </div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">📌 Datos para fijar</div>
+    <div class="proplist pl-green">
+      <div>ROM/EPROM se usan como <strong style="color:#fff">ROM BIOS</strong> (Basic Input-Output System).</div>
+      <div>💡 El profe: <strong style="color:#fff">pendrive, SSD y tarjeta de memoria "en realidad son memorias Flash"</strong>.</div>
+      <div>Toda la familia es <strong style="color:#fff">no volátil</strong> (conserva datos sin energía).</div>
+      <div><strong style="color:#fff">Mecanismo físico:</strong> ROM = diodo · PROM = fusible que se quema (1 vez) · EPROM = borra por ventana UV · EEPROM = borra eléctrico, celda a celda.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 07 ============ -->
+<div class="section-label" id="s07">07 — Tecnología DDR <span class="tier key">★ alta probabilidad</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="card-title">⏱️ Double Data Rate: una palabra en cada flanco</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>SDR (single)</h4>
+        <div class="vs-row">transmite 1 palabra por ciclo</div>
+        <div class="vs-row">solo en el flanco ascendente</div>
+        <div class="vs-row">tasa de transferencia base</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>DDR (double)</h4>
+        <div class="vs-row">transmite 1 palabra en flanco ↑ <strong>y</strong> ↓</div>
+        <div class="vs-row">"el tic y el tac del reloj"</div>
+        <div class="vs-row"><strong style="color:#4ade80">duplica</strong> el ancho de banda · un solo canal</div>
+      </div>
+    </div>
+    <svg class="svg-wrap" viewBox="0 0 420 90" width="100%" style="max-width:440px" font-family="JetBrains Mono,monospace">
+      <!-- clock square wave -->
+      <polyline points="20,60 20,25 80,25 80,60 140,60 140,25 200,25 200,60 260,60 260,25 320,25 320,60 380,60 380,25 400,25"
+                fill="none" stroke="#06b6d4" stroke-width="2"/>
+      <!-- transfer marks: both edges -->
+      <g fill="#f59e0b">
+        <circle cx="20" cy="25" r="3.5"/><circle cx="80" cy="60" r="3.5"/>
+        <circle cx="140" cy="25" r="3.5"/><circle cx="200" cy="60" r="3.5"/>
+        <circle cx="260" cy="25" r="3.5"/><circle cx="320" cy="60" r="3.5"/>
+        <circle cx="380" cy="25" r="3.5"/>
+      </g>
+      <g fill="#f59e0b" font-size="8" text-anchor="middle">
+        <text x="20" y="16">↑</text><text x="80" y="78">↓</text>
+        <text x="140" y="16">↑</text><text x="200" y="78">↓</text>
+        <text x="260" y="16">↑</text><text x="320" y="78">↓</text>
+      </g>
+      <text x="210" y="89" font-size="8.5" fill="#94a3b8" text-anchor="middle">cada punto ámbar = 1 transferencia (DDR usa los dos flancos)</text>
+    </svg>
+    <div class="exam-q">
+      <div class="q">¿Qué tecnología duplica el ancho de banda aunque se use un solo canal?</div>
+      <div class="a"><strong>DDR (Double Data Rate)</strong>: transmite una palabra en el flanco ascendente Y en el descendente del reloj. Las memorias actuales (DDR4/DDR5) son SDRAM con DDR.</div>
+    </div>
+    <div class="note danger">🚨 TRAMPA (el profe): responder<strong>"dual channel / doble canal" = MAL</strong>. Si el enunciado dice "un solo canal", el doble canal no aplica — con un canal no se duplica. La trampa es deliberada.</div>
+  </div>
+
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">🚀 Prebúsqueda (prefetch)</div>
+    <div class="op-rule">
+      Las DDR4/DDR5 usan <strong>prebúsqueda</strong>: cuando el <strong style="color:#fff">CPU (vía el controlador de memoria) pide una palabra</strong>, la DRAM no entrega solo esa. Internamente lee <strong>en paralelo un bloque mucho más ancho</strong> hacia su <em>buffer de prefetch</em> y lo <strong>dispara en ráfaga</strong> por el bus. Ese bloque (≈<strong style="color:#fff">64 bytes = una línea de caché</strong>) se carga en la <strong>caché del CPU</strong>, así los accesos a <strong>palabras adyacentes</strong> ya están ahí.
+    </div>
+    <div class="formula cyan-f">DDR5 lee un bloque de <strong>64 bytes = 512 bits</strong> en paralelo · profundidad de prefetch: DDR4 = <strong>8n</strong>, DDR5 = <strong>16n</strong> (×2)</div>
+    <div class="note ok">✓ <strong>Localidad espacial</strong> = el <em>principio</em> (vas a usar vecinos pronto). <strong>Ráfaga</strong> = <em>un mecanismo</em> que lo explota — también lo explotan la línea de caché, los prefetchers del CPU y el readahead del SO.</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>📦 Buffers DENTRO de la DRAM</h4>
+        <div class="vs-row"><strong>Buffer de prefetch</strong> (8n/16n): registro de salida que dispara la ráfaga</div>
+        <div class="vs-row"><strong>Row buffer</strong>: la fila activa del banco (sense amplifiers)</div>
+        <div class="vs-row">⚠️ <strong style="color:#f59e0b">NO son caché</strong> — son staging interno de la DRAM</div>
+      </div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side">
+        <h4>⚡ Caché L1/L2/L3 (en el CPU)</h4>
+        <div class="vs-row">la caché "de verdad" de la jerarquía (SRAM, §02)</div>
+        <div class="vs-row">acá <strong style="color:#4ade80">termina la ráfaga</strong>, llenando 1 línea</div>
+        <div class="vs-row">la ráfaga (64 B) = tamaño de línea de caché, <strong>a propósito</strong></div>
+      </div>
+    </div>
+    <div class="exam-q">
+      <div class="q">¿Cuál es la ventaja de la prebúsqueda?</div>
+      <div class="a">Transfiere en ráfaga muchas palabras (p.ej. 512 bits en DDR5) junto con la pedida → llenan una línea de la <strong>caché del CPU</strong> → el acceso a palabras adyacentes es mucho más rápido (localidad espacial).</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 08 ============ -->
+<div class="section-label" id="s08">08 — Latencia y ancho de banda <span class="tier key">★ alta probabilidad</span></div>
+<div class="grid grid-2">
+
+  <div class="card amber">
+    <div class="card-title">⏳ Latencia</div>
+    <div class="op-name">Tiempo de espera del CPU</div>
+    <div class="op-rule">
+      El CPU queda en <strong>estado latente</strong>: <strong>espera</strong> datos o instrucciones del subsistema de memoria <strong>sin poder trabajar</strong>. El CPU procesa rápido y la memoria no tanto, así que muchas veces queda esperando. <strong>Conviene que sea mínima.</strong>
+    </div>
+    <div class="exam-q">
+      <div class="q">¿Qué es la latencia del subsistema de memoria?</div>
+      <div class="a">Tiempo de espera del CPU por instrucciones o datos del subsistema de memoria (el CPU procesa rápido y la memoria no → espera); debe ser el menor posible. <strong style="color:#fff">Se mide en tiempo (nanosegundos para memoria) o en ciclos de reloj del procesador (p. ej. 20–40 ciclos).</strong></div>
+    </div>
+    <div class="note danger">📊 RÚBRICA (el profe): si respondés "tiempo", <strong>aclará la unidad</strong> — segundos/nanosegundos <strong>o</strong> ciclos de reloj. Decir solo "tiempo" queda incompleto.</div>
+    <div class="note warn">⚠️ NO es la definición de <strong>redes</strong> ("lo que tarda en llegar"). Acá es el <strong>CPU esperando</strong> al subsistema de memoria — el profe penaliza la confusión.</div>
+    <div class="exam-q">
+      <div class="q">¿Por qué agregar RAM hace más rápida la PC?</div>
+      <div class="a">Con más RAM el SO hace <strong>menos swapping</strong> al disco/SSD (~500× más lento que la RAM) → menos accesos lentos → baja la <strong>latencia efectiva</strong>. <strong style="color:#fff">NO</strong> es porque el procesador sea más rápido (error típico).</div>
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">🛣️ Ancho de banda (tasa de transferencia)</div>
+    <div class="op-rule">
+      Máxima cantidad de datos transferidos <strong>por unidad de tiempo</strong> (tasa de transferencia). Analogía de la autopista: se sube con <strong>4 palancas</strong>. Es teórico: si pasan pocos "autos", no se aprovecha.
+    </div>
+    <div class="note danger">🚨 La definición <strong>debe</strong> incluir "<strong>por unidad de tiempo</strong>" — omitirlo lo penaliza (lo repitió en 3 clases). Unidades: comunicaciones → <strong>bits/s</strong>; almacenamiento → <strong>bytes/s</strong>.</div>
+    <div class="proplist pl-green">
+      <div><strong style="color:#fff">① ↑ Frecuencia</strong> — autos más rápidos.</div>
+      <div><strong style="color:#fff">② ↑ Ancho de bus</strong> — más carriles / bits en paralelo (placas de video: 128 · 256 · 512 b; DDR 64 b · GDDR 384 b · HBM 4096 b).</div>
+      <div><strong style="color:#fff">③ Doble flanco (DDR)</strong> — transfiere en flanco ↑ y ↓ → ×2.</div>
+      <div><strong style="color:#fff">④ + Canales independientes</strong> — dual/multi-channel = entrelazado de memoria → ×N (hogar 2 · servers 4+).</div>
+    </div>
+    <div class="formula green-f">ancho de banda = frecuencia × 2 (DDR) × ancho de bus × nº canales</div>
+    <div class="worked">
+      <div class="wr"><span class="wl">frecuencia</span><span class="wb"><span class="hi">200 MHz</span></span></div>
+      <div class="wr"><span class="wl">× DDR</span><span class="wb">× 2 (doble flanco)</span></div>
+      <div class="wr"><span class="wl">× ancho bus</span><span class="wb">× <span class="hc">8 bytes</span> (64 bits)</span></div>
+      <div class="wr total"><span class="wl">= 1 canal</span><span class="wb"><span class="res">3200 MB/s ≈ 3,2 GB/s</span></span></div>
+      <div class="wr"><span class="wl">dual channel</span><span class="wb">3,2 × 2 = <span class="res">6,4 GB/s</span></span></div>
+    </div>
+    <div class="insight">💡 extra (gráficas) · GDDR6X usa señalización <strong>PAM4</strong> = 4 bits por clock ("QDR") → otra forma de subir el ancho de banda más allá del doble flanco.</div>
+    <div class="note warn">⚠️ Ancho de banda (volumen/tiempo) <strong>≠</strong> latencia (tiempo de espera). Son cosas distintas: HBM gana en ancho de banda; DDR gana en latencia.</div>
+  </div>
+
+</div>
+
+<!-- ============ 09 ============ -->
+<div class="section-label" id="s09">09 — Memorias gráficas: HBM y GDDR <span class="tier key">★ alta probabilidad</span></div>
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">📊 Ancho de banda enorme</div>
+    <div class="grid grid-3" style="margin-top:0.3rem">
+      <div class="stat"><div class="stat-num">3</div><div class="stat-unit">TB/s</div><div class="stat-cap">HBM (apilada)</div></div>
+      <div class="stat"><div class="stat-num">1</div><div class="stat-unit">TB/s</div><div class="stat-cap">GDDR6X</div></div>
+      <div class="stat"><div class="stat-num">~10×</div><div class="stat-unit">vs DDR</div><div class="stat-cap">ancho de banda</div></div>
+    </div>
+    <div class="op-rule" style="margin-top:.7rem">
+      <strong>GDDR</strong> = DDR SDRAM para tarjetas gráficas. <strong>HBM</strong> (High Bandwidth Memory) = <strong>pilas (stack)</strong> de chips DRAM conectadas vertical y horizontalmente, sobre un <em>interposer</em> de sílice que las une a la GPU. Para GPU y cómputo de alto rendimiento (HPC).
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🎯 Lo que da el punto</div>
+    <div class="exam-q">
+      <div class="q">¿Qué ventajas tienen HBM y GDDR?</div>
+      <div class="a">Gran <strong>ancho de banda</strong>: HBM ~3 TB/s, GDDR6X ~1 TB/s, hasta ~10× más que DDR.</div>
+    </div>
+    <div class="note danger">📊 RÚBRICA (el profe): "lo más importante era el <strong>ancho de banda</strong>. Si me ponían ancho de banda ya me quedaba contento." El número exacto refuerza, pero la palabra que da el punto es <strong>ancho de banda</strong>.</div>
+    <div class="note danger">📊 OJO (el profe): en el examen <strong>no pongan «edificios»</strong> — el apilado es analogía; el término es <strong>pila / stack</strong>.</div>
+    <div class="insight">💡 matiz (el profe, 04-20) · HBM/GDDR tienen más ancho de banda pero <strong>mayor latencia</strong> → por eso DDR sigue siendo la memoria principal (mejor para acceso aleatorio).</div>
+  </div>
+
+</div>
+
+<!-- ============ 10 ============ -->
+<div class="section-label" id="s10">10 — Banco de memoria principal <span class="tier core">core</span></div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🏛️ Estructura interna</div>
+    <svg class="svg-wrap" viewBox="0 0 440 170" width="100%" style="max-width:460px" font-family="JetBrains Mono,monospace">
+      <!-- bus direcciones -> decodificador -->
+      <rect x="14" y="60" width="78" height="42" rx="4" fill="rgba(245,158,11,0.12)" stroke="#f59e0b"/>
+      <text x="53" y="78" font-size="9" fill="#f59e0b" text-anchor="middle">Decodificador</text>
+      <text x="53" y="92" font-size="7.5" fill="#94a3b8" text-anchor="middle">p bits → 2ᵖ</text>
+      <text x="53" y="48" font-size="8" fill="#94a3b8" text-anchor="middle">bus direcciones</text>
+      <line x1="53" y1="50" x2="53" y2="60" stroke="#94a3b8" stroke-width="1.5"/>
+      <!-- matriz -->
+      <rect x="130" y="40" width="120" height="82" rx="4" fill="rgba(6,182,212,0.12)" stroke="#06b6d4"/>
+      <text x="190" y="74" font-size="10" fill="#06b6d4" text-anchor="middle">Matriz de celdas</text>
+      <text x="190" y="90" font-size="8" fill="#94a3b8" text-anchor="middle">2ᵖ filas × n columnas</text>
+      <line x1="92" y1="81" x2="130" y2="81" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#ar)"/>
+      <!-- transductores -->
+      <rect x="288" y="60" width="80" height="42" rx="4" fill="rgba(124,58,237,0.12)" stroke="#7c3aed"/>
+      <text x="328" y="78" font-size="9" fill="#a78bfa" text-anchor="middle">Transductores</text>
+      <text x="328" y="92" font-size="7.5" fill="#94a3b8" text-anchor="middle">amp / atenúan</text>
+      <line x1="250" y1="81" x2="288" y2="81" stroke="#06b6d4" stroke-width="1.5" marker-end="url(#ar)"/>
+      <!-- bus datos -->
+      <line x1="368" y1="81" x2="404" y2="81" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>
+      <text x="406" y="84" font-size="8" fill="#94a3b8">datos</text>
+      <!-- logica de control -->
+      <rect x="130" y="135" width="120" height="26" rx="4" fill="rgba(16,185,129,0.10)" stroke="#10b981"/>
+      <text x="190" y="152" font-size="8.5" fill="#10b981" text-anchor="middle">Lógica de control (CLK)</text>
+      <line x1="190" y1="122" x2="190" y2="135" stroke="#10b981" stroke-width="1.2" stroke-dasharray="3 2"/>
+      <defs><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1L8,5L0,9" fill="#94a3b8"/></marker></defs>
+    </svg>
+    <div class="grid grid-2" style="margin-top:.6rem">
+      <div>
+        <div class="op-rule">Se conecta a 3 buses (control, direcciones, datos). El <strong>decodificador</strong> toma la dirección de p bits y activa <strong>una sola fila</strong> (palabra). Los <strong>transductores</strong> amplifican el dato leído (sale muy débil de la celda DRAM) y atenúan el de escritura.</div>
+        <div class="proplist pl-green">
+          <div><strong style="color:#fff">CS</strong> chip select · <strong style="color:#fff">OE</strong> output enable</div>
+          <div><strong style="color:#fff">WE</strong> write enable · <strong style="color:#fff">R̄/W</strong> · <strong style="color:#fff">CLK</strong></div>
+        </div>
+        <div class="note warn">⚠️ Las <strong>señales de control en detalle</strong> (CS/OE/WE…) no se toman: alcanza el concepto del banco y, sobre todo, el vínculo dirección → capacidad (2<sup>p</sup>).</div>
+      </div>
+      <div>
+        <div class="formula green-f">p bits de dirección → 2<sup>p</sup> palabras</div>
+        <div class="formula green-f">32 bits → 2<sup>32</sup> = <strong>4 GB</strong> direccionables</div>
+        <div class="insight">🔑 de la clase · El decodificador es lo que ata los bits de dirección al tamaño de la RAM: "con 32 bits tenés 4 GB; por eso no podías poner 8 GB".</div>
+        <div class="note danger">🚨 El decodificador como concepto SÍ entra; el detalle de <strong>a dónde va cada bit, NO</strong> ("primero la materia en lo global").</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 11 ============ -->
+<div class="section-label" id="s11">11 — Referencia rápida <span class="tier ctx">contexto · repaso para el final</span></div>
+<div class="grid grid-3">
+
+  <div class="card cyan">
+    <div class="card-title">📋 DDR4 vs DDR5</div>
+    <table class="cheat">
+      <thead><tr><th>—</th><th>DDR4</th><th>DDR5</th></tr></thead>
+      <tbody>
+        <tr><td class="k">Año</td><td>2014</td><td>2020</td></tr>
+        <tr><td class="k">Voltaje</td><td>1,2 V</td><td>1,1 V</td></tr>
+        <tr><td class="k">Prefetch</td><td>8 bits</td><td>16 bits</td></tr>
+        <tr><td class="k">Frecuencia</td><td>1600–4400</td><td>4000–8000</td></tr>
+        <tr><td class="k">CAS</td><td>10–20</td><td>38–44</td></tr>
+        <tr><td class="k">Bus</td><td>64 bits</td><td>64 bits</td></tr>
+      </tbody>
+    </table>
+    <div class="note ok">✓ A igual frecuencia, DDR5 es ~el doble por el prefetch (pero no tanto como sugiere la frecuencia sola).</div>
+    <div class="note warn">⚠️ El profe NO pide los <strong>valores exactos</strong> por generación (V/MHz/CAS); sí el concepto: DDR5 mejora por el prefetch (16n vs 8n).</div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">🔗 SDRAM y entrelazado</div>
+    <div class="proplist pl-purple">
+      <div><strong style="color:#fff">SDRAM</strong>: DRAM en ráfaga sincronizada con el reloj. Antecesora de DDR.</div>
+      <div><strong style="color:#fff">Controlador de memoria</strong> (en el CPU) con varias líneas → accesos entrelazados.</div>
+      <div><strong style="color:#fff">Dual channel</strong>: duplica el ancho de banda teórico (ranuras del mismo color = mismo canal).</div>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🕐 Tiempos de acceso</div>
+    <div class="op-rule" style="font-size:.72rem">
+      En la etiqueta van 4 tiempos (ciclos): <strong>CAS</strong> (el más importante), <strong>tRCD</strong>, <strong>tRP</strong>, <strong>tRAS</strong>. También: Access Time, Cycle Time, Write Time.
+    </div>
+    <div class="formula amber-f" style="font-size:.72rem">DDR5 6000: CAS 36 · tRCD 36 · tRP 36 · tRAS 76</div>
+    <div class="note ok">✓ <strong>CAS</strong> es el más importante (ligado al tiempo de acceso); cuanto <strong>más bajo, más rápida</strong> la memoria.</div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">🛡️ Códigos de paridad y ECC</div>
+    <div class="op-rule" style="font-size:.74rem">
+      <strong>Bit de paridad</strong>: se agrega 1 bit para que la cantidad de "unos" sea par (<strong>PAR</strong>) o impar (<strong>IMPAR</strong>).
+    </div>
+    <div class="step green-s">
+      <div class="s"><b>Detección:</b> emisor manda PAR y receptor cuenta IMPAR → <b>error seguro</b>. Si cuenta PAR no se asegura (error en ≥2 bits, improbable).</div>
+      <div class="s"><b>Hamming / ECC:</b> no solo detectan — <b>identifican y corrigen</b> el bit erróneo (memorias de servidores).</div>
+    </div>
+    <div class="note ok">✓ Está en las <strong>últimas páginas del apunte</strong>, de donde el profe suele preguntar. Concepto básico, sin profundizar.</div>
+  </div>
+
+</div>
+
+<!-- ============ 12 ============ -->
+<div class="section-label" id="s12">12 — Claves para el examen <span class="tier key">★ prioridad</span></div>
+<div class="grid grid-2" style="max-width:1400px;margin:0 auto">
+  <div class="card red">
+    <div class="card-title">🎯 Temas centrales (lo que más cae)</div>
+    <div class="step red-s">
+      <div class="s"><b>DDR:</b> duplica el ancho de banda con un solo canal (flanco ↑ y ↓). <b>NO</b> es dual channel.</div>
+      <div class="s"><b>Prefetch:</b> transfiere en ráfaga muchas palabras (512 bits en DDR5) → adyacentes rápidas.</div>
+      <div class="s"><b>Latencia:</b> CPU esperando al subsistema de memoria; aclarar unidad (ns o ciclos), no la def. de redes.</div>
+      <div class="s"><b>HBM/GDDR:</b> gran ancho de banda (~10× DDR). La palabra clave es "ancho de banda".</div>
+      <div class="s"><b>Ancho de banda:</b> datos <b>por unidad de tiempo</b> (omitirlo = mal). Latencia ≠ ancho de banda.</div>
+      <div class="s"><b>Memoria física:</b> propiedades · volátil/no volátil · celda DRAM (MOSFET + capacitor + refresco) · RAM vs PROM.</div>
+    </div>
+  </div>
+  <div class="card red">
+    <div class="card-title">⚠️ Trampas y rúbrica</div>
+    <div class="step red-s">
+      <div class="s"><b>Trampa DDR:</b> "un solo canal" → la respuesta NO es dual channel.</div>
+      <div class="s"><b>SRAM ≠ SDRAM:</b> Static RAM vs Synchronous DRAM. No confundir.</div>
+      <div class="s"><b>HBM:</b> no escribir "edificios" — el término es <b>pila / stack</b>.</div>
+      <div class="s"><b>Vocabulario:</b> el profe descuenta por términos cruzados (bloque/línea/palabra). Términos exactos, en castellano y completos.</div>
+      <div class="s"><b>🚫 No se toman ni en el final:</b> electrónica interna (cómo conduce) del flip-flop/MOSFET — <b>las 3 partes del MOSFET sí</b> · bits internos del decodificador/MUX · señales de control en detalle · sigla DIMM · SATA/M.2/PCIe · valores numéricos por generación DDR.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Memorias Físicas · Arquitectura de Computadores · Universidad de Palermo</p>
+  <p class="out">No se toma ni en el final: electrónica interna del flip-flop/MOSFET · bits internos del decodificador/MUX · señales de control en detalle · sigla DIMM · valores numéricos por generación DDR. Caché y memoria virtual → Unidad 07 · circuito integrado → Unidad 01.</p>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#arquitectura-de-computadores" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

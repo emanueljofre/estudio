@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Línea de Tiempo de Procesadores — Arquitectura de Computadores</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f; --surface: #12121a; --card: #1a1a26; --border: #2a2a3e;
+    --accent: #7c3aed; --accent2: #06b6d4; --accent3: #f59e0b; --accent4: #10b981; --red: #ef4444;
+    --pink: #ec4899; --blue: #3b82f6;
+    --text: #e2e8f0; --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace; --display: 'Syne', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--display);
+    min-height: 100vh; padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+  .grid   { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  header { text-align: center; margin-bottom: 2.2rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem; margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider { width: 60px; height: 3px; margin: 1.2rem auto 0; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+  .section-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--accent); margin: 2.5rem auto 1rem; max-width: 1400px;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-label.final { color: var(--accent3); }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+  .card.pink::before   { background: linear-gradient(90deg, var(--pink), transparent); }
+  .card.blue::before   { background: linear-gradient(90deg, var(--blue), transparent); }
+  .card-title { font-size: 0.72rem; font-family: var(--mono); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+  .card.pink   .card-title { color: #f472b6; }
+  .card.blue   .card-title { color: #60a5fa; }
+  .card .yr { margin-left: auto; color: var(--muted); font-weight: 400; }
+
+  .op-rule { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem; padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid var(--border); border-radius: 0 4px 4px 0; }
+  .op-rule strong { color: #fff; }
+  .proplist { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.32rem; }
+  .proplist div { padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .proplist b { color: #fff; }
+  .pl-green div { background: rgba(16,185,129,0.06); } .pl-red div { background: rgba(239,68,68,0.06); }
+  .pl-amber div { background: rgba(245,158,11,0.06); } .pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan div { background: rgba(6,182,212,0.06); } .pl-pink div { background: rgba(236,72,153,0.06); }
+  .pl-blue div { background: rgba(59,130,246,0.06); }
+  .u { color: #fff; font-weight: 700; }
+  .note { font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem; padding: 0.35rem 0.55rem; border-radius: 4px; line-height: 1.5; }
+  .note.ok   { color: var(--accent4); background: rgba(16,185,129,0.06); }
+  .note.warn { color: var(--accent3); background: rgba(245,158,11,0.08); border-left: 2px solid var(--accent3); border-radius: 0 4px 4px 0; }
+  .note.bad  { color: #f87171; background: rgba(239,68,68,0.08); border-left: 2px solid var(--red); border-radius: 0 4px 4px 0; }
+  .insight { font-family: var(--mono); font-size: 0.65rem; color: var(--accent3); background: rgba(245,158,11,0.06); border-left: 2px solid var(--accent3); border-radius: 0 4px 4px 0; padding: 0.4rem 0.6rem; margin-top: 0.5rem; line-height: 1.5; }
+  .quote { font-family: var(--mono); font-size: 0.64rem; color: #cbd5e1; font-style: italic; background: rgba(124,58,237,0.06); border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0; padding: 0.4rem 0.6rem; margin-top: 0.5rem; line-height: 1.5; }
+  .quote span { color: var(--muted); font-style: normal; }
+
+  /* Priority chips */
+  .pri { font-family: var(--mono); font-size: 0.52rem; font-weight: 700; letter-spacing: 0.06em; padding: 0.12rem 0.4rem; border-radius: 3px; border: 1px solid; white-space: nowrap; text-transform: uppercase; }
+  .pri.aa  { color: #fda4af; border-color: var(--red);    background: rgba(239,68,68,0.10); }
+  .pri.a   { color: #fcd34d; border-color: var(--accent3); background: rgba(245,158,11,0.10); }
+  .pri.cc  { color: #67e8f9; border-color: var(--accent2); background: rgba(6,182,212,0.10); }
+  .pri.ctx { color: var(--muted); border-color: var(--border); }
+  .pri.fin { color: #c4b5fd; border-color: var(--accent); background: rgba(124,58,237,0.10); }
+  .pri.no  { color: #f87171; border-color: var(--red); background: rgba(239,68,68,0.06); }
+
+  /* Through-line stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; }
+  @media (max-width: 760px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  .stat { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem 0.6rem; text-align: center; }
+  .stat-num { font-family: var(--mono); font-weight: 700; font-size: 1.05rem; color: #fff; }
+  .stat-num .arw { color: var(--accent3); }
+  .stat-unit { font-family: var(--mono); font-size: 0.6rem; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.25rem; }
+  .stat-cap { font-family: var(--mono); font-size: 0.55rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* Timeline */
+  .timeline { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding: 1.2rem 0.5rem 0.5rem; position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 0.5rem; right: 0.5rem; top: 1.95rem; height: 2px; background: var(--border); }
+  .tl-item { display: flex; flex-direction: column; align-items: center; min-width: 132px; flex: 1; position: relative; }
+  .tl-year { font-family: var(--mono); font-size: 0.6rem; color: var(--accent2); margin-bottom: 0.4rem; font-weight: 700; letter-spacing: 0.1em; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--accent2); position: relative; z-index: 1; flex-shrink: 0; }
+  .tl-label { font-family: var(--mono); font-size: 0.66rem; color: var(--text); text-align: center; margin-top: 0.5rem; line-height: 1.3; padding: 0 0.2rem; font-weight: 700; }
+  .tl-sub { font-family: var(--mono); font-size: 0.55rem; color: var(--muted); text-align: center; margin-top: 0.25rem; line-height: 1.35; padding: 0 0.2rem; }
+  .tl-item.gen0 .tl-dot { background: #a78bfa; border-color: #a78bfa; }
+  .tl-item.gen1 .tl-dot { background: var(--accent2); border-color: var(--accent2); }
+  .tl-item.gen2 .tl-dot { background: var(--accent3); border-color: var(--accent3); }
+  .tl-item.gen3 .tl-dot { background: var(--accent4); border-color: var(--accent4); }
+  .tl-item.star .tl-label::after { content: ' ★'; color: var(--red); }
+
+  /* Matrix */
+  .matrix-wrap { overflow-x: auto; }
+  .matrix { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.68rem; min-width: 1040px; }
+  .matrix th, .matrix td { border: 1px solid var(--border); padding: 0.4rem 0.35rem; text-align: center; }
+  .matrix th.ucol, .matrix td.ucol { text-align: left; white-space: nowrap; color: #fff; padding-left: 0.6rem; min-width: 178px; }
+  .matrix td.concept { text-align: left; color: #cbd5e1; min-width: 210px; white-space: normal; line-height: 1.35; }
+  .matrix thead th { font-size: 0.54rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; vertical-align: bottom; }
+  .matrix tbody tr:hover { background: rgba(255,255,255,0.035); }
+  .matrix b { color: #fff; }
+  .matrix .sep td { background: rgba(124,58,237,0.10); color: #c4b5fd; text-align: left; font-size: 0.58rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.35rem 0.6rem; }
+  .matrix .sep.amd td  { background: rgba(239,68,68,0.10); color: #fca5a5; }
+  .matrix .sep.arm td  { background: rgba(6,182,212,0.10); color: #67e8f9; }
+  .matrix .sep.het td  { background: rgba(245,158,11,0.10); color: #fcd34d; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.9rem; }
+  .legend .chip { font-family: var(--mono); font-size: 0.6rem; padding: 0.28rem 0.6rem; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); display: inline-flex; align-items: center; gap: 0.4rem; }
+
+  footer { text-align: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Arquitectura de Computadores · Diagrama Integrador</div>
+  <h1>Procesadores</h1>
+  <p class="subtitle">línea de tiempo · de la válvula al núcleo heterogéneo · qué concepto introdujo cada chip</p>
+  <div class="divider"></div>
+</header>
+
+<!-- ════════════ CÓMO LEER ════════════ -->
+<div class="section-label">Cómo leer este integrador</div>
+<div class="grid grid-2">
+  <div class="card purple">
+    <div class="card-title">🧭 La idea</div>
+    <div class="op-rule">El profe <strong>no pide memorizar specs</strong> ("no te voy a preguntar si el Pentium tenía 3,1 millones de transistores"). Pide saber <strong>qué concepto introdujo cada procesador</strong>. Por eso la columna que importa de todo el documento es <strong>«concepto-hito»</strong>; los números van en gris, como contexto.</div>
+    <div class="proplist pl-purple">
+      <div>📖 Cada chip = el <b>peldaño</b> que estrenó algo: el pipeline, lo superescalar, el multinúcleo…</div>
+      <div>🧵 Una sola historia: <b>8086 → 386 → 486 → Pentium → P4 → Core 2 → moderno</b>, con <b>ARM/RISC</b> como vía paralela y <b>AMD</b> como sombra de Intel.</div>
+      <div>🎓 Cubre <b>U1 · U4 · U8 · U9 · U13 · U14</b> — la mitad de la materia cuelga de procesadores concretos.</div>
+    </div>
+  </div>
+  <div class="card amber">
+    <div class="card-title">🎯 Prioridad de examen (los marcadores)</div>
+    <div class="legend" style="margin-top:0">
+      <span class="chip"><span class="pri aa">★★</span> ancla de examen</span>
+      <span class="chip"><span class="pri a">★</span> entra como concepto</span>
+      <span class="chip"><span class="pri cc">⚡</span> dato clave</span>
+      <span class="chip"><span class="pri fin">FINAL</span> solo final (U13)</span>
+    </div>
+    <div class="note warn">⚠️ <b>U13 (Nuevas Tecnologías) y Buses NO entran en el 2º parcial</b> — solo en el final. Toda la sección «era heterogénea» está marcada <span class="pri fin">FINAL</span>.</div>
+  </div>
+</div>
+
+<!-- ════════════ THROUGH-LINES ════════════ -->
+<div class="section-label">Los 4 hilos que el profe repite</div>
+<div class="grid" style="grid-template-columns:1fr">
+  <div class="card cyan">
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">5 MHz <span class="arw">→</span> ~6 GHz</div>
+        <div class="stat-unit">frecuencia</div>
+        <div class="stat-cap">8086 (1978) → moderno · ×1000+</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">1500 nm <span class="arw">→</span> 3 nm</div>
+        <div class="stat-unit">litografía</div>
+        <div class="stat-cap">transistor del 386 (1985) → hoy</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">2.300 <span class="arw">→</span> miles de M</div>
+        <div class="stat-unit">transistores</div>
+        <div class="stat-cap">4004 (1971) · Pentium 3,1 M → hoy</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">1 <span class="arw">→</span> 24 núcleos</div>
+        <div class="stat-unit">paralelismo</div>
+        <div class="stat-cap">1 núcleo → 8P+16E (i9-13900K)</div>
+      </div>
+    </div>
+    <div class="insight">💡 La estrategia cambió: hasta el Pentium 4 se subía la <strong>frecuencia</strong> (y "consumía como un dragón", 125 W). Tras el muro del calor, se pasó a sumar <strong>núcleos</strong> (Core 2, 2006) y luego a <strong>núcleos heterogéneos</strong> (P/E) y <strong>chiplets</strong>.</div>
+  </div>
+</div>
+
+<!-- ════════════ §1 RAMPA HISTÓRICA ════════════ -->
+<div class="section-label">§1 · La rampa — antes del microprocesador (U1)</div>
+<div class="grid" style="grid-template-columns:1fr">
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="card-title">📅 De la máquina mecánica al primer chip · las generaciones</div>
+    <div class="timeline">
+      <div class="tl-item gen0">
+        <span class="tl-year">1822</span><span class="tl-dot"></span>
+        <span class="tl-label">Babbage</span>
+        <span class="tl-sub">máq. mecánica · Gen 0 · +20.000 partes</span>
+      </div>
+      <div class="tl-item gen0">
+        <span class="tl-year">1944</span><span class="tl-dot"></span>
+        <span class="tl-label">Mark-I</span>
+        <span class="tl-sub">electromecánica · origen Harvard</span>
+      </div>
+      <div class="tl-item gen1">
+        <span class="tl-year">1945</span><span class="tl-dot"></span>
+        <span class="tl-label">ENIAC</span>
+        <span class="tl-sub">Gen 1 válvulas · propósito general</span>
+      </div>
+      <div class="tl-item gen1 star">
+        <span class="tl-year">1945</span><span class="tl-dot"></span>
+        <span class="tl-label">Von Neumann</span>
+        <span class="tl-sub">programa almacenado · IAS</span>
+      </div>
+      <div class="tl-item gen2">
+        <span class="tl-year">1947</span><span class="tl-dot"></span>
+        <span class="tl-label">Transistor</span>
+        <span class="tl-sub">Gen 2 · Bell Labs · silicio</span>
+      </div>
+      <div class="tl-item gen3">
+        <span class="tl-year">1958</span><span class="tl-dot"></span>
+        <span class="tl-label">CI · Kilby</span>
+        <span class="tl-sub">Gen 3 circuito integrado · 6 transistores</span>
+      </div>
+      <div class="tl-item gen3">
+        <span class="tl-year">1971</span><span class="tl-dot"></span>
+        <span class="tl-label">Intel 4004</span>
+        <span class="tl-sub">Gen 4 · 1er microprocesador · 4 bits</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="grid grid-3">
+  <div class="card green">
+    <div class="card-title">🧬 Las generaciones <span class="pri cc">⚡</span></div>
+    <div class="proplist pl-green">
+      <div><b>Gen 0</b> — mecánica/electromecánica (Babbage, Mark-I)</div>
+      <div><b>Gen 1</b> — válvulas / tubos de vacío (ENIAC)</div>
+      <div><b>Gen 2</b> — transistores (1947)</div>
+      <div><b>Gen 3</b> — circuito integrado (1958)</div>
+      <div><b>Gen 4</b> — microprocesador (1971, Intel 4004)</div>
+    </div>
+    <div class="note ok">✓ Pregunta real de parcial: ordenar válvulas → transistores → CI.</div>
+  </div>
+  <div class="card red">
+    <div class="card-title">⚠️ Von Neumann — la trampa <span class="pri aa">★★</span></div>
+    <div class="op-rule">El modelo de <strong>programa almacenado</strong>: datos <strong>e instrucciones</strong> comparten el <strong>mismo espacio de memoria</strong>. Introduce UAL + UC (con CP y RI).</div>
+    <div class="quote">"la memoria comparte el espacio de <b>datos e instrucciones</b>" — NO digas "direcciones": baja un punto. <span>(trampa de parcial B8)</span></div>
+    <div class="note bad">↔ Contraste: <b>Harvard</b> (Mark-I) separa memoria de datos e instrucciones → permite acceso en paralelo.</div>
+  </div>
+  <div class="card cyan">
+    <div class="card-title">🔹 Intel 4004 <span class="yr">1971</span></div>
+    <div class="op-rule">El <strong>tercer gran cambio</strong>: el primer CPU completo en un solo chip. De acá en adelante, toda la historia es de microprocesadores.</div>
+    <div class="proplist pl-cyan">
+      <div><b>4 bits</b> · 740 KHz</div>
+      <div><b>2.300</b> transistores · 16 pines</div>
+      <div>Intel fundada en 1968 (Moore + Noyce)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ §2 ESPINA X86 ════════════ -->
+<div class="section-label">§2 · La espina dorsal x86 (U1·U4·U8·U9·U14)</div>
+<div class="grid" style="grid-template-columns:1fr">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">📅 De la primera PC al núcleo heterogéneo · 50 años de x86</div>
+    <div class="timeline">
+      <div class="tl-item gen0 star"><span class="tl-year">1978</span><span class="tl-dot"></span><span class="tl-label">8086/8088</span><span class="tl-sub">base x86 · 8088 → 1ra PC (IBM)</span></div>
+      <div class="tl-item gen1"><span class="tl-year">1985</span><span class="tl-dot"></span><span class="tl-label">80386</span><span class="tl-sub">1er 32 bits · MMU/mem virtual</span></div>
+      <div class="tl-item gen2"><span class="tl-year">1989</span><span class="tl-dot"></span><span class="tl-label">80486</span><span class="tl-sub">pipeline 5 etapas + caché on-chip</span></div>
+      <div class="tl-item gen3 star"><span class="tl-year">1993</span><span class="tl-dot"></span><span class="tl-label">Pentium</span><span class="tl-sub">1er superescalar · 2 ALUs · Harvard</span></div>
+      <div class="tl-item gen0"><span class="tl-year">1997</span><span class="tl-dot"></span><span class="tl-label">Pentium III</span><span class="tl-sub">1er out-of-order Intel · ~1 GHz</span></div>
+      <div class="tl-item gen1"><span class="tl-year">2002</span><span class="tl-dot"></span><span class="tl-label">Pentium 4</span><span class="tl-sub">superpipeline 20-31 · 3 GHz · HT</span></div>
+      <div class="tl-item gen2"><span class="tl-year">2006</span><span class="tl-dot"></span><span class="tl-label">Core 2 Duo</span><span class="tl-sub">1er multinúcleo escritorio</span></div>
+      <div class="tl-item gen3"><span class="tl-year">2009</span><span class="tl-dot"></span><span class="tl-label">Core i7</span><span class="tl-sub">~20 etapas · binning i3/i5/i7/i9</span></div>
+      <div class="tl-item gen3 star"><span class="tl-year">2021+</span><span class="tl-dot"></span><span class="tl-label">Golden/Raptor Cove</span><span class="tl-sub">P+E heterogéneo · ROB 502</span></div>
+    </div>
+  </div>
+</div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🟣 Intel 8086 / 8088 <span class="pri aa">★★</span> <span class="yr">1978</span></div>
+    <div class="op-rule">El <strong>procesador de estudio</strong> de toda la materia. Modificado como <strong>8088</strong> (bus de 8 bits) entró en la <strong>IBM PC = la primera computadora personal</strong>. Su arquitectura x86 sigue viva hoy (extendida a 32 y 64 bits).</div>
+    <div class="proplist pl-purple">
+      <div><b>16 bits</b> · primeras a <b>5 MHz</b> · CISC</div>
+      <div>Bus de direcciones <b>20 bits → 2²⁰ = 1 MB</b> de RAM máx.</div>
+      <div><b>14 registros</b>: AX/BX/CX/DX (partibles H/L), SI/DI, SP/BP/IP, segmentos CS/DS/ES/SS, banderas</div>
+      <div><b>PC = CS:IP</b> · set de <b>89 instrucciones</b> · little-endian · sin punto flotante</div>
+    </div>
+    <div class="note ok">✓ ISA = contrato: <code>MOV AX,34F2h</code> corre igual en un 8086 que en un Core i7 (compatibilidad binaria). Centro de U14 (ensamblador, 2º parcial).</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🔵 Intel 80386 <span class="pri a">★</span> <span class="yr">1985</span></div>
+    <div class="op-rule">Primer x86 de <strong>32 bits</strong> y primero con la <strong>MMU dentro del chip</strong> → memoria virtual paginada (4 GB) y modo protegido. UC <strong>microprogramada</strong> (Control ROM).</div>
+    <div class="proplist pl-cyan">
+      <div><b>32 bits</b> · 33 MHz · <b>275.000</b> transistores</div>
+      <div>Transistor de <b>1.500 nm</b> — el ejemplo estrella de miniaturización del profe (vs 3 nm hoy)</div>
+      <div>Taxonomía de Flynn: <b>SISD</b></div>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🟡 Intel 80486 <span class="pri a">★</span> <span class="yr">1989</span></div>
+    <div class="op-rule">Estrena dos cosas que el Pentium llevará al máximo: el <strong>pipeline</strong> (cauce segmentado, 5 etapas) y la <strong>caché incorporada</strong> en el CPU. El pipeline permitió subir la frecuencia (de 5 a 33 MHz).</div>
+    <div class="proplist pl-amber">
+      <div><b>32 bits</b> · pipeline de <b>5 etapas</b></div>
+      <div>1er Intel con <b>caché on-chip</b> + FPU integrada</div>
+      <div>Aún ejecuta <b>una sola instrucción</b> a la vez (no superescalar)</div>
+    </div>
+    <div class="insight">💡 Pipeline ≠ acelerar una instrucción: acelera el <strong>throughput</strong>. Ciclo básico = <strong>IF · ID · OF · EX</strong> (búsqueda · decodificación · búsqueda de operandos · ejecución).</div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">🟢 Intel Pentium <span class="pri aa">★★</span> <span class="yr">1993</span></div>
+    <div class="op-rule">El ancla del concepto <strong>superescalar</strong>: tiene <strong>2 pipelines de enteros (U y V)</strong> + 1 de punto flotante → puede terminar <strong>2 instrucciones por ciclo</strong> (IPC máx = 2). Tiene apunte propio en la materia.</div>
+    <div class="proplist pl-green">
+      <div><b>1er superescalar</b> · 2 ALUs · bus de datos <b>64 bits</b></div>
+      <div><b>Harvard interno</b>: caché de datos 8 KB + instrucciones 8 KB separadas</div>
+      <div>5 etapas · predictor de saltos (BTB) · UC híbrida · <b>3,1 M</b> transistores</div>
+      <div><b>En orden</b> (in-order) — "procesador obediente". MMX = SIMD/vectorial</div>
+    </div>
+    <div class="quote">📊 Rúbrica: "tenés que saber que el Pentium era <b>superescalar</b>, con un bus capaz de enviar <b>2 instrucciones porque tenía 2 ALUs</b>, y arquitectura <b>Harvard</b>. NO te voy a preguntar los 3,1 millones de transistores." <span>(clase 2026-05-11)</span></div>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">🔴 Pentium III → Pentium 4 <span class="pri a">★</span> <span class="yr">1997·2002</span></div>
+    <div class="op-rule">El <strong>Pentium III</strong> trae la <strong>ejecución fuera de orden</strong> (out-of-order) a Intel. El <strong>Pentium 4</strong> apuesta al <strong>superpipeline</strong> (más etapas, más frecuencia) — y choca con el muro del calor.</div>
+    <div class="proplist pl-red">
+      <div><b>P3</b>: 1er out-of-order Intel · 3+3 pipelines · ~10 etapas · ~1 GHz</div>
+      <div><b>P4</b>: superpipeline <b>20 → 31 etapas</b> · 3 GHz · <b>125 W con un solo núcleo</b></div>
+      <div>Hyper-Threading (multithreading, 2002) · memoria Rambus</div>
+    </div>
+    <div class="insight">💡 El AMD <strong>Athlon</strong> llegó al GHz <em>antes</em> que Intel. Y el superpipeline "no era eficiente: los problemas del pipeline lo frenaban" → fin de la carrera por MHz.</div>
+  </div>
+
+  <div class="card blue">
+    <div class="card-title">🔷 Core 2 Duo → Golden/Raptor Cove <span class="pri aa">★★</span> <span class="yr">2006·2021+</span></div>
+    <div class="op-rule">El <strong>Core 2 Duo (2006)</strong> = primer multinúcleo de escritorio de Intel y "la <strong>arquitectura base que se usa hoy</strong>": núcleo <strong>fuera de orden</strong> con buffer de reordenamiento. El <strong>Golden/Raptor Cove (2021+)</strong> es el <strong>procesador moderno</strong> canónico.</div>
+    <div class="proplist pl-blue">
+      <div><b>Core 2</b>: 2 núcleos · 14 etapas · 4 ALUs · pipeline moderno de 9 etapas (Front End + Back End)</div>
+      <div><b>i9-13900K</b>: <b>heterogéneo 8 P-cores (Raptor) + 16 E-cores (Gracemont)</b></div>
+      <div>40 ALUs en el chip · ROB de <b>502 entradas</b> · 12 puertos de ejecución</div>
+      <div>SoC: iGPU + controlador de memoria + <b>PCIe directo al SSD</b> + DMI al chipset</div>
+    </div>
+    <div class="quote">"¿cuál es el pipeline de los procesadores modernos? Es lo que vamos a ver ahora." <span>— pregunta ⚡⚡ TOP de U9 · pipeline Front/Back End + ROB es lo más probable que caiga.</span></div>
+  </div>
+
+</div>
+
+<!-- ════════════ §3 RISC / ARM ════════════ -->
+<div class="section-label">§3 · La vía paralela — RISC / ARM (U9·U13)</div>
+<div class="grid grid-2">
+  <div class="card pink">
+    <div class="card-title">⚔️ CISC vs RISC <span class="pri a">★</span></div>
+    <div class="op-rule">Las <strong>dos familias</strong> de hoy: los <strong>híbridos CISC-RISC</strong> (Intel, AMD: muchas instrucciones complejas, por dentro las parten en µops) y los <strong>RISC puros</strong> (ARM: pocas instrucciones, longitud fija).</div>
+    <div class="proplist pl-pink">
+      <div><b>CISC</b> — Intel/AMD · UC microprogramada/híbrida · compatibilidad</div>
+      <div><b>RISC</b> — ARM · instrucciones de 1 ciclo · longitud fija 32b · <b>UC cableada</b> · solo LOAD/STORE tocan memoria</div>
+      <div>ARM: lo licencian Qualcomm, Apple, Samsung, MediaTek, Nvidia</div>
+    </div>
+  </div>
+  <div class="card cyan">
+    <div class="card-title">🔵 ARM Cortex-A8 — el gemelo del Pentium <span class="yr">2005</span></div>
+    <div class="op-rule">Recurso didáctico clave: un chip <strong>RISC de celular</strong> (iPhone) que por dentro se parece muchísimo al Pentium. Sirve para mostrar que lo aprendido con el Pentium <strong>se traslada</strong> a un móvil moderno.</div>
+    <div class="proplist pl-cyan">
+      <div><b>2 ALUs</b> (como el Pentium) · caché L1 + L2 · MAC · unidad vectorial</div>
+      <div>Predictor de bifurcaciones · TLB · ~4 etapas "como el Pentium"</div>
+    </div>
+    <div class="quote">"una arquitectura muy similar al Pentium, en ALUs, caché y todo… ya en un iPhone." <span>(2026-05-11)</span></div>
+  </div>
+</div>
+
+<!-- ════════════ §4 AMD ════════════ -->
+<div class="section-label">§4 · AMD — la sombra de Intel (U4·U9)</div>
+<div class="grid grid-2">
+  <div class="card amber">
+    <div class="card-title">🟡 Ryzen / Zen — chiplets <span class="pri a">★</span></div>
+    <div class="op-rule">El caso estrella de <strong>economía de fabricación</strong>: en vez de un chip grande, varias piezas (<strong>chiplets / MCM</strong>) que mezclan nodos. Intel lo copió con los "tiles" del Core Ultra.</div>
+    <div class="proplist pl-amber">
+      <div><b>CCD</b> (núcleos) en <b>7 nm</b> caro + <b>IOD</b> (E/S) en <b>12 nm</b> barato</div>
+      <div>Zen2=serie 3000 · Zen3=5000 (+15%, L3 unificada) · Zen4=7000 · Zen5=9000</div>
+      <div>Ryzen serie 3000 está en la <b>PS5 y Xbox Series X</b></div>
+    </div>
+    <div class="insight">💡 Analogía de la pizza: chip grande = más chance de zona fallada; chiplets pequeños = mejor <strong>yield</strong> (rendimiento de fabricación).</div>
+  </div>
+  <div class="card green">
+    <div class="card-title">🟢 Itanium vs AMD64 — gana la compatibilidad <span class="pri a">★</span></div>
+    <div class="op-rule">Intel quiso <strong>abandonar x86</strong> por una arquitectura nueva (<strong>Itanium</strong>, ~2000). AMD respondió <strong>extendiendo x86 a 64 bits manteniendo compatibilidad</strong> (AMD64) — y <strong>ganó el mercado</strong>.</div>
+    <div class="quote">Aunque Itanium fuera más rápido, AMD64 "era <b>compatible con todo lo anterior</b>" → nadie quería reprogramar su software (la analogía del banco). <span>(2026-04-20)</span></div>
+    <div class="note ok">✓ Moraleja del profe: la <b>ISA / compatibilidad</b> pesa más que la velocidad bruta.</div>
+  </div>
+</div>
+
+<!-- ════════════ §5 ERA HETEROGÉNEA (FINAL) ════════════ -->
+<div class="section-label final">§5 · Era heterogénea — SoC, big.LITTLE, FPGA, HPC (U13) · <span style="color:#c4b5fd">solo final</span></div>
+<div class="grid" style="grid-template-columns:1fr">
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="note warn" style="margin-top:0">⚠️ <b>Todo §5 es material de FINAL, no del 2º parcial.</b> U13 (Nuevas Tecnologías) es la única unidad sin resumen/cheatsheet propios — esta sección es tu cobertura de ese hueco. Los datos numéricos son contexto (entender la tendencia), no para memorizar.</div>
+  </div>
+</div>
+<div class="grid grid-2">
+  <div class="card cyan">
+    <div class="card-title">🔵 big.LITTLE — núcleos heterogéneos <span class="pri fin">FINAL</span></div>
+    <div class="op-rule">La idea moderna: mezclar núcleos <strong>grandes (rendimiento)</strong> y <strong>chicos (eficiencia)</strong>. Nació en ARM; Intel la adoptó como P-cores/E-cores.</div>
+    <div class="proplist pl-cyan">
+      <div><b>Samsung Exynos 5 Octa</b> (Galaxy S4, 2013) — <b>1er big.LITTLE</b>: 4× Cortex-A15 + 4× A7</div>
+      <div><b>Apple A13</b> (iPhone 11, 2019) — 6 cores: 2P (2,65 GHz) + 4E · L3 16 MB</div>
+      <div><b>Snapdragon 8 Gen 3</b> (2023) — clustering multinivel: 1 + 5 + 2 (3,4/3,2/2,3 GHz)</div>
+      <div><b>Intel i9-13900K</b> — 8 Raptor Cove + 16 Gracemont</div>
+    </div>
+    <div class="insight">💡 Históricamente, los little eran <strong>in-order</strong>; los big, pipeline largo y <strong>out-of-order</strong>. Antecedente: el <strong>IBM Cell</strong> (PS3, 2006) ya era multiproc. <strong>asimétrico</strong>.</div>
+  </div>
+  <div class="card green">
+    <div class="card-title">🟢 SoC y RAM unificada <span class="pri fin">FINAL</span></div>
+    <div class="op-rule">El <strong>System-on-Chip</strong>: CPU + GPU + memoria + E/S en un solo paquete. Borra la frontera "procesador vs placa madre".</div>
+    <div class="proplist pl-green">
+      <div><b>Apple M1</b> (2020) — la RAM va <b>en el mismo paquete</b>, pegada al CPU ("SoC de escritorio")</div>
+      <div><b>Raspberry Pi 4</b> (2019) — SoC Broadcom, quad-core ARM Cortex-A72 64b: una PC completa</div>
+      <div><b>Nvidia GB10 / Blackwell</b> — mini-PC: 20 cores ARM + 128 GB unificada + 1 PetaFLOP IA</div>
+    </div>
+    <div class="note ok">✓ Hilo con U6/U10: acercar la memoria al CPU baja la latencia (lo contrario del bus largo clásico).</div>
+  </div>
+  <div class="card amber">
+    <div class="card-title">🟡 FPGA — arquitectura reconfigurable <span class="pri fin">FINAL</span></div>
+    <div class="op-rule">Hardware que se <strong>reprograma</strong> después de fabricado: en vez de instrucciones, se reconfiguran las compuertas. A medio camino entre CPU y circuito dedicado (ASIC).</div>
+    <div class="proplist pl-amber">
+      <div><b>Xilinx Zynq-7000</b> — FPGA + procesador <b>ARM Dual Cortex-A9</b> en el mismo chip</div>
+      <div>Xilinx = fabricante de referencia de FPGAs</div>
+    </div>
+  </div>
+  <div class="card red">
+    <div class="card-title">🔴 GPU / HPC — cálculo masivo <span class="pri fin">FINAL</span></div>
+    <div class="op-rule">El otro eje moderno: miles de núcleos simples para <strong>paralelismo de datos</strong> (SIMD), medido en <strong>FLOPS / TOPS</strong>. Motor de la IA y la supercomputación.</div>
+    <div class="proplist pl-red">
+      <div><b>Nvidia A100</b> (Ampere, 2021) y <b>H100</b> (Hopper, 2022) — 26/51 TFLOPS · 3000 TOPS</div>
+      <div><b>RTX 4090</b> — 16.384 CUDA cores · 82,6 TFLOPS · 450 W</div>
+      <div><b>Frontier</b> (2023) — HPC exascale: AMD Zen2 64c + MI250X · <b>8.699.904 núcleos</b> · 1194 PFLOPS</div>
+    </div>
+    <div class="insight">💡 Fórmula del apunte: <strong>GigaFLOPS = frecuencia (GHz) × núcleos × IPC</strong>.</div>
+  </div>
+</div>
+
+<!-- ════════════ §6 MATRIZ ════════════ -->
+<div class="section-label" id="s6">§6 · Matriz comparativa — la tabla de referencia</div>
+<div class="grid" style="grid-template-columns:1fr">
+  <div class="card purple">
+    <div class="op-rule">Lookup rápido. La columna que el profe evalúa es <strong>«concepto-hito»</strong>; las numéricas son contexto. <span class="pri aa">★★</span> ancla · <span class="pri a">★</span> entra · <span class="pri cc">⚡</span> dato clave · <span class="pri fin">F</span> solo final.</div>
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th class="ucol">Procesador</th>
+            <th>Año</th><th>Bits</th><th>Frec.</th><th>Trans. / nm</th><th>Núcleos</th>
+            <th>Superescalar</th><th>Etapas</th><th>Orden</th><th>ISA</th>
+            <th class="concept">Concepto-hito</th><th>Examen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="ucol"><b>Intel 8086/8088</b></td><td>1978</td><td>16</td><td>5 MHz</td><td>—</td><td>1</td><td>no</td><td>—</td><td>in</td><td>CISC x86</td><td class="concept">Base x86 · 8088 → primera PC (IBM) · 14 registros</td><td><span class="pri aa">★★</span></td></tr>
+          <tr><td class="ucol">Intel 80386</td><td>1985</td><td>32</td><td>33 MHz</td><td>275 mil / 1500</td><td>1</td><td>no</td><td>—</td><td>in</td><td>CISC</td><td class="concept">1er 32 bits · 1ra MMU/memoria virtual on-chip</td><td><span class="pri a">★</span></td></tr>
+          <tr><td class="ucol">Intel 80486</td><td>1989</td><td>32</td><td>33 MHz</td><td>—</td><td>1</td><td>no</td><td>5</td><td>in</td><td>CISC</td><td class="concept">Pipeline (cauce segmentado) + caché on-chip</td><td><span class="pri a">★</span></td></tr>
+          <tr><td class="ucol"><b>Intel Pentium</b></td><td>1993</td><td>32</td><td>66–200 MHz</td><td>3,1 M</td><td>1</td><td><b>sí · 2 ALUs</b></td><td>5</td><td>in</td><td>CISC</td><td class="concept">1er superescalar · Harvard interno · bus datos 64b</td><td><span class="pri aa">★★</span></td></tr>
+          <tr><td class="ucol">Intel Pentium III</td><td>1997</td><td>32</td><td>~1 GHz</td><td>—</td><td>1</td><td>sí · 3+3</td><td>~10</td><td><b>out</b></td><td>CISC</td><td class="concept">1er out-of-order de Intel</td><td><span class="pri cc">⚡</span></td></tr>
+          <tr><td class="ucol">Intel Pentium 4</td><td>2002</td><td>32</td><td>3 GHz</td><td>— · 125 W</td><td>1</td><td>sí</td><td>20–31</td><td>out</td><td>CISC</td><td class="concept">Superpipeline (el límite) + Hyper-Threading</td><td><span class="pri a">★</span></td></tr>
+          <tr><td class="ucol">Intel Core 2 Duo</td><td>2006</td><td>64</td><td>~2–3 GHz</td><td>—</td><td><b>2</b></td><td>sí · 4 ALUs</td><td>14</td><td>out</td><td>híbrido</td><td class="concept">1er multinúcleo escritorio · "base que se usa hoy"</td><td><span class="pri a">★</span></td></tr>
+          <tr><td class="ucol"><b>Intel i9-13900K</b><br><span style="color:var(--muted);font-size:0.6rem">Raptor Cove + Gracemont</span></td><td>2022</td><td>64</td><td>~6 GHz</td><td>Intel 7</td><td><b>8P+16E</b></td><td>sí · 40 ALUs</td><td>~20</td><td>out</td><td>híbrido</td><td class="concept">Heterogéneo P/E · pipeline moderno · ROB 502</td><td><span class="pri aa">★★</span></td></tr>
+
+          <tr class="sep arm"><td colspan="12">Vía RISC / ARM</td></tr>
+          <tr><td class="ucol">Apple M1</td><td>2020</td><td>64</td><td>3,2 GHz</td><td>5</td><td>4P+4E</td><td>sí</td><td>—</td><td>out</td><td>RISC</td><td class="concept">SoC · RAM unificada · ISA incompatible con x86</td><td><span class="pri fin">F</span></td></tr>
+
+          <tr class="sep amd"><td colspan="12">AMD — la sombra de Intel</td></tr>
+          <tr><td class="ucol">AMD Athlon X2</td><td>~2005</td><td>64</td><td>—</td><td>—</td><td>2</td><td>sí</td><td>—</td><td>out</td><td>x86-64</td><td class="concept">De los 1ros dual-core x86 · AMD64 derrotó al Itanium</td><td><span class="pri a">★</span></td></tr>
+          <tr><td class="ucol">AMD Ryzen (Zen 2–5)</td><td>2019+</td><td>64</td><td>3–5 GHz</td><td>CCD 7 + IOD 12</td><td>6–16</td><td>sí · 4+4</td><td>—</td><td>out</td><td>híbrido</td><td class="concept">Chiplets / MCM · economía de nodos (yield)</td><td><span class="pri a">★</span></td></tr>
+
+          <tr class="sep het"><td colspan="12">Era heterogénea (U13) — solo final</td></tr>
+          <tr><td class="ucol">Samsung Exynos 5 Octa</td><td>2013</td><td>32</td><td>—</td><td>—</td><td>4+4</td><td>sí</td><td>—</td><td>mixto</td><td>RISC</td><td class="concept">1er big.LITTLE (A15 grandes + A7 chicos)</td><td><span class="pri fin">F</span></td></tr>
+          <tr><td class="ucol">Apple A13</td><td>2019</td><td>64</td><td>2,65 GHz</td><td>—</td><td>2+4</td><td>sí</td><td>—</td><td>out</td><td>RISC</td><td class="concept">SoC big.LITTLE móvil (L3 16 MB)</td><td><span class="pri fin">F</span></td></tr>
+          <tr><td class="ucol">Snapdragon 8 Gen 3</td><td>2023</td><td>64</td><td>3,4 GHz</td><td>—</td><td>1+5+2</td><td>sí</td><td>—</td><td>out</td><td>RISC</td><td class="concept">Clustering multinivel (no solo 2 grupos)</td><td><span class="pri fin">F</span></td></tr>
+          <tr><td class="ucol">IBM Cell</td><td>2006</td><td>64</td><td>3,2 GHz</td><td>—</td><td>1+8</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="concept">Multiprocesador asimétrico (PS3)</td><td><span class="pri fin">F</span></td></tr>
+          <tr><td class="ucol">Raspberry Pi 4 (BCM2711)</td><td>2019</td><td>64</td><td>1,5 GHz</td><td>—</td><td>4</td><td>sí</td><td>—</td><td>out</td><td>RISC</td><td class="concept">SoC embebido = una PC completa pequeña</td><td><span class="pri fin">F</span></td></tr>
+          <tr><td class="ucol">Xilinx Zynq-7000</td><td>—</td><td>32</td><td>—</td><td>—</td><td>2</td><td>—</td><td>—</td><td>—</td><td>RISC+FPGA</td><td class="concept">Arquitectura reconfigurable (FPGA + ARM A9)</td><td><span class="pri fin">F</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ §7 LO QUE HAY QUE SABER ════════════ -->
+<div class="section-label">§7 · Lo que el profe sí pide (chequeo final)</div>
+<div class="grid" style="grid-template-columns:1fr">
+  <div class="card green">
+    <div class="card-title">✅ Conceptos-ancla por procesador</div>
+    <div class="proplist pl-green">
+      <div><b>Von Neumann</b> → datos <b>e instrucciones</b> en el mismo espacio (no "direcciones")</div>
+      <div><b>8086</b> → base x86 · registros · 8088 fue la 1ra PC · la ISA es un contrato compatible</div>
+      <div><b>386</b> → 1er 32 bits + memoria virtual (MMU)</div>
+      <div><b>486 / Pentium 4</b> → pipeline / superpipeline (y su límite)</div>
+      <div><b>Pentium</b> → 1er superescalar (2 ALUs) + Harvard + en orden</div>
+      <div><b>Pentium III</b> → fuera de orden</div>
+      <div><b>Core 2 → moderno</b> → multinúcleo · pipeline Front/Back End · P/E + chiplets</div>
+      <div><b>ARM vs Intel/AMD</b> → RISC (cableada) vs CISC/híbrido (microprogramada)</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Línea de Tiempo de Procesadores · Diagrama Integrador · Arquitectura de Computadores · Universidad de Palermo</p>
+  <p style="margin-top:0.4rem">Fuentes: apuntes y transcripciones del prof. Echevarría (clases 2026-04-06 a 2026-06-01) · resúmenes U1·U4·U5·U8·U9·U14 · apunte U13</p>
+</footer>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#arquitectura-de-computadores" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>
