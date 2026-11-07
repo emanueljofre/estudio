@@ -1,0 +1,2456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrices y Determinantes — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    border-radius: 2px;
+    padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(1.7rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-family: var(--mono);
+  }
+  .divider {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    margin: 1.2rem auto 0;
+    border-radius: 2px;
+  }
+
+  .grid {
+    display: grid;
+    gap: 1.2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 2.5rem auto 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    max-width: 1400px;
+    scroll-margin-top: 1rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.25rem;
+  }
+  .op-notation {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 0.7rem;
+  }
+  .op-rule {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem;
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border);
+    border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  /* Matrix bracket display */
+  .matrix {
+    display: inline-grid;
+    gap: 0.15rem 0.55rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--text);
+    padding: 0.3rem 0.65rem;
+    position: relative;
+    margin: 0.2rem 0;
+  }
+  .matrix::before, .matrix::after {
+    content: '';
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 7px;
+    border: 1.5px solid var(--accent2);
+  }
+  .matrix::before { left: 0; border-right: none; }
+  .matrix::after  { right: 0; border-left: none; }
+  .matrix span { text-align: center; }
+  .matrix .hl { color: var(--accent3); font-weight: 700; }
+  .matrix .z  { color: #475569; }
+
+  /* Menor/determinante inline dentro de texto — reutiliza el sistema .matrix */
+  .matrix.minor { font-size: 0.72rem; padding: 0.08rem 0.4rem; margin: 0; gap: 0.1rem 0.4rem; vertical-align: middle; }
+  .matrix.minor.m2 { grid-template-columns: repeat(2, 1fr); }
+  .matrix.minor.m3 { grid-template-columns: repeat(3, 1fr); }
+
+  .mwrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.6rem 0;
+    flex-wrap: wrap;
+  }
+  .mwrap .eq { font-family: var(--mono); color: var(--muted); font-size: 0.95rem; }
+
+  /* Laplace — pasos de cofactor con fila/columna tachada */
+  .cof-steps { display: flex; flex-direction: column; gap: 0.55rem; margin: 0.7rem 0; }
+  .cof-step {
+    display: flex; align-items: center; gap: 0.4rem 0.8rem; flex-wrap: wrap;
+    background: rgba(16,185,129,0.05);
+    border: 1px solid rgba(16,185,129,0.18);
+    border-radius: 8px; padding: 0.5rem 0.75rem;
+  }
+  .cof-head { flex-basis: 100%; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+  .cof-head b { color: var(--text); }
+  .cof-head .sg-p { color: var(--accent4); font-weight: 700; }
+  .cof-head .sg-n { color: var(--red); font-weight: 700; }
+  .cof-svg { flex: 0 0 auto; }
+  .cof-min {
+    display: inline-grid; grid-template-columns: repeat(2, 1.5rem); gap: 0.1rem 0.3rem;
+    font-family: var(--mono); font-size: 0.78rem; color: var(--accent4); font-weight: 700;
+    position: relative; padding: 0.25rem 0.6rem;
+  }
+  .cof-min::before, .cof-min::after { content: ''; position: absolute; top: 0; bottom: 0; width: 6px; border: 1.5px solid var(--accent4); }
+  .cof-min::before { left: 0; border-right: none; }
+  .cof-min::after  { right: 0; border-left: none; }
+  .cof-min span { text-align: center; }
+  .cof-calc { font-family: var(--mono); font-size: 0.73rem; color: var(--text); }
+  .cof-calc .term { color: var(--accent4); font-weight: 700; }
+  .cof-arrow { color: var(--muted); font-family: var(--mono); font-size: 0.95rem; }
+
+  .formula {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: #fff;
+    background: rgba(124,58,237,0.10);
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 5px;
+    padding: 0.5rem 0.7rem;
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+  .formula.cyan-f { background: rgba(6,182,212,0.10); border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+  .formula.green-f { background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.25); }
+
+  /* Badge con el nombre canónico de una propiedad/teorema */
+  .pname {
+    margin-left: auto;
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0.1rem 0.5rem;
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+  /* Badge inline para etiquetar un resultado dentro de una fórmula/regla */
+  .tagname {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent4);
+    border: 1px solid rgba(16,185,129,0.4);
+    border-radius: 999px;
+    padding: 0.05rem 0.45rem;
+    margin-left: 0.4rem;
+    white-space: nowrap;
+  }
+
+  /* Esquema de Falk — "la cruz" para el producto de matrices */
+  .falk {
+    display: inline-grid;
+    grid-template-columns: repeat(4, minmax(46px, 1fr));
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 0.6rem auto;
+    overflow: hidden;
+  }
+  .falk > div {
+    padding: 0.55rem 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .falk .fa { color: var(--accent3); }                 /* A — filas (izquierda) */
+  .falk .fb { color: var(--accent2); }                 /* B — columnas (techo) */
+  .falk .fc { color: #fff; font-weight: 700; background: rgba(16,185,129,0.12); } /* C — resultado */
+  .falk .flabel {
+    flex-direction: column;
+    gap: 0.15rem;
+    font-size: 0.6rem;
+    line-height: 1.2;
+    color: var(--muted);
+    text-align: center;
+  }
+  .falk .flabel .fl-b { color: var(--accent2); }
+  .falk .flabel .fl-a { color: var(--accent3); }
+  /* líneas de la cruz */
+  .falk .row-div { border-top: 2px solid var(--accent); }
+  .falk .col-div { border-left: 2px solid var(--accent); }
+
+  /* Lista de axiomas con nombre — propiedades de las operaciones */
+  .axiom { display: grid; gap: 0.4rem; margin-bottom: 0.2rem; }
+  .axiom .axrow { padding: 0.4rem 0.55rem; border-radius: 5px; }
+  .axiom .axname {
+    display: block;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+  .axiom .axform { font-family: var(--mono); font-size: 0.74rem; color: #fff; }
+  .ax-purple .axrow { background: rgba(124,58,237,0.07); }
+  .ax-purple .axname { color: #a78bfa; }
+  .ax-cyan .axrow   { background: rgba(6,182,212,0.07); }
+  .ax-cyan .axname  { color: var(--accent2); }
+  .ax-amber .axrow  { background: rgba(245,158,11,0.07); }
+  .ax-amber .axname { color: var(--accent3); }
+
+  .proplist {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: grid;
+    gap: 0.35rem;
+  }
+  .proplist div {
+    padding: 0.35rem 0.55rem;
+    border-radius: 4px;
+  }
+  .pl-purple div, .proplist.pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan div,   .proplist.pl-cyan div   { background: rgba(6,182,212,0.06); }
+  .pl-amber div,  .proplist.pl-amber div  { background: rgba(245,158,11,0.06); }
+  .pl-green div,  .proplist.pl-green div  { background: rgba(16,185,129,0.06); }
+
+  .step {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: grid;
+    gap: 0.4rem;
+  }
+  .step .s {
+    padding: 0.4rem 0.6rem;
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+  }
+  .step .s b { color: #fff; }
+
+  .note {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    margin-top: 0.5rem;
+    padding: 0.35rem 0.55rem;
+    border-radius: 4px;
+  }
+  .note.warn { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171; background: rgba(239,68,68,0.06); }
+  .note.ok { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  .flag {
+    color: #f87171;
+    font-size: 0.55rem;
+    margin-left: 0.5rem;
+  }
+  .flag.info { color: var(--accent3); }
+
+  footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  /* ─── .insight ─── tip del profe integrado dentro de la card temática ─── */
+  .insight {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--text);
+    background: rgba(245,158,11,0.08);
+    border-left: 2px solid var(--accent3);
+    padding: 0.45rem 0.65rem;
+    margin: 0.6rem 0 0.2rem;
+    border-radius: 0 4px 4px 0;
+    line-height: 1.5;
+  }
+  .insight strong { color: #fff; }
+  .insight::before { content: '💡 '; }
+
+  /* ─── .recall ─── auto-test colapsable ─── */
+  .recall {
+    font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0;
+    border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden;
+  }
+  .recall summary {
+    cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2);
+    background: rgba(124,58,237,0.06); list-style: none;
+    display: flex; align-items: center; gap: 0.5rem; user-select: none;
+  }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before {
+    content: '▸'; font-size: 0.7rem; color: var(--accent);
+    transition: transform 0.15s; flex-shrink: 0;
+  }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a {
+    padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5;
+    border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04);
+  }
+  .recall-a strong { color: #fff; }
+
+  /* ─── TOC scroll-spy + barra de progreso ─── */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .toc-rail {
+    position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90;
+    display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem;
+  }
+  .toc-rail a {
+    display: flex; align-items: center; gap: 0.55rem; text-decoration: none;
+    font-family: var(--mono); font-size: 0.55rem; color: var(--muted);
+    padding: 0.12rem 0.25rem; border-radius: 3px;
+  }
+  .toc-rail a .dot {
+    width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border);
+    flex-shrink: 0; transition: all 0.2s;
+  }
+  .toc-rail a .lbl {
+    opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap;
+  }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot {
+    background: var(--accent2); border-color: var(--accent2);
+    box-shadow: 0 0 8px var(--accent2);
+  }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  /* ─── Scope contract ─── */
+  .scope {
+    max-width: 1400px; margin: 0 auto 2rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3); border-radius: 6px;
+    padding: 0.8rem 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; align-items: center;
+  }
+  .scope-label {
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--accent3); font-weight: 700;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    border-right: 1px solid var(--border); padding-right: 0.7rem; align-self: stretch;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scope-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spill {
+    font-family: var(--mono); font-size: 0.6rem; padding: 0.22rem 0.55rem;
+    border-radius: 3px; border: 1px solid var(--border); color: var(--muted);
+  }
+  .spill.in  { color: var(--accent4); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
+  .spill.key { color: var(--accent3); border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+  .spill.cut { color: var(--muted); border-style: dashed; text-decoration: line-through; opacity: 0.75; }
+  @media (max-width: 600px) {
+    .scope { grid-template-columns: 1fr; }
+    .scope-label { writing-mode: horizontal-tb; transform: none; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.4rem; }
+  }
+
+  /* ─── Tier badges ─── */
+  .tier {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
+    text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 3px;
+    vertical-align: middle; line-height: 1;
+  }
+  .tier::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .tier.core { color: var(--accent4); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.35); }
+  .tier.core::before { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .tier.key  { color: var(--accent3); background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.4); }
+  .tier.key::before  { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .tier.ctx  { color: var(--muted); background: rgba(148,163,184,0.06); border: 1px solid var(--border); }
+  .tier.ctx::before  { background: var(--muted); }
+
+  /* ─── @media print ─── */
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1, .stat-num { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .recall { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="toc-rail" aria-label="Tabla de contenidos">
+  <a href="#seccion-01"><span class="dot"></span><span class="lbl">01 · Conceptos básicos</span></a>
+  <a href="#seccion-02"><span class="dot"></span><span class="lbl">02 · Tipos de matrices</span></a>
+  <a href="#seccion-03"><span class="dot"></span><span class="lbl">03 · Traspuesta y simétrica</span></a>
+  <a href="#seccion-04"><span class="dot"></span><span class="lbl">04 · Operaciones</span></a>
+  <a href="#seccion-05"><span class="dot"></span><span class="lbl">05 · Propiedades de operaciones</span></a>
+  <a href="#seccion-06"><span class="dot"></span><span class="lbl">06 · Matriz inversa</span></a>
+  <a href="#seccion-07"><span class="dot"></span><span class="lbl">07 · Otras matrices</span></a>
+  <a href="#seccion-08"><span class="dot"></span><span class="lbl">08 · Determinantes</span></a>
+  <a href="#seccion-09"><span class="dot"></span><span class="lbl">09 · Menor y cofactor</span></a>
+  <a href="#seccion-10"><span class="dot"></span><span class="lbl">10 · Propiedades determinante</span></a>
+  <a href="#seccion-11"><span class="dot"></span><span class="lbl">11 · Inversa por adjunta</span></a>
+  <a href="#seccion-12"><span class="dot"></span><span class="lbl">12 · Sistemas de ecuaciones</span></a>
+  <a href="#seccion-13"><span class="dot"></span><span class="lbl">13 · Para el final ★</span></a>
+</nav>
+
+<header>
+  <div class="badge">Álgebra · Unidad 09 — Matrices</div>
+  <h1>Matrices y Determinantes</h1>
+  <p class="subtitle">conceptos · operaciones · propiedades · inversa — repaso para el FINAL</p>
+  <div class="divider"></div>
+</header>
+
+<div class="scope">
+  <div class="scope-label">Scope · final</div>
+  <div class="scope-pills">
+    <span class="spill key">★ propiedades de matrices (de memoria)</span>
+    <span class="spill key">★ propiedades de determinantes → ver U10</span>
+    <span class="spill in">operaciones: suma · escalar · producto</span>
+    <span class="spill in">traspuesta · simétrica · antisimétrica</span>
+    <span class="spill in">inversa (adjunta · |A|≠0)</span>
+    <span class="spill in">determinante: Sarrus · Laplace · cofactor</span>
+    <span class="spill key">★ matrices con letras (simbólicas)</span>
+    <span class="spill cut">demostraciones formales</span>
+    <span class="spill cut">determinantes 4×4+</span>
+    <span class="spill cut">sistemas por Cramer/Gauss-Jordan → U11</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 1: CONCEPTOS BÁSICOS
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-01">01 — Conceptos básicos</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">▦ ¿Qué es una matriz?</div>
+    <div class="op-rule">
+      Arreglo rectangular de números ordenados en <strong>filas</strong> y <strong>columnas</strong>. Su tamaño se llama <strong>orden</strong> o <strong>dimensión</strong>.
+    </div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(4,1fr);">
+        <span>2</span><span>−1</span><span>0</span><span>5</span>
+        <span>1</span><span>0</span><span>4</span><span>2</span>
+        <span>3</span><span>8</span><span>−2</span><span>7</span>
+      </div>
+    </div>
+    <div class="op-notation" style="text-align:center;">A ∈ ℝ<sup>3×4</sup> → 3 filas, 4 columnas</div>
+    <div class="note warn">El orden siempre se lee <strong>filas × columnas</strong>, en ese orden.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">⌖ Elemento a<sub>ij</sub></div>
+    <div class="op-rule">
+      Cada número de la matriz se identifica por su posición: <span style="font-family:var(--mono);color:#fff;">a<sub>ij</sub></span> = fila <strong>i</strong>, columna <strong>j</strong>.
+    </div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span>3</span><span>0</span><span class="hl">4</span>
+        <span>1</span><span>5</span><span>2</span>
+        <span>6</span><span>7</span><span>9</span>
+      </div>
+    </div>
+    <div class="op-notation" style="text-align:center;">a<sub>13</sub> = 4 (fila 1, columna 3)</div>
+    <div class="note warn">El primer subíndice es la fila, el segundo la columna — el orden no se invierte.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">= Igualdad de matrices</div>
+    <div class="op-rule">
+      Dos matrices A y B son <strong>iguales</strong> si tienen el <strong>mismo orden</strong> y coinciden todos los elementos de la misma posición.
+    </div>
+    <div class="formula amber-f">A = B ⟺ ∀i,j : a<sub>ij</sub> = b<sub>ij</sub></div>
+    <div class="note ok">Esta idea se usa para "hallar x, y, z" planteando un sistema de ecuaciones a partir de la igualdad.</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 2: TIPOS DE MATRICES
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-02">02 — Tipos de matrices (clasificación)</div>
+
+<div class="grid grid-4">
+
+  <div class="card purple">
+    <div class="card-title">▭ Fila / Columna</div>
+    <div class="op-rule"><strong>Fila:</strong> una sola fila (1×n).<br><strong>Columna:</strong> una sola columna (m×1).</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);"><span>2</span><span>5</span><span>7</span></div>
+      <div class="matrix" style="grid-template-columns:1fr;"><span>2</span><span>5</span><span>7</span></div>
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">∅ Matriz nula (0)</div>
+    <div class="op-rule">Todos sus elementos son <strong>cero</strong>. Puede ser de cualquier orden.</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span class="z">0</span><span class="z">0</span><span class="z">0</span>
+        <span class="z">0</span><span class="z">0</span><span class="z">0</span>
+      </div>
+    </div>
+    <div class="note ok">Es el elemento neutro de la suma.</div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">▢ Matriz cuadrada</div>
+    <div class="op-rule">Igual número de filas que de columnas (m = n). Se dice de <strong>orden n</strong>.</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span class="hl">3</span><span>5</span><span>1</span>
+        <span>1</span><span class="hl">8</span><span>4</span>
+        <span>6</span><span>7</span><span class="hl">2</span>
+      </div>
+    </div>
+    <div class="note warn">Solo las cuadradas tienen determinante e inversa.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">↗ Diagonales</div>
+    <div class="op-rule">
+      <strong>Diag. principal:</strong> a<sub>11</sub>, a<sub>22</sub>, … a<sub>nn</sub> (subíndices iguales).<br>
+      <strong>Diag. secundaria:</strong> de la esquina superior derecha a la inferior izquierda.
+    </div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span class="hl">a</span><span>·</span><span style="color:var(--accent2)">b</span>
+        <span>·</span><span class="hl">a</span><span>·</span>
+        <span style="color:var(--accent2)">b</span><span>·</span><span class="hl">a</span>
+      </div>
+    </div>
+    <div class="note ok"><strong>Traza:</strong> tr(A) = suma de la diagonal principal = a<sub>11</sub>+a<sub>22</sub>+…+a<sub>nn</sub>.</div>
+    <div class="note danger">⚠️ No confundir la <strong>traza</strong> (SUMA de la diagonal) con el <strong>determinante de una triangular</strong> (PRODUCTO de la diagonal). La profe lo marcó para el final — detalle en el cheatsheet de Determinantes (U10).</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">◣ Triangular superior</div>
+    <div class="op-rule">Ceros <strong>debajo</strong> de la diagonal principal. ∀i,j: a<sub>ij</sub>=0 si i&gt;j</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span>5</span><span>1</span><span>8</span>
+        <span class="z">0</span><span>3</span><span>7</span>
+        <span class="z">0</span><span class="z">0</span><span>4</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">◥ Triangular inferior</div>
+    <div class="op-rule">Ceros <strong>por encima</strong> de la diagonal principal. ∀i,j: a<sub>ij</sub>=0 si i&lt;j</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span>4</span><span class="z">0</span><span class="z">0</span>
+        <span>5</span><span>7</span><span class="z">0</span>
+        <span>6</span><span>1</span><span>2</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">◇ Matriz diagonal</div>
+    <div class="op-rule">Cuadrada con ceros <strong>fuera</strong> de la diagonal principal. a<sub>ij</sub>=0 si i≠j</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span class="hl">1</span><span class="z">0</span><span class="z">0</span>
+        <span class="z">0</span><span class="hl">2</span><span class="z">0</span>
+        <span class="z">0</span><span class="z">0</span><span class="hl">4</span>
+      </div>
+    </div>
+    <div class="note warn">Es triangular superior <em>e</em> inferior a la vez.</div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">▣ Escalar / Identidad</div>
+    <div class="op-rule">
+      <strong>Escalar:</strong> diagonal con todos los valores iguales.<br>
+      <strong>Identidad (I):</strong> escalar con la diagonal toda de <strong>1</strong>.
+    </div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span class="hl">2</span><span class="z">0</span><span class="z">0</span>
+        <span class="z">0</span><span class="hl">2</span><span class="z">0</span>
+        <span class="z">0</span><span class="z">0</span><span class="hl">2</span>
+      </div>
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span class="hl">1</span><span class="z">0</span><span class="z">0</span>
+        <span class="z">0</span><span class="hl">1</span><span class="z">0</span>
+        <span class="z">0</span><span class="z">0</span><span class="hl">1</span>
+      </div>
+    </div>
+    <div class="note danger">⚠️ La identidad lleva <strong>solo unos</strong> en la diagonal — ni siquiera −1.</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 3: TRASPUESTA · SIMÉTRICA · ANTISIMÉTRICA
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-03">03 — Traspuesta, simétrica y antisimétrica</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">⇄ Matriz traspuesta Aᵗ</div>
+    <div class="op-rule">
+      Se obtiene <strong>intercambiando filas por columnas</strong> de forma ordenada. Si A es m×n, entonces Aᵗ es n×m.
+    </div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span>3</span><span>−2</span><span>5</span>
+        <span>4</span><span>1</span><span>8</span>
+      </div>
+      <span class="eq">→</span>
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);">
+        <span>3</span><span>4</span>
+        <span>−2</span><span>1</span>
+        <span>5</span><span>8</span>
+      </div>
+    </div>
+    <div class="formula">(Aᵗ)ᵗ = A</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">◈ Matriz simétrica</div>
+    <div class="op-rule">
+      Matriz <strong>cuadrada</strong> que es igual a su traspuesta.
+    </div>
+    <div class="formula cyan-f">A simétrica ⟺ A = Aᵗ ⟺ a<sub>ij</sub> = a<sub>ji</sub></div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span>1</span><span class="hl">2</span><span class="hl">3</span>
+        <span class="hl">2</span><span>5</span><span class="hl">4</span>
+        <span class="hl">3</span><span class="hl">4</span><span>6</span>
+      </div>
+    </div>
+    <div class="note ok">Los valores se "reflejan" respecto de la diagonal principal.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">◊ Matriz antisimétrica</div>
+    <div class="op-rule">
+      Matriz <strong>cuadrada</strong> igual al opuesto de su traspuesta.
+    </div>
+    <div class="formula amber-f">A antisimétrica ⟺ A = −Aᵗ ⟺ a<sub>ij</sub> = −a<sub>ji</sub></div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span class="z">0</span><span class="hl">2</span><span class="hl">−3</span>
+        <span class="hl">−2</span><span class="z">0</span><span class="hl">4</span>
+        <span class="hl">3</span><span class="hl">−4</span><span class="z">0</span>
+      </div>
+    </div>
+    <div class="note warn">La diagonal principal siempre es de ceros (a<sub>ii</sub> = −a<sub>ii</sub> ⟹ a<sub>ii</sub>=0).</div>
+  </div>
+
+</div>
+
+<div class="section-label" style="color:var(--accent4);">★ Propiedades útiles — trasposición y simetría</div>
+
+<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr));">
+
+  <!-- 1 · Linealidad de la trasposición -->
+  <div class="card cyan">
+    <div class="card-title">↻ Trasposición <span class="pname">operador lineal</span></div>
+    <div class="op-rule">
+      La trasposición es <strong>lineal</strong>: respeta sumas y escalares. La única trampa es el <strong>producto</strong>.
+    </div>
+    <div class="formula cyan-f">(Aᵗ)ᵗ = A</div>
+    <div class="formula cyan-f">(A + B)ᵗ = Aᵗ + Bᵗ</div>
+    <div class="formula cyan-f">(k·A)ᵗ = k·Aᵗ</div>
+    <div class="formula cyan-f">(A·B)ᵗ = Bᵗ·Aᵗ</div>
+    <div class="note danger">⚠️ El producto <strong>invierte el orden</strong> de los factores.</div>
+  </div>
+
+  <!-- 2 · Construir simétricas / antisimétricas -->
+  <div class="card green">
+    <div class="card-title">⊕ Fabricar simétricas</div>
+    <div class="op-rule">
+      A partir de <strong>cualquier</strong> matriz se obtienen matrices con simetría garantizada.
+    </div>
+    <div class="formula green-f">A + Aᵗ → <span class="hl">simétrica</span></div>
+    <div class="formula green-f">A − Aᵗ → <span class="hl">antisimétrica</span></div>
+    <div class="formula green-f">A·Aᵗ &nbsp;y&nbsp; Aᵗ·A → <span class="hl">simétricas</span> <span class="tagname">matriz de Gram</span></div>
+    <div class="note ok">A·Aᵗ es simétrica <strong>aunque A no sea cuadrada</strong>; además es semidefinida positiva.</div>
+  </div>
+
+  <!-- 3 · Descomposición de Toeplitz -->
+  <div class="card amber">
+    <div class="card-title">⬓ Descomposición <span class="pname">teorema de Toeplitz</span></div>
+    <div class="op-rule">
+      <strong>Toda</strong> matriz cuadrada se escribe de forma única como una <strong>simétrica + una antisimétrica</strong>.
+    </div>
+    <div class="formula amber-f">A = ½(A + Aᵗ) + ½(A − Aᵗ)</div>
+    <div class="op-rule" style="margin-top:0.6rem;">Ejemplo con A = <span class="matrix minor m2"><span>1</span><span>3</span><span>5</span><span>7</span></span>:</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);"><span>1</span><span>3</span><span>5</span><span>7</span></div>
+      <span class="eq">=</span>
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);"><span class="hl">1</span><span class="hl">4</span><span class="hl">4</span><span class="hl">7</span></div>
+      <span class="eq">+</span>
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);"><span class="z">0</span><span class="hl">−1</span><span class="hl">1</span><span class="z">0</span></div>
+    </div>
+    <div class="note warn">Simétrica (diagonal espejada) + antisimétrica (diagonal de ceros).</div>
+  </div>
+
+  <!-- 4 · Criterio del producto de simétricas -->
+  <div class="card purple">
+    <div class="card-title">⊗ Producto de simétricas <span class="pname">criterio</span></div>
+    <div class="op-rule">
+      Si A y B son simétricas, su producto <strong>no siempre</strong> es simétrico: depende de que conmuten.
+    </div>
+    <div class="formula">A·B simétrica ⟺ A·B = B·A</div>
+    <div class="op-rule" style="margin-top:0.6rem;">
+      Es decir, A y B deben ser <strong>conmutables</strong>. En general A·B ≠ B·A, así que el producto de simétricas <strong>no</strong> hereda la simetría.
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 4: OPERACIONES
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-04">04 — Operaciones con matrices</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">＋ Suma y resta</div>
+    <div class="op-rule">
+      <strong>Condición:</strong> ambas matrices deben tener el <strong>mismo orden</strong>. Se opera <strong>elemento a elemento</strong>, en la misma posición.
+    </div>
+    <div class="formula">c<sub>ij</sub> = a<sub>ij</sub> ± b<sub>ij</sub></div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);"><span>1</span><span>3</span><span>5</span><span>7</span></div>
+      <span class="eq">+</span>
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);"><span>5</span><span>7</span><span>4</span><span>8</span></div>
+      <span class="eq">=</span>
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);"><span class="hl">6</span><span class="hl">10</span><span class="hl">9</span><span class="hl">15</span></div>
+    </div>
+    <div class="note danger">⚠️ Si los órdenes no coinciden, la suma <strong>no existe</strong>.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">✕ Producto por un escalar</div>
+    <div class="op-rule">
+      Un escalar k (número real, positivo, negativo o fracción) multiplica a <strong>todos</strong> los elementos de la matriz.
+    </div>
+    <div class="formula cyan-f">k·A = (k·a<sub>ij</sub>)</div>
+    <div class="mwrap">
+      <span class="eq">2 ·</span>
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);"><span>1</span><span>5</span><span>3</span><span>4</span></div>
+      <span class="eq">=</span>
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);"><span class="hl">2</span><span class="hl">10</span><span class="hl">6</span><span class="hl">8</span></div>
+    </div>
+    <div class="note ok">La matriz resultado conserva el mismo orden.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⊗ Producto de matrices A·B</div>
+    <div class="op-rule">
+      <strong>Condición:</strong> las columnas de A deben coincidir con las filas de B.
+    </div>
+    <div class="formula amber-f">A<sub>(m×n)</sub> · B<sub>(n×p)</sub> = C<sub>(m×p)</sub></div>
+    <div class="op-rule" style="margin-top:0.6rem;">
+      Cada c<sub>ij</sub> = suma de los productos de la <strong>fila i de A</strong> por la <strong>columna j de B</strong>.
+    </div>
+    <div class="formula amber-f">c<sub>ij</sub> = Σ<sub>k</sub> a<sub>ik</sub> · b<sub>kj</sub></div>
+    <div class="note danger">⚠️ El producto <strong>no es conmutativo</strong>: en general A·B ≠ B·A.</div>
+  </div>
+
+</div>
+
+<div class="card cyan" style="max-width:1400px;margin:0.8rem auto 0;">
+  <div class="card-title">🔢 Producto A·B paso a paso</div>
+  <div class="op-rule" style="margin-bottom:0.6rem;">
+    Primero verificar órdenes. Luego: el elemento c<sub>11</sub> sale de la fila 1 de A "apoyada" sobre la columna 1 de B.
+  </div>
+  <div class="mwrap">
+    <div class="matrix" style="grid-template-columns:repeat(2,1fr);">
+      <span class="hl">2</span><span class="hl">3</span>
+      <span>1</span><span>0</span>
+    </div>
+    <span class="eq">·</span>
+    <div class="matrix" style="grid-template-columns:repeat(2,1fr);">
+      <span style="color:var(--accent2)">4</span><span>1</span>
+      <span style="color:var(--accent2)">5</span><span>2</span>
+    </div>
+    <span class="eq">=</span>
+    <div class="matrix" style="grid-template-columns:repeat(2,1fr);">
+      <span class="hl">23</span><span>8</span>
+      <span>4</span><span>1</span>
+    </div>
+  </div>
+  <div class="note warn" style="text-align:center;">c<sub>11</sub> = (2·4) + (3·5) = 8 + 15 = <strong>23</strong> &nbsp;|&nbsp; se repite el procedimiento para cada posición.</div>
+
+  <div class="op-rule" style="margin-top:0.9rem;">
+    <strong>Método de la cruz (esquema de Falk)</strong> — el que usa la profe para no confundir dimensiones: B va en el <strong style="color:var(--accent2)">techo</strong> (sus columnas), A en el <strong style="color:var(--accent3)">margen izquierdo</strong> (sus filas), y cada c<sub>ij</sub> cae en la <strong>intersección</strong> de la fila i (←) con la columna j (↑).
+  </div>
+  <div class="mwrap">
+    <div class="falk">
+      <!-- cuadrante 2 (arriba-izq): labels · cuadrante 1 (arriba-der): B -->
+      <div class="flabel" style="grid-column:span 2;grid-row:span 2;">
+        <span class="fl-b">B → techo</span>
+        <span class="fl-a">A ↓ margen</span>
+      </div>
+      <div class="fb col-div">4</div><div class="fb">1</div>
+      <div class="fb col-div">5</div><div class="fb">2</div>
+      <!-- cuadrante 3 (abajo-izq): A · cuadrante 4 (abajo-der): C -->
+      <div class="fa row-div">2</div><div class="fa row-div">3</div><div class="fc row-div col-div">23</div><div class="fc row-div">8</div>
+      <div class="fa">1</div><div class="fa">0</div><div class="fc col-div">4</div><div class="fc">1</div>
+    </div>
+  </div>
+  <div class="step" style="margin-top:0.4rem;">
+    <div class="s">c<sub>11</sub> = fila 1 de A <b style="color:var(--accent3)">(2 3)</b> × col 1 de B <b style="color:var(--accent2)">(4 5)</b> = 2·4 + 3·5 = <b>23</b></div>
+    <div class="s">c<sub>12</sub> = fila 1 de A <b style="color:var(--accent3)">(2 3)</b> × col 2 de B <b style="color:var(--accent2)">(1 2)</b> = 2·1 + 3·2 = <b>8</b></div>
+    <div class="s">c<sub>21</sub> = fila 2 de A <b style="color:var(--accent3)">(1 0)</b> × col 1 de B <b style="color:var(--accent2)">(4 5)</b> = 1·4 + 0·5 = <b>4</b></div>
+    <div class="s">c<sub>22</sub> = fila 2 de A <b style="color:var(--accent3)">(1 0)</b> × col 2 de B <b style="color:var(--accent2)">(1 2)</b> = 1·1 + 0·2 = <b>1</b></div>
+  </div>
+  <div class="note ok" style="text-align:center;margin-top:0.5rem;">La ventaja: el resultado queda <strong>encajado</strong> entre A y B, así nunca cruzás fila con fila ni columna con columna.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 5: PROPIEDADES DE LAS OPERACIONES
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-05">05 — Propiedades de las operaciones <span class="tier key">★ pesan en el final · de memoria</span></div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">＋ Suma de matrices <span class="pname">grupo abeliano</span></div>
+    <div class="axiom ax-purple">
+      <div class="axrow"><span class="axname">Composición interna</span><span class="axform">A + B ∈ ℝ<sup>n×m</sup></span></div>
+      <div class="axrow"><span class="axname">Conmutativa</span><span class="axform">A + B = B + A</span></div>
+      <div class="axrow"><span class="axname">Asociativa</span><span class="axform">(A+B)+C = A+(B+C)</span></div>
+      <div class="axrow"><span class="axname">Elemento neutro</span><span class="axform">A + (0) = A</span></div>
+      <div class="axrow"><span class="axname">Elemento opuesto</span><span class="axform">A + (−A) = (0)</span></div>
+    </div>
+    <div class="note ok">Estas 5 propiedades hacen de (ℝ<sup>n×m</sup>, +) un <strong>grupo conmutativo</strong>.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">✕ Escalar por matriz <span class="pname">espacio vectorial</span></div>
+    <div class="axiom ax-cyan">
+      <div class="axrow"><span class="axname">Distributiva · suma de matrices</span><span class="axform">k·(A+B) = k·A + k·B</span></div>
+      <div class="axrow"><span class="axname">Distributiva · suma de escalares</span><span class="axform">(k+μ)·A = k·A + μ·A</span></div>
+      <div class="axrow"><span class="axname">Asociativa mixta</span><span class="axform">(k·μ)·A = k·(μ·A)</span></div>
+      <div class="axrow"><span class="axname">Neutro escalar</span><span class="axform">1·A = A</span></div>
+      <div class="axrow"><span class="axname">Absorbente</span><span class="axform">0·A = (0)</span></div>
+      <div class="axrow"><span class="axname">Criterio de nulidad</span><span class="axform">k·A = (0) ⟺ k = 0 ∨ A = (0)</span></div>
+    </div>
+    <div class="note ok">Sumadas a las de (+), dan a ℝ<sup>n×m</sup> estructura de <strong>espacio vectorial</strong>.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⊗ Producto de matrices <span class="pname">anillo no conmutativo</span></div>
+    <div class="axiom ax-amber">
+      <div class="axrow"><span class="axname">Asociativa</span><span class="axform">(A·B)·C = A·(B·C)</span></div>
+      <div class="axrow"><span class="axname">Distributiva</span><span class="axform">A·(B+C) = A·B + A·C</span></div>
+      <div class="axrow"><span class="axname">Neutro (cuadradas)</span><span class="axform">A·I = I·A = A</span></div>
+      <div class="axrow"><span class="axname">Traspuesta del producto</span><span class="axform">(A·B)ᵗ = Bᵗ·Aᵗ <span style="color:var(--muted)">(orden permutado)</span></span></div>
+      <div class="axrow"><span class="axname">Homogeneidad escalar</span><span class="axform">(k·A)·B = k·(A·B)</span></div>
+      <div class="axrow"><span class="axname">Conmutables · caso especial</span><span class="axform">A·B = B·A solo si conmutan</span></div>
+    </div>
+    <div class="note danger">⚠️ <strong>NO</strong> conmutativa y con <strong>divisores de cero</strong>: A·B=(0) con A≠(0) y B≠(0).</div>
+  </div>
+
+</div>
+
+<div class="card amber" style="max-width:1400px;margin:0.8rem auto 0;">
+  <div class="card-title">🧠 Propiedades que van DE MEMORIA en el final</div>
+  <div class="op-rule">En el final <strong>no hay hoja de propiedades permitida</strong> (solo tablas de verdad). Estas identidades hay que tenerlas sin mirar:</div>
+  <div class="proplist pl-amber" style="font-size:0.71rem;">
+    <div><strong>Trasposición:</strong> (Aᵗ)ᵗ=A · (A+B)ᵗ=Aᵗ+Bᵗ · (k·A)ᵗ=k·Aᵗ · <strong>(A·B)ᵗ=Bᵗ·Aᵗ</strong> (orden invertido)</div>
+    <div><strong>Inversa:</strong> (A⁻¹)⁻¹=A · <strong>(A·B)⁻¹=B⁻¹·A⁻¹</strong> (orden invertido) · (A⁻¹)ᵗ=(Aᵗ)⁻¹ · (k·A)⁻¹=k⁻¹·A⁻¹</div>
+    <div><strong>Inversible ⟺ |A| ≠ 0</strong> — matriz regular (con inversa) vs. singular (sin inversa)</div>
+    <div><strong>Producto:</strong> NO conmutativo (A·B≠B·A) · asociativo · neutro I (cuadradas) · con divisores de cero (A·B=0 sin que A ni B sean 0)</div>
+    <div><strong>Estructuras:</strong> (ℝⁿˣᵐ,+) grupo abeliano · +escalar → espacio vectorial · (Mₙ,+,·) anillo unitario no conmutativo</div>
+  </div>
+  <div class="note danger">⚠️ Las dos trampas de <strong>orden invertido</strong>: (A·B)ᵗ=Bᵗ·Aᵗ y (A·B)⁻¹=B⁻¹·A⁻¹ — se permutan los factores.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 6: MATRIZ INVERSA (DEFINICIÓN)
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-06">06 — Matriz inversa A⁻¹</div>
+
+<div class="grid grid-2">
+
+  <div class="card green">
+    <div class="card-title">⟲ Definición</div>
+    <div class="op-rule">
+      La inversa de una matriz <strong>cuadrada</strong> A es la matriz A⁻¹ que, multiplicada por A, da la <strong>identidad</strong>.
+    </div>
+    <div class="formula">A⁻¹ · A = A · A⁻¹ = I</div>
+    <div class="op-rule" style="margin-top:0.6rem;">
+      <strong>Regulares:</strong> matrices que tienen inversa.<br>
+      <strong>Singulares:</strong> matrices que <strong>no</strong> tienen inversa.
+    </div>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">⚠️ Condición de existencia</div>
+    <div class="op-rule">
+      Para que exista A⁻¹, el <strong>determinante de A debe ser distinto de cero</strong>.
+    </div>
+    <div class="formula" style="background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.3);">
+      ∃ A⁻¹ ⟺ |A| ≠ 0
+    </div>
+    <div class="note danger">
+      ⚠️ Ejercicio típico: "verificar si la matriz tiene inversa" → <strong>siempre calcular primero el determinante</strong>. Si da 0, no es inversible. Regla "tatuada" (oral 2026-06-16): <strong>A tiene inversa ⟺ |A| ≠ 0</strong>.
+    </div>
+    <div class="note ok">Propiedades: (A⁻¹)⁻¹ = A &nbsp;·&nbsp; (A·B)⁻¹ = B⁻¹·A⁻¹ &nbsp;·&nbsp; (A⁻¹)ᵗ = (Aᵗ)⁻¹ &nbsp;·&nbsp; (k·A)⁻¹ = k⁻¹·A⁻¹ &nbsp;·&nbsp; |A⁻¹| = 1/|A|</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 7: OTRAS MATRICES
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-07">07 — Otras matrices</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">↻ Idempotente</div>
+    <div class="op-rule">Matriz cuadrada que al elevarse al cuadrado se queda igual.</div>
+    <div class="formula">A² = A · A = A</div>
+    <div class="note ok">Aparece en la guía (Ej. 10, resuelto): se pide <strong>verificar</strong> A² = A operando el producto.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">⇋ Involutiva</div>
+    <div class="op-rule">Matriz cuadrada cuyo cuadrado es la identidad (es su propia inversa).</div>
+    <div class="formula cyan-f">A² = I &nbsp;⟹&nbsp; A⁻¹ = A</div>
+    <div class="note ok">La identidad I es el caso más simple; también las matrices de reflexión.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⊿ Ortogonal</div>
+    <div class="op-rule">Matriz cuadrada cuya traspuesta es también su inversa.</div>
+    <div class="formula amber-f">A · Aᵗ = I &nbsp;⟹&nbsp; A⁻¹ = Aᵗ</div>
+    <div class="note ok">Sus filas (y columnas) son vectores unitarios y perpendiculares entre sí.</div>
+  </div>
+
+</div>
+<div class="note warn" style="max-width:1400px;margin:0.6rem auto 0;font-size:0.66rem;">
+  Recordá: <strong>A²</strong> significa A·A (producto matricial), <strong>no</strong> elevar cada elemento al cuadrado (ver tips finales). Están en el apunte oficial y en la guía de ejercicios → contenido válido para el final.
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 8: DETERMINANTES
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-08">08 — Determinantes</div>
+
+<div class="card purple" style="max-width:1400px;margin:0 auto 1.2rem;">
+  <div class="card-title">▦ ¿Qué es un determinante?</div>
+  <div class="op-rule">
+    Función que asigna a cada matriz <strong>cuadrada</strong> un número real. Se simboliza con <strong>barras</strong> |A| o con det(A) — a diferencia de la matriz, que va entre paréntesis o corchetes.
+  </div>
+  <div class="note danger">⚠️ Solo las matrices <strong>cuadradas</strong> tienen determinante. A una matriz rectangular no se le calcula.</div>
+</div>
+
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">① Orden 1 y ② Orden 2</div>
+    <div class="op-rule">
+      <strong>Orden 1:</strong> el determinante es el único elemento. &nbsp; A=(4) → |A|=4
+    </div>
+    <div class="op-name" style="margin-top:0.6rem;">Orden 2 — producto cruzado</div>
+    <div class="op-rule">
+      Producto de la <strong>diagonal principal</strong> menos producto de la <strong>diagonal secundaria</strong>.
+    </div>
+    <div class="formula cyan-f">|A| = a<sub>11</sub>·a<sub>22</sub> − a<sub>12</sub>·a<sub>21</sub></div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);"><span class="hl">4</span><span>3</span><span>1</span><span class="hl">2</span></div>
+      <span class="eq">→ (4·2) − (3·1) = 8 − 3 = <strong style="color:#fff;">5</strong></span>
+    </div>
+    <div class="note warn">Producto cruzado: <strong>solo</strong> para matrices 2×2.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">③ Orden 3 — Regla de Sarrus</div>
+    <div class="step">
+      <div class="s"><b>1.</b> Copiar debajo de la matriz su <b>1ª y 2ª fila</b> → queda un arreglo de 5 filas.</div>
+      <div class="s"><b>2.</b> Sumar los productos de las <b>3 diagonales ↘</b> (principal + sus 2 paralelas) <span style="color:var(--accent4)">(signo +)</span>.</div>
+      <div class="s"><b>3.</b> Restar los productos de las <b>3 diagonales ↙</b> (secundaria + sus 2 paralelas) <span style="color:#f87171">(signo −)</span>.</div>
+    </div>
+    <div class="formula amber-f" style="margin-top:0.7rem;font-size:0.72rem;">
+      |A| = (a₁₁a₂₂a₃₃ + a₂₁a₃₂a₁₃ + a₃₁a₁₂a₂₃)<br>− (a₁₃a₂₂a₃₁ + a₂₃a₃₂a₁₁ + a₃₃a₁₂a₂₁)
+    </div>
+    <svg viewBox="0 0 250 210" width="100%" style="max-width:250px;display:block;margin:0.6rem auto;">
+      <!-- Diagonales + (↘) -->
+      <g stroke="#10b981" stroke-width="1.5" fill="none" opacity="0.85">
+        <polyline points="40,30 110,63 180,96"/>
+        <polyline points="40,63 110,96 180,129"/>
+        <polyline points="40,96 110,129 180,162"/>
+      </g>
+      <!-- Diagonales − (↙) -->
+      <g stroke="#f87171" stroke-width="1.5" fill="none" opacity="0.85" stroke-dasharray="4 3">
+        <polyline points="180,30 110,63 40,96"/>
+        <polyline points="180,63 110,96 40,129"/>
+        <polyline points="180,96 110,129 40,162"/>
+      </g>
+      <!-- Matriz original 3×3 -->
+      <g fill="#cbd5e1" font-family="JetBrains Mono,monospace" font-size="11" text-anchor="middle">
+        <text x="40" y="34">a₁₁</text><text x="110" y="34">a₁₂</text><text x="180" y="34">a₁₃</text>
+        <text x="40" y="67">a₂₁</text><text x="110" y="67">a₂₂</text><text x="180" y="67">a₂₃</text>
+        <text x="40" y="100">a₃₁</text><text x="110" y="100">a₃₂</text><text x="180" y="100">a₃₃</text>
+      </g>
+      <!-- Línea: fin de la matriz / inicio de las filas copiadas -->
+      <line x1="18" y1="111" x2="202" y2="111" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/>
+      <!-- 1ª y 2ª fila copiadas debajo -->
+      <g fill="#64748b" font-family="JetBrains Mono,monospace" font-size="11" text-anchor="middle">
+        <text x="40" y="133">a₁₁</text><text x="110" y="133">a₁₂</text><text x="180" y="133">a₁₃</text>
+        <text x="40" y="166">a₂₁</text><text x="110" y="166">a₂₂</text><text x="180" y="166">a₂₃</text>
+      </g>
+      <g fill="#64748b" font-family="JetBrains Mono,monospace" font-size="8" text-anchor="start">
+        <text x="208" y="133">← F1</text>
+        <text x="208" y="166">← F2</text>
+      </g>
+      <text x="125" y="186" font-family="JetBrains Mono,monospace" font-size="8" fill="#94a3b8" text-anchor="middle">verde ↘ + &nbsp;·&nbsp; rojo punteado ↙ −</text>
+    </svg>
+    <div class="note danger">⚠️ Sarrus funciona <strong>solo</strong> con 3×3.</div>
+    <div class="insight">También vale la <strong>"regla de la mariposa"</strong> (disposición triangular, sin copiar filas debajo). La profe lo nombró en 2026-05-19 — si lo entendés, usalo tranquilo.</div>
+  </div>
+
+</div>
+
+<div class="card green" style="max-width:1400px;margin:0.8rem auto 0;">
+  <div class="card-title">④ Regla de Laplace — orden ≥ 3 (cualquier orden)</div>
+  <div class="op-rule">
+    El determinante es la <strong>suma de los productos</strong> de los elementos de una <strong>línea</strong> (fila o columna) por su respectivo <strong>cofactor</strong>.
+  </div>
+  <div class="formula" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3);">
+    |A| = a<sub>i1</sub>·c<sub>i1</sub> + a<sub>i2</sub>·c<sub>i2</sub> + … + a<sub>in</sub>·c<sub>in</sub>
+  </div>
+  <div class="note ok">💡 Conviene elegir la fila o columna que <strong>tenga más ceros</strong>: cada cero anula un término y achica la cuenta. Da el mismo resultado por cualquier línea.</div>
+
+  <div class="op-name" style="margin-top:1rem;">Ejemplo trabajado — Laplace 3×3 (fila 2 tiene un cero, conviene)</div>
+  <div class="mwrap" style="margin:0.5rem 0;">
+    <span class="eq">A =</span>
+    <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+      <span>2</span><span>1</span><span>−3</span>
+      <span class="z">0</span><span>4</span><span>5</span>
+      <span>1</span><span>0</span><span>2</span>
+    </div>
+  </div>
+  <div class="s" style="text-align:center;margin:-0.1rem auto 0.3rem;max-width:760px;"><b>Elegir F2</b> (tiene un cero en a₂₁). Signo de cada lugar de F2: <span style="color:var(--red);font-weight:700;">−</span> <span style="color:var(--accent4);font-weight:700;">+</span> <span style="color:var(--red);font-weight:700;">−</span>. Por cada elemento <b>tachás su fila y su columna</b> <span style="color:var(--red)">(rojo)</span>; lo que sobra <span style="color:var(--accent4)">(verde)</span> es el menor 2×2 del cofactor.</div>
+
+  <div class="cof-steps">
+    <!-- ① a₂₁ = 0 → tacho F2 y C1 -->
+    <div class="cof-step">
+      <div class="cof-head"><b>① a₂₁ = 0</b> &nbsp;·&nbsp; signo <span class="sg-n">−</span> &nbsp;·&nbsp; tacho <b>F2</b> y <b>C1</b></div>
+      <svg class="cof-svg" viewBox="0 0 150 100" width="118" role="img" aria-label="matriz 3x3 con fila 2 y columna 1 tachadas">
+        <g stroke="#06b6d4" stroke-width="1.5" fill="none"><polyline points="14,12 8,12 8,92 14,92"/><polyline points="136,12 142,12 142,92 136,92"/></g>
+        <g font-family="JetBrains Mono,monospace" font-size="13" text-anchor="middle">
+          <text x="36" y="33" fill="#475569" opacity="0.5">2</text><text x="75" y="33" fill="#10b981" font-weight="700">1</text><text x="114" y="33" fill="#10b981" font-weight="700">−3</text>
+          <text x="36" y="58" fill="#f59e0b" font-weight="700">0</text><text x="75" y="58" fill="#475569" opacity="0.5">4</text><text x="114" y="58" fill="#475569" opacity="0.5">5</text>
+          <text x="36" y="83" fill="#475569" opacity="0.5">1</text><text x="75" y="83" fill="#10b981" font-weight="700">0</text><text x="114" y="83" fill="#10b981" font-weight="700">2</text>
+        </g>
+        <line x1="12" y1="53" x2="138" y2="53" stroke="#ef4444" stroke-width="2" opacity="0.85"/>
+        <line x1="36" y1="14" x2="36" y2="90" stroke="#ef4444" stroke-width="2" opacity="0.85"/>
+      </svg>
+      <span class="cof-arrow">→</span>
+      <div class="cof-min"><span>1</span><span>−3</span><span>0</span><span>2</span></div>
+      <span class="cof-calc">= 1·2 − (−3)·0 = <b>2</b><br>término = <span style="color:var(--red)">−</span>(0)·2 = <span class="term">0</span></span>
+    </div>
+
+    <!-- ② a₂₂ = 4 → tacho F2 y C2 -->
+    <div class="cof-step">
+      <div class="cof-head"><b>② a₂₂ = 4</b> &nbsp;·&nbsp; signo <span class="sg-p">+</span> &nbsp;·&nbsp; tacho <b>F2</b> y <b>C2</b></div>
+      <svg class="cof-svg" viewBox="0 0 150 100" width="118" role="img" aria-label="matriz 3x3 con fila 2 y columna 2 tachadas">
+        <g stroke="#06b6d4" stroke-width="1.5" fill="none"><polyline points="14,12 8,12 8,92 14,92"/><polyline points="136,12 142,12 142,92 136,92"/></g>
+        <g font-family="JetBrains Mono,monospace" font-size="13" text-anchor="middle">
+          <text x="36" y="33" fill="#10b981" font-weight="700">2</text><text x="75" y="33" fill="#475569" opacity="0.5">1</text><text x="114" y="33" fill="#10b981" font-weight="700">−3</text>
+          <text x="36" y="58" fill="#475569" opacity="0.5">0</text><text x="75" y="58" fill="#f59e0b" font-weight="700">4</text><text x="114" y="58" fill="#475569" opacity="0.5">5</text>
+          <text x="36" y="83" fill="#10b981" font-weight="700">1</text><text x="75" y="83" fill="#475569" opacity="0.5">0</text><text x="114" y="83" fill="#10b981" font-weight="700">2</text>
+        </g>
+        <line x1="12" y1="53" x2="138" y2="53" stroke="#ef4444" stroke-width="2" opacity="0.85"/>
+        <line x1="75" y1="14" x2="75" y2="90" stroke="#ef4444" stroke-width="2" opacity="0.85"/>
+      </svg>
+      <span class="cof-arrow">→</span>
+      <div class="cof-min"><span>2</span><span>−3</span><span>1</span><span>2</span></div>
+      <span class="cof-calc">= 2·2 − (−3)·1 = <b>7</b><br>término = <span style="color:var(--accent4)">+</span>(4)·7 = <span class="term">28</span></span>
+    </div>
+
+    <!-- ③ a₂₃ = 5 → tacho F2 y C3 -->
+    <div class="cof-step">
+      <div class="cof-head"><b>③ a₂₃ = 5</b> &nbsp;·&nbsp; signo <span class="sg-n">−</span> &nbsp;·&nbsp; tacho <b>F2</b> y <b>C3</b></div>
+      <svg class="cof-svg" viewBox="0 0 150 100" width="118" role="img" aria-label="matriz 3x3 con fila 2 y columna 3 tachadas">
+        <g stroke="#06b6d4" stroke-width="1.5" fill="none"><polyline points="14,12 8,12 8,92 14,92"/><polyline points="136,12 142,12 142,92 136,92"/></g>
+        <g font-family="JetBrains Mono,monospace" font-size="13" text-anchor="middle">
+          <text x="36" y="33" fill="#10b981" font-weight="700">2</text><text x="75" y="33" fill="#10b981" font-weight="700">1</text><text x="114" y="33" fill="#475569" opacity="0.5">−3</text>
+          <text x="36" y="58" fill="#475569" opacity="0.5">0</text><text x="75" y="58" fill="#475569" opacity="0.5">4</text><text x="114" y="58" fill="#f59e0b" font-weight="700">5</text>
+          <text x="36" y="83" fill="#10b981" font-weight="700">1</text><text x="75" y="83" fill="#10b981" font-weight="700">0</text><text x="114" y="83" fill="#475569" opacity="0.5">2</text>
+        </g>
+        <line x1="12" y1="53" x2="138" y2="53" stroke="#ef4444" stroke-width="2" opacity="0.85"/>
+        <line x1="114" y1="14" x2="114" y2="90" stroke="#ef4444" stroke-width="2" opacity="0.85"/>
+      </svg>
+      <span class="cof-arrow">→</span>
+      <div class="cof-min"><span>2</span><span>1</span><span>1</span><span>0</span></div>
+      <span class="cof-calc">= 2·0 − 1·1 = <b>−1</b><br>término = <span style="color:var(--red)">−</span>(5)·(−1) = <span class="term">+5</span></span>
+    </div>
+  </div>
+
+  <div class="formula green-f" style="margin-top:0.3rem;">|A| = 0 + 28 + 5 = <b style="color:#fff;">33</b></div>
+
+  <div class="step">
+    <div class="s"><b>Verificación por Sarrus</b> (mismo resultado): (2·4·2 + 0·0·(−3) + 1·1·5) − ((−3)·4·1 + 5·0·2 + 2·1·0) = (16+0+5) − (−12+0+0) = 21 + 12 = <b>33</b> ✓.</div>
+  </div>
+  <div class="insight">En clase la profe resolvió el mismo determinante por F1 y por F2 para mostrar que da igual — pero F2 tarda la mitad por el cero.</div>
+
+  <details class="recall">
+    <summary>💡 Si |A| = 0, ¿qué se puede concluir sobre A?</summary>
+    <div class="recall-a">A es <strong>singular</strong>: no tiene inversa. El sistema A·X = B no se puede resolver multiplicando por A⁻¹. Geométricamente: las filas/columnas son linealmente dependientes (una es combinación de las otras).</div>
+  </details>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 9: MENOR COMPLEMENTARIO Y COFACTOR
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-09">09 — Menor complementario y cofactor</div>
+
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">⊟ Menor complementario M<sub>ij</sub></div>
+    <div class="op-rule">
+      Determinante de la matriz que queda al <strong>eliminar la fila i y la columna j</strong>. Si A es de orden n, M<sub>ij</sub> es un determinante de orden n−1.
+    </div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span class="z">1</span><span class="z">−1</span><span class="z">2</span>
+        <span>2</span><span class="z">2</span><span>−3</span>
+        <span>3</span><span class="z">−1</span><span>2</span>
+      </div>
+      <span class="eq">→ quito F1 y C2</span>
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);">
+        <span>2</span><span>−3</span><span>3</span><span>2</span>
+      </div>
+    </div>
+    <div class="note warn" style="text-align:center;">M<sub>12</sub> = (2·2) − (−3·3) = 4 + 9 = <strong>13</strong></div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⊞ Cofactor (o adjunto) c<sub>ij</sub></div>
+    <div class="op-rule">
+      Es el menor complementario afectado por un signo según la posición.
+    </div>
+    <div class="formula amber-f">c<sub>ij</sub> = (−1)<sup>i+j</sup> · M<sub>ij</sub></div>
+    <div class="op-rule" style="margin-top:0.6rem;">
+      Si <strong>i+j es par</strong> → el signo se mantiene. Si <strong>i+j es impar</strong> → cambia.
+    </div>
+    <div class="op-name" style="margin-top:0.5rem;">Tablero de signos (atajo)</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+        <span style="color:var(--accent4)">+</span><span style="color:#f87171">−</span><span style="color:var(--accent4)">+</span>
+        <span style="color:#f87171">−</span><span style="color:var(--accent4)">+</span><span style="color:#f87171">−</span>
+        <span style="color:var(--accent4)">+</span><span style="color:#f87171">−</span><span style="color:var(--accent4)">+</span>
+      </div>
+    </div>
+    <div class="note ok">Empieza siempre en <strong>+</strong> y alterna. Evita escribir (−1)<sup>i+j</sup> en cada paso.</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 10: PROPIEDADES DE DETERMINANTES
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-10">10 — Propiedades de los determinantes <span class="tier key">★ entra fuerte en el final → set completo en U10</span></div>
+
+<div class="card amber" style="max-width:1400px;margin:0 auto 1rem;">
+  <div class="card-title">📌 Para el final → ver cheatsheet Unidad 10 — Determinantes</div>
+  <div class="op-rule">
+    La profe avisó (oral 2026-06-16) que en el final <strong>las propiedades de determinantes pesan</strong> ("sobre todo propiedades determinantes"). El <strong>set completo, con ejemplos y advertencias</strong>, vive en el cheatsheet <strong>Unidad 10</strong>. Las que preguntó como gancho:
+  </div>
+  <div class="proplist pl-amber" style="font-size:0.71rem;">
+    <div>Fila <strong>o columna</strong> de ceros → |A| = 0</div>
+    <div>Dos filas (o columnas) <strong>iguales</strong> → |A| = 0</div>
+    <div>Dos filas (o columnas) <strong>proporcionales</strong> (linealmente dependientes) → |A| = 0</div>
+    <div><strong>Intercambiar</strong> dos líneas → |A| cambia de signo</div>
+    <div>Matriz <strong>triangular</strong> → |A| = producto de la diagonal principal</div>
+  </div>
+  <div class="note warn">⚠️ <strong>Traza</strong> (SUMA de la diagonal) ≠ <strong>determinante de triangular</strong> (PRODUCTO). Reconocer la propiedad te ahorra toda la cuenta.</div>
+</div>
+
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">★ Propiedades clave</div>
+    <div class="proplist pl-purple" style="font-size:0.71rem;">
+      <div>|Aᵗ| = |A| &nbsp;(la traspuesta no cambia el determinante)</div>
+      <div>|A·B| = |A| · |B|</div>
+      <div>|I| = 1</div>
+      <div>Det. de matriz triangular = producto de la diagonal principal</div>
+      <div>Si multiplico una línea por k → el determinante queda ×k</div>
+      <div>Si A ∈ ℝ<sup>n×n</sup> → |k·A| = k<sup>n</sup>·|A| &nbsp;<strong>(¡con exponente n!)</strong></div>
+      <div>|A⁻¹| = 1 / |A|</div>
+    </div>
+    <div class="insight">
+      <strong>Ejemplo |k·A| = k<sup>n</sup>·|A|:</strong> si A es 3×3 con |A| = 5, entonces |3·A| = 3³·5 = <strong>135</strong>, no 15. Confusión típica.<br>
+      <strong>Ejemplo triangular:</strong> det de <span class="matrix minor m3"><span>2</span><span>7</span><span>9</span><span class="z">0</span><span>3</span><span>4</span><span class="z">0</span><span class="z">0</span><span>5</span></span> = 2·3·5 = <strong>30</strong> (solo la diagonal).
+    </div>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">⚠️ Cuidado con estas</div>
+    <div class="op-rule">
+      <strong>El determinante de la suma NO es la suma de determinantes:</strong>
+    </div>
+    <div class="formula" style="background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.3);">
+      |A + B| &nbsp;≠&nbsp; |A| + |B|
+    </div>
+    <div class="op-rule" style="margin-top:0.6rem;">
+      Otras observaciones del apunte: la suma de los productos de los elementos de una línea por los cofactores de una <strong>línea paralela</strong> da <strong>cero</strong>.
+    </div>
+    <div class="note warn">El determinante puede ser positivo, negativo o cero — no siempre es positivo.</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 11: CÁLCULO DE LA INVERSA POR ADJUNTA
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-11">11 — Cálculo de la inversa por la matriz adjunta</div>
+
+<div class="grid grid-2">
+
+  <div class="card green">
+    <div class="card-title">⟲ Método por adjunta — procedimiento</div>
+    <div class="formula" style="background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.3);font-size:0.95rem;">
+      A⁻¹ = (1 / |A|) · Adj(A)
+    </div>
+    <div class="step" style="margin-top:0.8rem;">
+      <div class="s"><b>Paso 1 — Determinante.</b> Calcular |A|. Si <b>|A| = 0</b> → la matriz NO tiene inversa, detenerse acá.</div>
+      <div class="s"><b>Paso 2 — Cofactores.</b> Reemplazar cada elemento por su cofactor (menor complementario con signo de posición).</div>
+      <div class="s"><b>Paso 3 — Adjunta.</b> Adj(A) = traspuesta de la matriz de cofactores.</div>
+      <div class="s"><b>Paso 4 — Dividir.</b> Multiplicar la adjunta por <b>1/|A|</b>. Verificar con A·A⁻¹ = I.</div>
+    </div>
+    <div class="insight">Diferencia con Laplace: en la adjunta <strong>solo</strong> se reemplaza por el cofactor — no se multiplica por el valor del elemento. Un ejercicio de inversa barre determinante, cofactores, traspuesta y producto a la vez.</div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">⚙ Método por sistema de ecuaciones</div>
+    <div class="op-rule">
+      Plantear A·A⁻¹ = I con la inversa "vacía" (incógnitas a,b,c,d…) y resolver el sistema resultante. Útil para 2×2 — en orden ≥ 3 conviene adjunta.
+    </div>
+    <div class="formula">
+      <span style="color:var(--accent2);">A</span> = <span class="matrix" style="display:inline-grid;grid-template-columns:repeat(2,1fr);font-size:0.75rem;padding:0.1rem 0.4rem;"><span>2</span><span>1</span><span>3</span><span>4</span></span>
+      &nbsp;·&nbsp;
+      <span style="color:var(--accent3);">A⁻¹</span> = <span class="matrix" style="display:inline-grid;grid-template-columns:repeat(2,1fr);font-size:0.75rem;padding:0.1rem 0.4rem;"><span>a</span><span>b</span><span>c</span><span>d</span></span>
+      = I
+    </div>
+    <div class="step" style="margin-top:0.5rem;">
+      <div class="s">Multiplicar lado izquierdo y plantear sistema: <b>2a+c=1, 2b+d=0, 3a+4c=0, 3b+4d=1</b>.</div>
+      <div class="s">Resolver. Aquí: a=⁴⁄₅, b=−¹⁄₅, c=−³⁄₅, d=²⁄₅.</div>
+    </div>
+    <div class="insight">El apunte oficial (pág. 13) define la inversa con este método. En clase la profe usó adjunta — los dos valen.</div>
+  </div>
+
+</div>
+
+<div class="card green" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">▣ Ejemplo trabajado — inversa 3×3 por adjunta paso a paso</div>
+  <div class="op-rule">Calcular A⁻¹ siendo A la matriz de abajo. Cada paso es un sub-procedimiento del método.</div>
+
+  <div class="mwrap" style="margin:0.8rem 0;">
+    <span class="eq">A =</span>
+    <div class="matrix" style="grid-template-columns:repeat(3,1fr);font-size:0.95rem;">
+      <span class="hl">1</span><span>2</span><span>3</span>
+      <span>0</span><span class="hl">1</span><span>4</span>
+      <span>5</span><span>6</span><span class="hl">0</span>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="s"><b>Paso 1 — |A| por Laplace (fila 1, conviene por el 0 en a₁₃ futuro… acá vamos por F1):</b><br>
+      |A| = 1·det <span class="matrix minor m2"><span>1</span><span>4</span><span>6</span><span class="z">0</span></span> − 2·det <span class="matrix minor m2"><span class="z">0</span><span>4</span><span>5</span><span class="z">0</span></span> + 3·det <span class="matrix minor m2"><span class="z">0</span><span>1</span><span>5</span><span>6</span></span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;= 1·(0−24) − 2·(0−20) + 3·(0−5) = −24 + 40 − 15 = <b>1</b><br>
+      |A| ≠ 0 → la inversa existe.
+    </div>
+
+    <div class="s"><b>Paso 2 — Matriz de cofactores (signo según tablero + −, − +, + −, − +).</b><br>
+      c₁₁ = +det <span class="matrix minor m2"><span>1</span><span>4</span><span>6</span><span class="z">0</span></span> = −24 &nbsp;|&nbsp; c₁₂ = −det <span class="matrix minor m2"><span class="z">0</span><span>4</span><span>5</span><span class="z">0</span></span> = +20 &nbsp;|&nbsp; c₁₃ = +det <span class="matrix minor m2"><span class="z">0</span><span>1</span><span>5</span><span>6</span></span> = −5<br>
+      c₂₁ = −det <span class="matrix minor m2"><span>2</span><span>3</span><span>6</span><span class="z">0</span></span> = +18 &nbsp;|&nbsp; c₂₂ = +det <span class="matrix minor m2"><span>1</span><span>3</span><span>5</span><span class="z">0</span></span> = −15 &nbsp;|&nbsp; c₂₃ = −det <span class="matrix minor m2"><span>1</span><span>2</span><span>5</span><span>6</span></span> = +4<br>
+      c₃₁ = +det <span class="matrix minor m2"><span>2</span><span>3</span><span>1</span><span>4</span></span> = +5 &nbsp;|&nbsp; c₃₂ = −det <span class="matrix minor m2"><span>1</span><span>3</span><span class="z">0</span><span>4</span></span> = −4 &nbsp;|&nbsp; c₃₃ = +det <span class="matrix minor m2"><span>1</span><span>2</span><span class="z">0</span><span>1</span></span> = +1
+    </div>
+
+    <div class="s"><b>Paso 3 — Adjunta = traspuesta de la matriz de cofactores.</b></div>
+  </div>
+
+  <div class="mwrap" style="margin:0.5rem 0;">
+    <span class="eq">Cof(A) =</span>
+    <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+      <span>−24</span><span>20</span><span>−5</span>
+      <span>18</span><span>−15</span><span>4</span>
+      <span>5</span><span>−4</span><span>1</span>
+    </div>
+    <span class="eq">→ Adj(A) =</span>
+    <div class="matrix" style="grid-template-columns:repeat(3,1fr);">
+      <span>−24</span><span>18</span><span>5</span>
+      <span>20</span><span>−15</span><span>−4</span>
+      <span>−5</span><span>4</span><span>1</span>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="s"><b>Paso 4 — A⁻¹ = (1/|A|) · Adj(A) = (1/1) · Adj(A) = Adj(A).</b> Si |A| hubiese sido distinto de 1 multiplicaríamos cada entrada por 1/|A|.</div>
+    <div class="s"><b>Verificación.</b> Calcular A · A⁻¹ y chequear que dé I. Si no da, hay un error de signo en algún cofactor — repasar el tablero (+ −, − +, + −, − +, + −, − +, + −, − +, +).</div>
+  </div>
+
+  <div class="insight">En clase del 2026-05-19 la profe enfatizó que la verificación A·A⁻¹ = I no es opcional — es el control estándar para detectar errores de signo en cofactores.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 12: APLICACIÓN — SISTEMAS DE ECUACIONES
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-12">12 — Aplicación: sistemas de ecuaciones <span class="tier ctx">→ unidad 11 · cheatsheet propio</span></div>
+
+<div class="card cyan" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">∑ Resolución de sistemas con matrices</div>
+  <div class="op-rule">
+    Una de las principales aplicaciones de las matrices es <strong>resolver sistemas de ecuaciones lineales</strong>, especialmente útiles cuando hay más de 2 incógnitas (3×3, 4×4…). Se apoyan en los conceptos ya vistos: determinante, inversa y matrices triangulares.
+  </div>
+  <div class="note ok">
+    <strong>Sistemas de ecuaciones lineales es la Unidad 11</strong> y tiene su propio cheatsheet (<em>unidad-11-sistemas-de-ecuaciones-lineales</em>). Entró en el 2º parcial y <strong>entra en el final</strong>: se resuelven por <strong>Cramer</strong> (determinantes) o <strong>Gauss-Jordan</strong>, clasificando el sistema (CD compatible determinado · SCI compatible indeterminado · SI incompatible). El método lo elige el alumno.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     TIPS DE CLASE
+═══════════════════════════════════════════════════ -->
+
+<div class="card red" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">💡 Tips de clase — claves para el examen</div>
+  <div class="step">
+    <div class="s"><b>★ Verificar órdenes primero.</b> Antes de sumar o multiplicar: ¿se puede operar? Sumar exige mismo orden; multiplicar exige cols(A) = filas(B).</div>
+    <div class="s"><b>★ Determinante e inversa solo existen para cuadradas.</b> A una rectangular no se le calcula determinante.</div>
+    <div class="s"><b>★ Cada método tiene su rango:</b> producto cruzado (2×2), Sarrus (3×3), Laplace (≥3, cualquier orden). <b>El método lo elige el alumno.</b></div>
+    <div class="s"><b>★ Sarrus también vale por "regla de la mariposa"</b> (disposición triangular). La profe lo nombró explícitamente: si lo ven y lo entienden, lo pueden usar tranquilamente.</div>
+    <div class="s"><b>★ Laplace puede ganarle a Sarrus en 3×3</b> si hay una fila o columna con muchos <b>ceros</b>: cada cero anula un término. No siempre Sarrus es lo más rápido.</div>
+    <div class="s"><b>★ "¿Tiene inversa?"</b> → calcular <b>primero el determinante</b>. Si |A| = 0, no es inversible (no se puede dividir por 0).</div>
+    <div class="s"><b>★ Cuidado con A²:</b> significa A·A, <b>no</b> elevar cada elemento al cuadrado. Confusión típica con k·A (que sí es elemento a elemento).</div>
+    <div class="s"><b>★ Mostrar procedimiento, no resultado.</b> En el examen/final hay que entregar <b>desarrollo</b> aunque sea multiple-choice: la calculadora solo sirve para verificar — el método se evalúa, no solo el número final.</div>
+    <div class="s"><b>★ Producto no conmutativo.</b> En general A·B ≠ B·A. Atención también a (A·B)ᵗ = Bᵗ·Aᵗ y (A·B)⁻¹ = B⁻¹·A⁻¹ — el orden se invierte.</div>
+    <div class="s"><b>★ Inversa: verificar siempre con A·A⁻¹ = I.</b> Si no da identidad, hay un error de signo en algún cofactor.</div>
+    <div class="s"><b>★ No te asustes con las letras.</b> Si la matriz trae entradas simbólicas (a, b, x…) en vez de números, aplicás <b>las mismas reglas y propiedades</b> — la profe notó que la gente "entra en pánico cuando ve letras" (oral del final 2026-06-16), pero el procedimiento no cambia.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 13: PARA EL FINAL  (oral de repaso 2026-06-16)
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="seccion-13">13 — Para el final <span class="tier key">★ oral de repaso 2026-06-16</span></div>
+
+<div class="card red" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">💡 Qué cambia en el final respecto a los parciales</div>
+  <div class="step">
+    <div class="s"><b>★ Ahora las propiedades pesan.</b> En los parciales casi no se tomaron; en el final <strong>sí entran</strong> — propiedades de matrices y <strong>sobre todo de determinantes</strong>. Reconocer una propiedad te ahorra la cuenta (fila de ceros → |A|=0; triangular → producto de la diagonal; filas iguales o proporcionales → 0).</div>
+    <div class="s"><b>★ Las propiedades NO van en la hoja permitida — van de memoria.</b> Permitido solo: <strong>tablas de verdad</strong> + las 2 fórmulas (compleja en forma polar e inversa) del resumen del 2º parcial. Las propiedades hay que sabérselas.</div>
+    <div class="s"><b>★ Hay que fundamentar TODO, incluso el multiple-choice.</b> Disposición de la facultad: aunque sea multiple-choice se entrega desarrollo justificando cada respuesta — no es un "tatetí".</div>
+    <div class="s"><b>★ Formato del final:</b> 10 temas, salen 5 ejercicios, 2 horas, sin oral. No todos los temas caen en cada fecha.</div>
+    <div class="s"><b>★ Para practicar:</b> la <strong>bibliografía</strong> (García Valle) tiene muchos ejercicios en la misma línea que los del final.</div>
+  </div>
+  <div class="note danger" style="margin-top:0.6rem;">
+    <strong>Fuera de alcance del final:</strong> <s>determinantes 4×4 o mayores</s> (la profe "no dio de 4") · <s>demostraciones formales de propiedades</s> · <s>|A+B| = |A|+|B|</s> (es falsa). La <strong>resolución de sistemas por Cramer/Gauss-Jordan</strong> sí entra, pero se estudia en su propio cheatsheet (Unidad 11).
+  </div>
+</div>
+
+<footer>
+  <p>Matrices y Determinantes · Álgebra · Universidad de Palermo</p>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#algebra" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

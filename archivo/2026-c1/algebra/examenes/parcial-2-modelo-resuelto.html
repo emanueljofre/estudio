@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parcial 2 Modelo — Resuelto paso a paso · Álgebra UP</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;   /* violeta  */
+    --accent2: #06b6d4;  /* cyan     */
+    --accent3: #f59e0b;  /* ámbar    */
+    --accent4: #10b981;  /* verde    */
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    line-height: 1.55;
+    padding: 2rem 1.2rem 5rem;
+    background-image:
+      radial-gradient(ellipse at 8% 0%, rgba(124,58,237,0.16) 0%, transparent 48%),
+      radial-gradient(ellipse at 92% 12%, rgba(6,182,212,0.10) 0%, transparent 46%);
+  }
+  .wrap { max-width: 940px; margin: 0 auto; }
+
+  /* ── HEADER ───────────────────────────── */
+  header { text-align: center; margin-bottom: 2.4rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.62rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 3px; padding: 0.25rem 0.75rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(1.9rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1.05;
+    background: linear-gradient(135deg, #fff 35%, var(--accent) 120%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.86rem; font-family: var(--mono); margin-top: 0.5rem; }
+  .divider { width: 64px; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); margin: 1.1rem auto 0; border-radius: 2px; }
+
+  /* ── LEYENDA DE SÍMBOLOS ──────────────── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center;
+    margin: 1.6rem auto 0; max-width: 880px;
+  }
+  .legend .chip {
+    font-family: var(--mono); font-size: 0.68rem; padding: 0.25rem 0.55rem;
+    border-radius: 4px; background: rgba(255,255,255,0.04); color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .legend .chip b { color: #fff; font-weight: 700; }
+
+  /* ── ANSWER KEY ───────────────────────── */
+  .answerkey {
+    background: linear-gradient(180deg, rgba(16,185,129,0.10), rgba(16,185,129,0.02));
+    border: 1px solid rgba(16,185,129,0.35); border-radius: 10px;
+    padding: 1.1rem 1.3rem; margin: 2.2rem 0;
+  }
+  .answerkey h2 {
+    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--accent4); margin-bottom: 0.8rem;
+  }
+  .answerkey ul { list-style: none; display: grid; gap: 0.5rem; }
+  .answerkey li { font-size: 0.84rem; display: flex; gap: 0.6rem; align-items: baseline; }
+  .answerkey .k { font-family: var(--mono); color: var(--accent4); font-weight: 700; min-width: 2.6rem; flex-shrink: 0; }
+  .answerkey .k.sub { color: var(--muted); }
+
+  /* ── EXERCISE SECTION ─────────────────── */
+  .ex { margin: 3rem 0 0; }
+  .ex-head { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 1.1rem; }
+  .ex-num {
+    font-family: var(--mono); font-weight: 700; font-size: 0.95rem;
+    width: 2.4rem; height: 2.4rem; flex-shrink: 0; display: grid; place-items: center;
+    border-radius: 8px; background: var(--accent); color: #fff;
+  }
+  .ex-head h2 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.01em; }
+  .ex-head .topic { font-family: var(--mono); font-size: 0.66rem; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.12em; }
+
+  /* ── BOXES ────────────────────────────── */
+  .box { border-radius: 9px; padding: 1rem 1.15rem; margin: 0.9rem 0; border: 1px solid var(--border); background: var(--card); }
+  .box .label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    margin-bottom: 0.6rem; display: inline-block;
+  }
+  .box.enun  { border-left: 3px solid var(--accent3); }
+  .box.enun  .label { color: var(--accent3); }
+  .box.concepto { border-left: 3px solid var(--accent2); background: rgba(6,182,212,0.05); }
+  .box.concepto .label { color: var(--accent2); }
+  .box.resp  { border-left: 3px solid var(--accent4); background: rgba(16,185,129,0.07); }
+  .box.resp  .label { color: var(--accent4); }
+  .box.ojo   { border-left: 3px solid var(--red); background: rgba(239,68,68,0.06); }
+  .box.ojo   .label { color: #f87171; }
+  .box p { font-size: 0.88rem; margin: 0.35rem 0; }
+  .box ul { margin: 0.4rem 0 0.2rem 1.1rem; }
+  .box li { font-size: 0.86rem; margin: 0.3rem 0; }
+  .box.enun p, .box.enun li { color: #cbd5e1; }
+  .box.resp p, .box.resp li { color: #d1fae5; }
+  .box.resp strong { color: #fff; }
+
+  /* ── INLINE MATH ──────────────────────── */
+  .m { font-family: var(--mono); font-size: 0.92em; color: #fff; }
+  .m.op { color: var(--accent3); }
+  .m sub, .m sup { font-size: 0.75em; }
+  code, .mono { font-family: var(--mono); }
+  .hl { color: var(--accent3); font-weight: 700; }
+  .hlg { color: #4ade80; font-weight: 700; }
+
+  /* ── STEPS ────────────────────────────── */
+  .steps { counter-reset: step; list-style: none; margin: 0.5rem 0; }
+  .steps > li {
+    position: relative; padding: 0.6rem 0 0.6rem 2.4rem; font-size: 0.88rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .steps > li:last-child { border-bottom: none; }
+  .steps > li::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 0; top: 0.55rem;
+    width: 1.55rem; height: 1.55rem; display: grid; place-items: center;
+    font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+    background: rgba(124,58,237,0.18); color: #a78bfa; border-radius: 6px;
+  }
+  .steps .why { display: block; color: var(--muted); font-size: 0.8rem; margin-top: 0.15rem; }
+
+  /* ── DERIVATION CHAIN ─────────────────── */
+  .deriv { font-family: var(--mono); font-size: 0.84rem; margin: 0.7rem 0; }
+  .deriv .row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem 0.8rem; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .deriv .row:last-child { border-bottom: none; }
+  .deriv .expr { color: #fff; }
+  .deriv .eq { color: var(--accent); font-weight: 700; }
+  .deriv .rule { color: var(--muted); font-size: 0.74rem; margin-left: auto; font-style: italic; text-align: right; }
+  .deriv .row.final .expr { color: #4ade80; font-weight: 700; }
+
+  /* ── MATRICES & DETERMINANTS ──────────── */
+  .matrix {
+    display: inline-grid; gap: 0.25rem 0.95rem; justify-items: center; align-items: center;
+    padding: 0.4rem 0.7rem; position: relative; font-family: var(--mono); font-size: 0.84rem;
+    color: #fff; vertical-align: middle; margin: 0 0.15rem;
+  }
+  .matrix.c2 { grid-template-columns: repeat(2, auto); }
+  .matrix.c3 { grid-template-columns: repeat(3, auto); }
+  .matrix::before, .matrix::after {
+    content: ''; position: absolute; top: 1px; bottom: 1px; width: 7px;
+    border: 2px solid var(--accent2);
+  }
+  .matrix::before { left: -1px; border-right: 0; border-radius: 5px 0 0 5px; }
+  .matrix::after  { right: -1px; border-left: 0; border-radius: 0 5px 5px 0; }
+  /* determinante: barras verticales rectas ámbar */
+  .matrix.det::before, .matrix.det::after { width: 0; border: 0; border-radius: 0; top: -1px; bottom: -1px; }
+  .matrix.det::before { left: -3px; border-left: 2px solid var(--accent3); }
+  .matrix.det::after  { right: -3px; border-left: 2px solid var(--accent3); }
+  .mline { display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem; margin: 0.7rem 0; font-family: var(--mono); font-size: 0.86rem; color: #cbd5e1; }
+  .mline .eq { color: var(--accent); font-weight: 700; }
+  .mline .lbl { color: var(--muted); font-style: italic; font-size: 0.78rem; }
+
+  /* ── ROW-OP ELIMINATION ───────────────── */
+  .elim { display: flex; flex-wrap: wrap; align-items: center; gap: 0.7rem 1rem; margin: 0.7rem 0; }
+  .elim .op { font-family: var(--mono); font-size: 0.76rem; color: var(--accent3); background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 5px; padding: 0.2rem 0.5rem; white-space: nowrap; }
+  .elim .arrow { color: var(--muted); font-size: 1.1rem; }
+
+  /* ── SUBPART HEADING ──────────────────── */
+  .sub { font-weight: 700; color: var(--accent3); font-family: var(--mono); font-size: 0.82rem; margin: 1.4rem 0 0.2rem; letter-spacing: 0.04em; }
+
+  /* ── CASE TABLE (Ej4) ─────────────────── */
+  table.cases { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.6rem 0; }
+  table.cases th { background: rgba(255,255,255,0.05); color: var(--muted); font-weight: 500; padding: 0.5rem 0.6rem; text-align: left; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  table.cases td { padding: 0.55rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: top; }
+  table.cases tr:last-child td { border-bottom: none; }
+  table.cases .cond { font-family: var(--mono); color: #fff; white-space: nowrap; }
+  table.cases .tag { font-family: var(--mono); font-weight: 700; }
+  table.cases .scd { color: #4ade80; }
+  table.cases .sci { color: var(--accent3); }
+  table.cases .si  { color: #f87171; }
+
+  footer { text-align: center; margin-top: 4rem; color: var(--muted); font-family: var(--mono); font-size: 0.7rem; line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="badge">Álgebra · Universidad de Palermo</span>
+    <h1>Parcial 2 Modelo — Resuelto</h1>
+    <p class="subtitle">Complejos · Determinantes · Matrices · Sistemas — paso a paso con teoría</p>
+    <div class="divider"></div>
+    <div class="legend">
+      <span class="chip"><b>i</b> unidad imaginaria (i²=−1)</span>
+      <span class="chip"><b>|z|</b> módulo</span>
+      <span class="chip"><b>|A|</b> determinante</span>
+      <span class="chip"><b>Aᵀ</b> transpuesta</span>
+      <span class="chip"><b>A⁻¹</b> inversa</span>
+      <span class="chip"><b>SCD</b> única sol.</span>
+      <span class="chip"><b>SCI</b> infinitas</span>
+      <span class="chip"><b>SI</b> sin solución</span>
+    </div>
+  </header>
+
+  <!-- ANSWER KEY -->
+  <div class="answerkey">
+    <h2>★ Clave de respuestas (para verificar de un vistazo)</h2>
+    <ul>
+      <li><span class="k">1</span><span><span class="m">w = 2√2 − i</span> &nbsp;→&nbsp; <strong>|w| = 3</strong></span></li>
+      <li><span class="k">2a</span><span><span class="m">|B| = −45</span> &nbsp;→&nbsp; <strong>x = 1 ó x = −3</strong></span></li>
+      <li><span class="k sub">2b</span><span>Sirve cualquier C que sea B con dos filas/columnas permutadas: <strong>|C| = 45 = −|B|</strong>.</span></li>
+      <li><span class="k">3</span><span><span class="m">C = </span><span class="m">[[1, 2],[−9, 6]]</span>, <span class="m">|C| = 24 ≠ 0</span> &nbsp;→&nbsp; <strong>C es inversible</strong>.</span></li>
+      <li><span class="k">4a</span><span>Infinitas soluciones: <strong>k = 7</strong> (SCI).</span></li>
+      <li><span class="k sub">4b</span><span>Sin solución: <strong>ningún k</strong> (el sistema nunca es incompatible).</span></li>
+      <li><span class="k sub">4c</span><span>Solución única: <strong>k ≠ 7</strong> (SCD).</span></li>
+    </ul>
+  </div>
+
+  <!-- ══════════════ EJERCICIO 1 ══════════════ -->
+  <section class="ex">
+    <div class="ex-head">
+      <div class="ex-num">1</div>
+      <div>
+        <div class="topic">Números complejos</div>
+        <h2>Módulo de un complejo</h2>
+      </div>
+    </div>
+
+    <div class="box enun">
+      <span class="label">Enunciado</span>
+      <p>Dado <span class="m">z = 4√2 (cos2π + i·sen2π)</span>, hallar el módulo de
+      <span class="m">w = z / (1 + i) + 2√2 i − i<sup>37</sup></span>.</p>
+    </div>
+
+    <div class="box concepto">
+      <span class="label">Conceptos clave</span>
+      <ul>
+        <li><strong>Forma polar → binómica:</strong> <span class="m">z = r(cosθ + i·senθ)</span>. Con <span class="m">θ = 2π</span> (vuelta completa): <span class="m">cos2π = 1</span>, <span class="m">sen2π = 0</span> → <span class="m">z = r</span> (real puro).</li>
+        <li><strong>División de complejos:</strong> se multiplica numerador y denominador por el <em>conjugado</em> del denominador. El conjugado de <span class="m">(1 + i)</span> es <span class="m">(1 − i)</span>, y <span class="m">(1+i)(1−i) = 1² − i² = 1 + 1 = 2</span>.</li>
+        <li><strong>Potencias de i (ciclo de 4):</strong> <span class="m">i¹=i, i²=−1, i³=−i, i⁴=1</span>. Entonces <span class="m">iⁿ = i^(n mod 4)</span>. Acá <span class="m">37 = 4·9 + 1</span> → <span class="m">i<sup>37</sup> = i¹ = i</span>.</li>
+        <li><strong>Módulo:</strong> <span class="m">|a + bi| = √(a² + b²)</span>.</li>
+      </ul>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <strong>Pasamos z a binómica.</strong>
+        <span class="why"><span class="m">z = 4√2 (cos2π + i·sen2π) = 4√2 (1 + i·0) = 4√2</span> (queda real).</span>
+      </li>
+      <li>
+        <strong>Resolvemos la división</strong> <span class="m">z/(1+i)</span> multiplicando por el conjugado:
+        <span class="why"><span class="m">4√2/(1+i) · (1−i)/(1−i) = [4√2(1−i)] / 2 = 2√2(1−i) = 2√2 − 2√2 i</span>.</span>
+      </li>
+      <li>
+        <strong>Reducimos la potencia de i:</strong> <span class="m">i<sup>37</sup> = i¹ = i</span>.
+      </li>
+      <li>
+        <strong>Sumamos todo</strong> (cuidado con el signo del <span class="m">− i<sup>37</sup></span>):
+        <span class="why"><span class="m">w = (2√2 − 2√2 i) + 2√2 i − i = 2√2 + (−2√2 i + 2√2 i) − i = 2√2 − i</span>. Los términos imaginarios <span class="m">±2√2 i</span> se cancelan.</span>
+      </li>
+      <li>
+        <strong>Calculamos el módulo:</strong>
+        <span class="why"><span class="m">|w| = √[(2√2)² + (−1)²] = √[8 + 1] = √9 = 3</span>.</span>
+      </li>
+    </ol>
+
+    <div class="box resp">
+      <span class="label">Respuesta modelo</span>
+      <p><span class="m">w = 2√2 − i</span> &nbsp;⟹&nbsp; <strong>|w| = 3</strong>.</p>
+    </div>
+    <div class="box ojo">
+      <span class="label">⚠ Error típico</span>
+      <p>El <span class="m">−i<sup>37</sup></span> NO es <span class="m">+i</span>: como <span class="m">i<sup>37</sup>=i</span>, ese término aporta <span class="m">−i</span>. Olvidar el signo deja <span class="m">w = 2√2 + 3i</span> mal. También revisá <span class="m">37 mod 4 = 1</span>, no 0.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════ EJERCICIO 2 ══════════════ -->
+  <section class="ex">
+    <div class="ex-head">
+      <div class="ex-num">2</div>
+      <div>
+        <div class="topic">Determinantes · propiedades</div>
+        <h2>Hallar x y construir C</h2>
+      </div>
+    </div>
+
+    <div class="box enun">
+      <span class="label">Enunciado</span>
+      <p><strong>a)</strong> <span class="m">A, B ∈ ℝ³ˣ³</span>, <span class="m">|A| = 5</span>,
+        <span class="m">B = </span><span class="matrix c3"><span>x</span><span>0</span><span>9</span><span>0</span><span>3</span><span>x</span><span>x</span><span>15</span><span>−1</span></span>.
+        Hallar <span class="m">x</span> para que <span class="m">|3 (A²)ᵀ B⁻¹| = −15</span>. Justificar las propiedades.</p>
+      <p><strong>b)</strong> Para cualquier <span class="m">x</span> hallado, escribir una matriz <span class="m">C</span> tal que <span class="m">|C| = −|B|</span>.</p>
+    </div>
+
+    <div class="box concepto">
+      <span class="label">Propiedades de determinantes que vas a usar</span>
+      <ul>
+        <li><strong>Escalar:</strong> <span class="m">|k·M| = kⁿ·|M|</span>, con <span class="m">n</span> = orden de la matriz. Acá <span class="m">n = 3</span> → <span class="m">|3M| = 3³|M| = 27|M|</span>. (¡El 3 NO sale directo!)</li>
+        <li><strong>Transpuesta:</strong> <span class="m">|Mᵀ| = |M|</span>.</li>
+        <li><strong>Potencia / producto:</strong> <span class="m">|A²| = |A|²</span>.</li>
+        <li><strong>Inversa:</strong> <span class="m">|M⁻¹| = 1/|M|</span>.</li>
+        <li><strong>Permutar 2 filas/columnas</strong> multiplica el determinante por <span class="m">−1</span> (clave para la parte b).</li>
+      </ul>
+    </div>
+
+    <div class="sub">a) Despejar |B| con las propiedades</div>
+    <div class="deriv">
+      <div class="row"><span class="expr">|3 (A²)ᵀ B⁻¹| = −15</span><span class="rule">dato</span></div>
+      <div class="row"><span class="eq">⟹</span><span class="expr">3³ · |(A²)ᵀ| · |B⁻¹| = −15</span><span class="rule">escalar + producto</span></div>
+      <div class="row"><span class="eq">⟹</span><span class="expr">27 · |A|² · (1/|B|) = −15</span><span class="rule">transpuesta + potencia + inversa</span></div>
+      <div class="row"><span class="eq">⟹</span><span class="expr">27 · 25 · (1/|B|) = −15</span><span class="rule">|A| = 5</span></div>
+      <div class="row"><span class="eq">⟹</span><span class="expr">675 / |B| = −15</span><span class="rule">675 = 27·25</span></div>
+      <div class="row final"><span class="eq">⟹</span><span class="expr">|B| = 675 / (−15) = −45</span><span class="rule">despejamos |B|</span></div>
+    </div>
+
+    <div class="sub">a) Calcular |B| en función de x y resolver</div>
+    <p style="font-size:.86rem;color:#cbd5e1;margin:.4rem 0">Desarrollamos por cofactores sobre la <strong>primera fila</strong> (el 0 del medio ahorra cuentas):</p>
+    <div class="mline">
+      <span class="m">|B| =</span>
+      <span class="m">x·(−1)²</span>
+      <span class="matrix det c2"><span>3</span><span>x</span><span>15</span><span>−1</span></span>
+      <span class="m">+ 9·(−1)⁴</span>
+      <span class="matrix det c2"><span>0</span><span>3</span><span>x</span><span>15</span></span>
+    </div>
+    <div class="deriv">
+      <div class="row"><span class="expr">|B| = x(−3 − 15x) + 9(0 − 3x)</span><span class="rule">menores 2×2: 3(−1)−15x ; 0−3x</span></div>
+      <div class="row"><span class="expr">|B| = −3x − 15x² − 27x = −15x² − 30x</span><span class="rule">distribuimos y agrupamos</span></div>
+    </div>
+    <div class="deriv">
+      <div class="row"><span class="expr">−15x² − 30x = −45</span><span class="rule">igualamos a |B| = −45</span></div>
+      <div class="row"><span class="eq">⟹</span><span class="expr">x² + 2x − 3 = 0</span><span class="rule">÷ (−15) y ordenamos</span></div>
+      <div class="row final"><span class="eq">⟹</span><span class="expr">x = (−2 ± √16)/2 = (−2 ± 4)/2 → x = 1  ó  x = −3</span><span class="rule">fórmula resolvente</span></div>
+    </div>
+    <div class="box resp">
+      <span class="label">Respuesta · a)</span>
+      <p><strong>x = 1</strong> ó <strong>x = −3</strong>. (Ambos valores dan <span class="m">|B| = −45</span>, por eso "cualquier x".)</p>
+    </div>
+
+    <div class="sub">b) Construir C con |C| = −|B|</div>
+    <div class="box concepto">
+      <span class="label">La idea</span>
+      <p><span class="m">|B| = −45</span>, así que buscamos <span class="m">|C| = −|B| = −(−45) = 45</span>. Como <strong>permutar dos filas (o columnas) cambia el signo del determinante</strong>, tomamos <span class="m">B</span> (con <span class="m">x = 1</span>) y permutamos una vez → su determinante pasa de <span class="m">−45</span> a <span class="m">+45</span>.</p>
+    </div>
+    <div class="mline">
+      <span class="m">B =</span>
+      <span class="matrix c3"><span>1</span><span>0</span><span>9</span><span>0</span><span>3</span><span>1</span><span>1</span><span>15</span><span>−1</span></span>
+      <span class="m" style="color:var(--muted)">— permutamos columna 1 ↔ columna 2 →</span>
+      <span class="m">C =</span>
+      <span class="matrix c3"><span>0</span><span>1</span><span>9</span><span>3</span><span>0</span><span>1</span><span>15</span><span>1</span><span>−1</span></span>
+    </div>
+    <p style="font-size:.84rem;color:#94a3b8;margin:.3rem 0">Verificación: <span class="m">|C| = 0·(0·(−1)−1·1) − 1·(3·(−1)−1·15) + 9·(3·1−0·15) = 0 + 18 + 27 = 45</span> ✓</p>
+    <div class="box resp">
+      <span class="label">Respuesta · b)</span>
+      <p>Por ejemplo <span class="m">C = </span><span class="matrix c3" style="font-size:.78rem"><span>0</span><span>1</span><span>9</span><span>3</span><span>0</span><span>1</span><span>15</span><span>1</span><span>−1</span></span> &nbsp;cumple <strong>|C| = 45 = −|B|</strong>. (Cualquier permutación simple de filas/columnas de B vale.)</p>
+    </div>
+  </section>
+
+  <!-- ══════════════ EJERCICIO 3 ══════════════ -->
+  <section class="ex">
+    <div class="ex-head">
+      <div class="ex-num">3</div>
+      <div>
+        <div class="topic">Matrices · inversibilidad</div>
+        <h2>¿Es inversible C = A² − 3Bᵗ?</h2>
+      </div>
+    </div>
+
+    <div class="box enun">
+      <span class="label">Enunciado</span>
+      <p>Sean <span class="m">A = </span><span class="matrix c2"><span>1</span><span>−1</span><span>0</span><span>3</span></span> y
+        <span class="m">B = </span><span class="matrix c2"><span>0</span><span>3</span><span>−2</span><span>1</span></span>.
+        Decidir si <span class="m">C = A² − 3Bᵗ</span> es inversible.</p>
+    </div>
+
+    <div class="box concepto">
+      <span class="label">Conceptos clave</span>
+      <ul>
+        <li><strong>Criterio de inversibilidad:</strong> una matriz cuadrada es inversible <em>si y solo si</em> <span class="m">|C| ≠ 0</span>.</li>
+        <li><strong>Producto de matrices:</strong> elemento <span class="m">(i,j)</span> = fila <span class="m">i</span> · columna <span class="m">j</span> (suma de productos).</li>
+        <li><strong>Transpuesta <span class="m">Bᵗ</span>:</strong> las filas pasan a columnas.</li>
+        <li><strong>Determinante 2×2:</strong> <span class="m">|[a,b],[c,d]| = a·d − b·c</span>.</li>
+      </ul>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <strong>Calculamos <span class="m">A²</span></strong> (= A·A):
+        <div class="mline" style="margin:.4rem 0 0">
+          <span class="m">A² =</span>
+          <span class="matrix c2"><span>1</span><span>−1</span><span>0</span><span>3</span></span>
+          <span class="matrix c2"><span>1</span><span>−1</span><span>0</span><span>3</span></span>
+          <span class="m">=</span>
+          <span class="matrix c2"><span>1</span><span>−4</span><span>0</span><span>9</span></span>
+        </div>
+      </li>
+      <li>
+        <strong>Transponemos B y multiplicamos por 3:</strong>
+        <div class="mline" style="margin:.4rem 0 0">
+          <span class="m">Bᵗ =</span>
+          <span class="matrix c2"><span>0</span><span>−2</span><span>3</span><span>1</span></span>
+          <span class="m" style="color:var(--muted)">⟹</span>
+          <span class="m">3Bᵗ =</span>
+          <span class="matrix c2"><span>0</span><span>−6</span><span>9</span><span>3</span></span>
+        </div>
+      </li>
+      <li>
+        <strong>Restamos:</strong> <span class="m">C = A² − 3Bᵗ</span>:
+        <div class="mline" style="margin:.4rem 0 0">
+          <span class="m">C =</span>
+          <span class="matrix c2"><span>1</span><span>−4</span><span>0</span><span>9</span></span>
+          <span class="m">−</span>
+          <span class="matrix c2"><span>0</span><span>−6</span><span>9</span><span>3</span></span>
+          <span class="m">=</span>
+          <span class="matrix c2"><span>1</span><span>2</span><span>−9</span><span>6</span></span>
+        </div>
+      </li>
+      <li>
+        <strong>Determinante de C:</strong>
+        <span class="why"><span class="m">|C| = 1·6 − 2·(−9) = 6 + 18 = 24</span>.</span>
+      </li>
+      <li>
+        <strong>Conclusión:</strong> como <span class="m">|C| = 24 ≠ 0</span>, <span class="m">C</span> <strong>es inversible</strong>.
+      </li>
+    </ol>
+
+    <div class="box resp">
+      <span class="label">Respuesta modelo</span>
+      <p><span class="m">C = </span><span class="matrix c2" style="font-size:.78rem"><span>1</span><span>2</span><span>−9</span><span>6</span></span> &nbsp;con <span class="m">|C| = 24 ≠ 0</span> &nbsp;⟹&nbsp; <strong>C es inversible</strong>.</p>
+    </div>
+    <div class="box ojo">
+      <span class="label">⚠ Ojo con la solución oficial</span>
+      <p>El slide oficial escribe <span class="m">"|A| = 6 − (−18) = 24"</span>, pero es una errata: el determinante que importa es <strong>|C|</strong> (la matriz que se evalúa), no |A|. El número (24) y la conclusión son correctos.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════ EJERCICIO 4 ══════════════ -->
+  <section class="ex">
+    <div class="ex-head">
+      <div class="ex-num">4</div>
+      <div>
+        <div class="topic">Sistemas de ecuaciones</div>
+        <h2>Clasificar según el parámetro k</h2>
+      </div>
+    </div>
+
+    <div class="box enun">
+      <span class="label">Enunciado</span>
+      <p>Determinar <span class="m">k ∈ ℝ</span> para que el sistema tenga: a) infinitas soluciones, b) ninguna, c) una sola. Clasificar los tres casos.</p>
+      <div class="deriv" style="margin-top:.5rem">
+        <div class="row"><span class="expr">− x₁ + 3x₂ + x₃ = 2</span></div>
+        <div class="row"><span class="expr">4x₁ − x₂ + 2x₃ = −1</span></div>
+        <div class="row"><span class="expr">5x₁ + 7x₂ + k·x₃ = 4</span></div>
+      </div>
+    </div>
+
+    <div class="box concepto">
+      <span class="label">Conceptos clave · Rouché-Frobenius</span>
+      <ul>
+        <li>Se compara el <strong>rango</strong> de la matriz de coeficientes con el de la <strong>ampliada</strong> (con la columna de términos independientes):</li>
+        <li><span class="m">rg(coef) = rg(ampl) = nº incógnitas</span> → <strong class="hlg">SCD</strong> (solución única).</li>
+        <li><span class="m">rg(coef) = rg(ampl) &lt; nº incógnitas</span> → <strong class="hl">SCI</strong> (infinitas).</li>
+        <li><span class="m">rg(coef) ≠ rg(ampl)</span> → <strong style="color:#f87171">SI</strong> (sin solución).</li>
+        <li><strong>Truco rápido:</strong> el caso crítico ocurre donde <span class="m">det(coef) = 0</span>. Acá <span class="m">det = −11(k − 7)</span>, que se anula solo en <span class="m">k = 7</span>.</li>
+      </ul>
+    </div>
+
+    <div class="sub">Eliminación de Gauss sobre la matriz ampliada</div>
+    <div class="elim">
+      <span class="matrix c2" style="grid-template-columns:repeat(4,auto)">
+        <span>−1</span><span>3</span><span>1</span><span style="color:var(--accent3)">2</span>
+        <span>4</span><span>−1</span><span>2</span><span style="color:var(--accent3)">−1</span>
+        <span>5</span><span>7</span><span>k</span><span style="color:var(--accent3)">4</span>
+      </span>
+    </div>
+    <div class="elim">
+      <span class="op">F2 + 4·F1</span><span class="op">F3 + 5·F1</span>
+      <span class="arrow">→</span>
+      <span class="matrix c2" style="grid-template-columns:repeat(4,auto)">
+        <span>−1</span><span>3</span><span>1</span><span style="color:var(--accent3)">2</span>
+        <span>0</span><span>11</span><span>6</span><span style="color:var(--accent3)">7</span>
+        <span>0</span><span>22</span><span>k+5</span><span style="color:var(--accent3)">14</span>
+      </span>
+    </div>
+    <div class="elim">
+      <span class="op">F3 − 2·F2</span>
+      <span class="arrow">→</span>
+      <span class="matrix c2" style="grid-template-columns:repeat(4,auto)">
+        <span>−1</span><span>3</span><span>1</span><span style="color:var(--accent3)">2</span>
+        <span>0</span><span>11</span><span>6</span><span style="color:var(--accent3)">7</span>
+        <span>0</span><span>0</span><span>k−7</span><span style="color:var(--accent3)">0</span>
+      </span>
+    </div>
+
+    <ol class="steps">
+      <li>
+        La última fila dice <span class="m">(k − 7)·x₃ = 0</span>. Todo depende de si <span class="m">k − 7</span> es cero o no.
+      </li>
+      <li>
+        <strong>Clave:</strong> el término independiente de esa fila es <span class="m">0</span>. Por eso <em>nunca</em> aparece una contradicción tipo <span class="m">0 = (nº ≠ 0)</span> → el sistema jamás es incompatible.
+      </li>
+    </ol>
+
+    <table class="cases">
+      <thead><tr><th>Condición</th><th>Qué pasa</th><th>Clasificación</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="cond">k = 7</td>
+          <td>La fila 3 queda <span class="m">0 = 0</span>: sobra una ecuación, <span class="m">x₃</span> es libre → infinitas soluciones.</td>
+          <td class="tag sci">SCI — infinitas</td>
+        </tr>
+        <tr>
+          <td class="cond">ningún k</td>
+          <td>El independiente de la fila 3 es 0; no hay forma de obtener <span class="m">0 = c≠0</span>.</td>
+          <td class="tag si">SI — imposible</td>
+        </tr>
+        <tr>
+          <td class="cond">k ≠ 7</td>
+          <td><span class="m">x₃ = 0</span> y se despejan <span class="m">x₂, x₁</span> hacia atrás → una única solución.</td>
+          <td class="tag scd">SCD — única</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="box resp">
+      <span class="label">Respuesta modelo</span>
+      <p><strong>a)</strong> Infinitas soluciones ⟹ <strong>k = 7</strong> (SCI).</p>
+      <p><strong>b)</strong> Sin solución ⟹ <strong>no existe</strong> tal k: el sistema es compatible para todo k (la fila crítica tiene independiente 0).</p>
+      <p><strong>c)</strong> Solución única ⟹ <strong>k ≠ 7</strong> (SCD).</p>
+    </div>
+  </section>
+
+  <footer>
+    Parcial 2 Modelo · Álgebra y Pensamiento Lógico · Licenciatura en IA — Universidad de Palermo<br>
+    Material de estudio generado a partir de <span class="mono">examenes/parcial-2-modelo.pdf</span> y su solución oficial.
+  </footer>
+
+</div>
+<a href="../../../../index.html#algebra" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

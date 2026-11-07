@@ -1,0 +1,2000 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrada / Salida — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--display);
+    min-height: 100vh; padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+  header { text-align: center; margin-bottom: 2rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem; margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider { width: 60px; height: 3px; margin: 1.2rem auto 0; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+  .section-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--accent); margin: 2.5rem auto 1rem; max-width: 1400px;
+    display: flex; align-items: center; gap: 0.8rem; scroll-margin-top: 1rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-label.is-ctx { color: var(--muted); }
+
+  /* dek — línea conectiva bajo cada section-label (qué es esto + de dónde viene) */
+  .dek { max-width: 1400px; margin: -0.5rem auto 1.1rem; font-family: var(--display); font-size: 0.85rem; line-height: 1.55; color: var(--muted); }
+  .dek b { color: var(--text); font-weight: 700; }
+  .dek .q { color: #fbbf24; font-style: italic; }
+  .dek a { color: var(--accent2); text-decoration: none; border-bottom: 1px dotted rgba(6,182,212,0.5); }
+
+  /* roadmap — mapa narrativo de la unidad (3 tramos) */
+  .roadmap { display: grid; gap: 0.7rem; }
+  .rm-lane { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; padding: 0.75rem 0.85rem; border-radius: 7px; border: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+  .rm-q { font-family: var(--display); font-weight: 800; font-size: 0.84rem; color: #fff; flex-basis: 100%; margin-bottom: 0.1rem; }
+  .rm-q span { font-family: var(--mono); font-weight: 400; font-size: 0.62rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-left: 0.4rem; }
+  .rm-step { font-family: var(--mono); font-size: 0.66rem; color: var(--text); padding: 0.32rem 0.55rem; border-radius: 4px; background: rgba(124,58,237,0.12); border: 1px solid rgba(124,58,237,0.32); text-decoration: none; white-space: nowrap; }
+  .rm-lane.b .rm-step { background: rgba(6,182,212,0.12); border-color: rgba(6,182,212,0.32); }
+  .rm-lane.c .rm-step { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.32); }
+  .rm-step:hover { border-color: var(--accent2); color: #fff; }
+  .rm-arrow { color: var(--muted); font-size: 0.7rem; }
+  @media (max-width: 700px) { .rm-step { white-space: normal; } .rm-arrow { display: none; } }
+
+  .grid   { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid.is-ctx { opacity: 0.82; }
+  @media (max-width: 900px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+  @media (min-width: 901px) and (max-width: 1100px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } .grid-4 { grid-template-columns: repeat(2, 1fr); } }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden; }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+  .card-title { font-size: 0.7rem; font-family: var(--mono); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule { font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem; padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border-left: 2px solid var(--border); border-radius: 0 4px 4px 0; }
+  .op-rule:last-child { margin-bottom: 0; }
+  .op-rule strong { color: #fff; }
+
+  .formula { font-family: var(--mono); font-size: 0.82rem; color: #fff; background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.25); border-radius: 5px; padding: 0.5rem 0.7rem; text-align: center; margin: 0.5rem 0; }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+
+  .proplist { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.35rem; }
+  .proplist div { padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div { background: rgba(16,185,129,0.06); }
+
+  .step { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.4rem; }
+  .step .s { padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.03); border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0; }
+  .step .s b { color: #fff; }
+
+  .note { font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem; padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.06); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  .flag      { color: #f87171;        font-size: 0.55rem; margin-left: 0.5rem; }
+  .flag.info { color: var(--accent3); font-size: 0.55rem; margin-left: 0.5rem; }
+
+  .insight { font-family: var(--mono); font-size: 0.65rem; color: var(--accent3); background: rgba(245,158,11,0.06); border-left: 2px solid var(--accent3); border-radius: 0 4px 4px 0; padding: 0.4rem 0.6rem; margin-top: 0.5rem; }
+
+  .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+  .vs-side { padding: 0.8rem; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.35rem; }
+  .vs-side h4 { font-family: var(--display); font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+  .vs-mid { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.75rem; font-weight: 700; color: var(--accent3); padding: 0 0.7rem; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .vs-row { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .vs-row:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .versus { grid-template-columns: 1fr; }
+    .vs-mid { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0.4rem; text-align: center; }
+  }
+
+  .stat { text-align: center; padding: 0.8rem 0.4rem; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+  .stat-num { font-family: var(--display); font-size: 1.7rem; font-weight: 800; line-height: 1; background: linear-gradient(135deg, #fff 30%, var(--accent2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .stat-unit { font-family: var(--mono); font-size: 0.7rem; color: var(--accent2); letter-spacing: 0.08em; }
+  .stat-cap { font-family: var(--mono); font-size: 0.56rem; color: var(--muted); margin-top: 0.1rem; }
+
+  .recall { font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0; border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden; }
+  .recall summary { cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2); background: rgba(124,58,237,0.06); list-style: none; display: flex; align-items: center; gap: 0.5rem; user-select: none; }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before { content: '▸'; font-size: 0.7rem; color: var(--accent); transition: transform 0.15s; flex-shrink: 0; }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a { padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5; border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04); }
+  .recall-a strong { color: #fff; }
+
+  .tier { display: inline-flex; align-items: center; gap: 0.3rem; font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 3px; vertical-align: middle; line-height: 1; }
+  .tier::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .tier.core { color: var(--accent4); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.35); }
+  .tier.core::before { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .tier.key  { color: var(--accent3); background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.4); }
+  .tier.key::before  { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .tier.ctx  { color: var(--muted); background: rgba(148,163,184,0.06); border: 1px solid var(--border); }
+  .tier.ctx::before  { background: var(--muted); }
+
+  .scope { max-width: 1400px; margin: 0 auto 1rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent3); border-radius: 6px; padding: 0.8rem 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; align-items: center; }
+  .scope-label { font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent3); font-weight: 700; writing-mode: vertical-rl; transform: rotate(180deg); border-right: 1px solid var(--border); padding-right: 0.7rem; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+  .scope-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spill { font-family: var(--mono); font-size: 0.6rem; padding: 0.22rem 0.55rem; border-radius: 3px; border: 1px solid var(--border); color: var(--muted); }
+  .spill.in  { color: var(--accent4); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
+  .spill.key { color: var(--accent3); border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+  .spill.cut { color: var(--muted); border-style: dashed; text-decoration: line-through; opacity: 0.75; }
+  @media (max-width: 600px) {
+    .scope { grid-template-columns: 1fr; }
+    .scope-label { writing-mode: horizontal-tb; transform: none; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.4rem; }
+  }
+
+  .cmatrix-wrap { overflow-x: auto; max-width: 1400px; margin: 0.5rem auto; }
+  .cmatrix { display: grid; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-family: var(--mono); font-size: 0.66rem; min-width: 640px; }
+  .cmatrix > div { padding: 0.5rem 0.6rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .cmatrix .cm-corner, .cmatrix .cm-rl { background: rgba(255,255,255,0.03); color: var(--muted); font-size: 0.58rem; letter-spacing: 0.04em; display: flex; align-items: center; }
+  .cmatrix .cm-rl { color: #fff; font-weight: 700; }
+  .cmatrix .cm-head { font-family: var(--display); font-weight: 700; color: #fff; font-size: 0.78rem; text-align: center; display: block; }
+  .cmatrix .cm-head .sub { display: block; font-family: var(--mono); font-size: 0.5rem; color: var(--muted); margin-top: 0.2rem; letter-spacing: 0.04em; }
+  .cmatrix .cm-head.is-key { color: var(--accent3); }
+  .cmatrix .cm-head.is-key::after { content: '★'; margin-left: 0.3rem; color: var(--accent3); font-size: 0.6rem; }
+  .cmatrix .cm-key { background: rgba(245,158,11,0.05); }
+  .cmatrix .ok { color: var(--accent4); font-weight: 700; }
+  .cmatrix .no { color: #f87171; font-weight: 700; }
+
+  .timeline { display: flex; align-items: flex-start; gap: 0; overflow-x: auto; padding: 1.2rem 0.5rem 0.5rem; position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 0.5rem; right: 0.5rem; top: 1.95rem; height: 2px; background: var(--border); }
+  .tl-item { display: flex; flex-direction: column; align-items: center; min-width: 150px; flex: 1; position: relative; }
+  .tl-year { font-family: var(--mono); font-size: 0.6rem; color: var(--accent2); margin-bottom: 0.4rem; font-weight: 700; letter-spacing: 0.1em; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--accent2); position: relative; z-index: 1; flex-shrink: 0; }
+  .tl-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text); text-align: center; margin-top: 0.5rem; line-height: 1.3; padding: 0 0.3rem; }
+  .tl-sub { font-family: var(--mono); font-size: 0.55rem; color: var(--muted); text-align: center; margin-top: 0.2rem; line-height: 1.3; padding: 0 0.3rem; }
+  .tl-item.gen0 .tl-dot { background: #a78bfa; border-color: #a78bfa; }
+  .tl-item.gen1 .tl-dot { background: var(--accent2); border-color: var(--accent2); }
+  .tl-item.gen2 .tl-dot { background: var(--accent3); border-color: var(--accent3); }
+  .tl-item.gen3 .tl-dot { background: var(--accent4); border-color: var(--accent4); }
+
+  .exam-q { position: relative; margin: 0.6rem 0; padding: 0.7rem 0.9rem 0.7rem 2.7rem; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.3); border-left: 2px solid var(--red); border-radius: 0 6px 6px 0; font-family: var(--mono); font-size: 0.7rem; }
+  .exam-q::before { content: 'Q'; position: absolute; left: 0.65rem; top: 0.7rem; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--red); color: #fff; font-family: var(--display); font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+  .exam-q .q { color: #fff; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.4; }
+  .exam-q .a { color: var(--muted); line-height: 1.55; }
+  .exam-q .a strong { color: var(--text); }
+
+  /* mapa de direcciones / pila de capas — segmentos con tokens de paleta */
+  .addrmap { display: flex; font-family: var(--mono); font-size: 0.6rem; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; margin: 0.7rem 0 0.3rem; }
+  .addrmap > div { padding: 0.55rem 0.4rem; text-align: center; line-height: 1.4; border-right: 1px solid var(--border); }
+  .addrmap > div:last-child { border-right: none; }
+  .addrmap .seg-mp { background: rgba(16,185,129,0.10); color: var(--accent4); }
+  .addrmap .seg-io { background: rgba(245,158,11,0.16); color: var(--accent3); }
+  .addrmap small { display: block; color: var(--muted); font-size: 0.5rem; margin-top: 0.2rem; }
+  .lstack { display: flex; flex-direction: column; gap: 4px; margin: 0.7rem 0 0.3rem; font-family: var(--mono); }
+  .lstack > div { padding: 0.55rem 0.7rem; border-radius: 5px; font-size: 0.68rem; }
+  .lstack .ly-t { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: var(--accent3); }
+  .lstack .ly-d { background: rgba(6,182,212,0.10);  border: 1px solid rgba(6,182,212,0.3);  color: var(--accent2); }
+  .lstack .ly-f { background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.3); color: #a78bfa; }
+  .lstack b { color: #fff; }
+
+  .diagram .node, .diagram .link { transition: opacity 0.2s ease; }
+  .diagram .dim { opacity: 0.35; }
+  .diagram .node.active { filter: drop-shadow(0 0 10px currentColor); }
+
+  .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .toc-rail { position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem; }
+  .toc-rail a { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; font-family: var(--mono); font-size: 0.55rem; color: var(--muted); padding: 0.12rem 0.25rem; border-radius: 3px; }
+  .toc-rail a .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; transition: all 0.2s; }
+  .toc-rail a .lbl { opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap; }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  footer { text-align: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+  footer .out { color: var(--muted); margin-top: 0.5rem; opacity: 0.85; }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1, .stat-num { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .scope, .cmatrix, .exam-q, .recall, .stat, .timeline, .addrmap, .lstack { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="toc-rail">
+  <a href="#s01"><span class="dot"></span><span class="lbl">01 · Concepto E/S</span></a>
+  <a href="#s02"><span class="dot"></span><span class="lbl">02 · Estructura módulo</span></a>
+  <a href="#s03"><span class="dot"></span><span class="lbl">03 · 3 puertos</span></a>
+  <a href="#s04"><span class="dot"></span><span class="lbl">04 · 4 modalidades ★</span></a>
+  <a href="#s05"><span class="dot"></span><span class="lbl">05 · Polling vs Interrup</span></a>
+  <a href="#s06"><span class="dot"></span><span class="lbl">06 · DMA</span></a>
+  <a href="#s07"><span class="dot"></span><span class="lbl">07 · Canales (trampa)</span></a>
+  <a href="#s08"><span class="dot"></span><span class="lbl">08 · Direccionamiento</span></a>
+  <a href="#s09"><span class="dot"></span><span class="lbl">09 · Ancho de banda ★</span></a>
+  <a href="#s10"><span class="dot"></span><span class="lbl">10 · Chipset</span></a>
+  <a href="#s11"><span class="dot"></span><span class="lbl">11 · Bus Mastering</span></a>
+  <a href="#s12"><span class="dot"></span><span class="lbl">12 · Almacenamiento</span></a>
+  <a href="#s13"><span class="dot"></span><span class="lbl">13 · PCIe + arbitraje</span></a>
+  <a href="#s14"><span class="dot"></span><span class="lbl">14 · Claves</span></a>
+</nav>
+
+<header>
+  <div class="badge">Arquitectura de Computadores · Unidad 11 — Entrada/Salida</div>
+  <h1>Entrada / Salida</h1>
+  <p class="subtitle">módulo · 4 modalidades · DMA · canales · direccionamiento · ancho de banda · PCIe · arbitraje · repaso final</p>
+  <div class="divider"></div>
+</header>
+
+<div class="scope">
+  <div class="scope-label">Scope · final</div>
+  <div class="scope-pills">
+    <span class="spill key">★ las 4 modalidades — Canales es la trampa</span>
+    <span class="spill key">★ ancho de banda POR UNIDAD DE TIEMPO</span>
+    <span class="spill in">concepto + 5 funciones del módulo/interfaz</span>
+    <span class="spill in">estructura interna + 3 puertos (control·estado·datos)</span>
+    <span class="spill in">direccionamiento mapeado vs aislado</span>
+    <span class="spill in">DMA (origen·destino·longitud·modo) · robo de ciclo</span>
+    <span class="spill in">chipset NB/SB → PCH/IOD</span>
+    <span class="spill in">almacenamiento HDD/SSD-SATA/NVMe</span>
+    <span class="spill in">PCIe: 3 capas · Root Complex · TLP · endpoint</span>
+    <span class="spill in">DMA sobre PCIe (empaqueta en TLP)</span>
+    <span class="spill in">arbitraje distribuido REQ#/GNT#</span>
+    <span class="spill in">bus mastering (First-Party DMA)</span>
+    <span class="spill in">4 espacios de direcciones PCIe</span>
+    <span class="spill in">apunte de Buses completo → entra al final · ver U10</span>
+    <span class="spill in">interrupciones vector/ISR/pila/MSI → final · ver U12</span>
+    <span class="spill in">nuevas tecnologías SoC / Cloud → final · ver U13</span>
+    <span class="spill">transacción dividida + direcc. capa de transacción · "no se suele tomar"</span>
+    <span class="spill cut">detalle del IBM Z13 (el concepto de canales sí entra)</span>
+    <span class="spill cut">formato de video 4:2:2</span>
+  </div>
+</div>
+
+<!-- ============ MAPA ============ -->
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto 0.4rem">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🗺️ Mapa de la unidad — el hilo que conecta todo</div>
+    <div class="op-rule">Toda la unidad responde <strong>una sola pregunta</strong>: ¿cómo se comunica el CPU con el <strong>mundo exterior</strong> (teclado, disco, placa de video)? Se recorre en <strong>3 tramos</strong> — qué es el módulo de E/S, cómo mueve los datos, y cómo se ve en una PC real. Seguí las flechas.</div>
+    <div class="roadmap">
+      <div class="rm-lane">
+        <div class="rm-q">① El módulo de E/S en el medio <span>qué es y cómo es por dentro</span></div>
+        <a class="rm-step" href="#s01">concepto · módulo/interfaz</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s02">estructura interna</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s03">3 puertos</a>
+      </div>
+      <div class="rm-lane b">
+        <div class="rm-q">② Cómo mueve los datos <span>★ el corazón de la unidad</span></div>
+        <a class="rm-step" href="#s04">4 modalidades</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s05">polling vs interrup.</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s06">DMA</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s07">canales (trampa)</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s08">direccionamiento</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s09">ancho de banda</a>
+      </div>
+      <div class="rm-lane c">
+        <div class="rm-q">③ La E/S en la PC real <span>cómo se implementa hoy</span></div>
+        <a class="rm-step" href="#s10">chipset</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s11">bus mastering · DMA actual</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s12">almacenamiento</a><span class="rm-arrow">→</span>
+        <a class="rm-step" href="#s13">PCIe</a>
+      </div>
+    </div>
+    <div class="insight">💡 El hilo de las <strong>4 modalidades</strong> (tramo ②) es una <strong>escalera de eficiencia</strong>: cada una libera más al CPU que la anterior — de "el CPU hace todo" (Polling) a "un módulo autónomo hace todo solo" (Canales).</div>
+  </div>
+</div>
+
+<!-- ============ 01 ============ -->
+<div class="section-label" id="s01">01 — Concepto de E/S · el módulo / interfaz <span class="tier key">★ definición base</span></div>
+<div class="dek">El mundo exterior —teclado, disco, placa de video— no habla el idioma del bus del CPU. La <b>E/S</b> es ese intercambio, y el <b>módulo / interfaz</b> es el componente que traduce: está <em>en el medio</em>, entre los buses del CPU y el periférico.</div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🔌 Definición</div>
+    <div class="op-name">Módulo de E/S <span style="color:var(--accent3);font-size:0.75rem">· "interfaz"</span></div>
+    <div class="op-notation">la interfaz entre el bus del sistema y el periférico</div>
+    <div class="op-rule">
+      La <strong>E/S</strong> es el intercambio de información entre el CPU y los <strong>dispositivos externos</strong> (teclado, mouse, placa de video/red, impresora, monitor, discos). El <strong>módulo de E/S</strong> es la interfaz que conecta los buses del CPU/memoria con esos periféricos.
+    </div>
+    <div class="insight">💡 de la clase · El profe prefiere decir <strong>"interfaz"</strong>: <em>"está en la mitad de 2 cosas"</em>. También dice <strong>"unidades / dispositivos", no "periféricos"</strong> al nombrar la estructura del computador. Una <strong>placa de video</strong> es un módulo de E/S: bus PCIe de un lado, cable HDMI del otro.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧩 Las 5 funciones del módulo</div>
+    <div class="proplist pl-cyan">
+      <div><b style="color:#fff">1. Control y temporización</b> — coordina el tráfico CPU+memoria ↔ periféricos</div>
+      <div><b style="color:#fff">2. Comunicación con la CPU</b> — reconoce direcciones, decodifica órdenes, intercambia datos y estados</div>
+      <div><b style="color:#fff">3. Comunicación con el dispositivo</b> — ídem… <span style="color:#f87171">excepto reconocer direcciones</span></div>
+      <div><b style="color:#fff">4. Almacenamiento temporal</b> — buffers que adaptan velocidades (origen veloz → dispositivo lento)</div>
+      <div><b style="color:#fff">5. Detección de errores</b> — paridad, Hamming; informa al procesador</div>
+    </div>
+    <div class="note danger">🚨 Pregunta capciosa (05-18): ¿qué función NO cumple el módulo del lado del periférico? → <strong>reconocer direcciones</strong>, "porque las direcciones las envía el CPU" (tiene el bus de direcciones).</div>
+  </div>
+
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1rem auto 0">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">🗺️ Dónde vive el módulo — topología</div>
+    <svg viewBox="0 0 460 250" width="100%" style="max-width:560px;display:block;margin:0.4rem auto" font-family="JetBrains Mono,monospace">
+      <!-- lado interno -->
+      <rect x="60" y="12" width="100" height="34" rx="4" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="110" y="34" font-size="12" fill="#a78bfa" text-anchor="middle">CPU</text>
+      <rect x="300" y="12" width="100" height="34" rx="4" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="350" y="34" font-size="12" fill="#06b6d4" text-anchor="middle">Memoria</text>
+      <!-- bus del sistema -->
+      <line x1="40" y1="74" x2="420" y2="74" stroke="#2a2a3e" stroke-width="8" stroke-linecap="round"/>
+      <line x1="110" y1="46" x2="110" y2="70" stroke="#7c3aed" stroke-width="1.5"/>
+      <line x1="350" y1="46" x2="350" y2="70" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="230" y="66" font-size="8.5" fill="#94a3b8" text-anchor="middle">bus del sistema · datos · direcciones · control</text>
+      <!-- módulos / interfaces -->
+      <rect x="55" y="120" width="120" height="40" rx="4" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="115" y="138" font-size="10" fill="#f59e0b" text-anchor="middle">Módulo / Interfaz</text>
+      <text x="115" y="151" font-size="8" fill="#94a3b8" text-anchor="middle">de E/S</text>
+      <rect x="285" y="120" width="120" height="40" rx="4" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="345" y="138" font-size="10" fill="#f59e0b" text-anchor="middle">Módulo / Interfaz</text>
+      <text x="345" y="151" font-size="8" fill="#94a3b8" text-anchor="middle">de E/S</text>
+      <line x1="115" y1="120" x2="115" y2="78" stroke="#f59e0b" stroke-width="1.5"/>
+      <line x1="345" y1="120" x2="345" y2="78" stroke="#f59e0b" stroke-width="1.5"/>
+      <!-- periféricos -->
+      <rect x="65" y="205" width="100" height="32" rx="4" fill="rgba(148,163,184,0.08)" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="115" y="225" font-size="10" fill="#94a3b8" text-anchor="middle">Teclado</text>
+      <rect x="295" y="205" width="100" height="32" rx="4" fill="rgba(148,163,184,0.08)" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="345" y="225" font-size="10" fill="#94a3b8" text-anchor="middle">Impresora</text>
+      <line x1="115" y1="205" x2="115" y2="160" stroke="#94a3b8" stroke-width="1.2"/>
+      <line x1="345" y1="205" x2="345" y2="160" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="230" y="190" font-size="8.5" fill="#94a3b8" text-anchor="middle">lado dispositivo · datos · estado · control (sin direcciones)</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ============ 02 ============ -->
+<div class="section-label" id="s02">02 — Estructura interna del módulo <span class="tier core">registros · lógica · buffers</span></div>
+<div class="dek">Si el módulo es el componente del medio, <span class="q">¿qué tiene adentro?</span> <b>Registros</b> (datos · estado · control), lógica de E/S y <b>buffers</b> para adaptar velocidades. Cada registro tiene una dirección única → eso son los <b>puertos</b> (siguiente).</div>
+<div class="grid grid-2">
+
+  <div class="card amber">
+    <div class="card-title">🔧 Bloques internos</div>
+    <svg viewBox="0 0 460 250" width="100%" style="max-width:520px;display:block;margin:0.3rem auto" font-family="JetBrains Mono,monospace">
+      <defs>
+        <marker id="ioArrowP" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/></marker>
+        <marker id="ioArrowG" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/></marker>
+      </defs>
+      <!-- contenedor módulo -->
+      <rect x="120" y="14" width="220" height="222" rx="6" fill="rgba(245,158,11,0.04)" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="230" y="30" font-size="9" fill="#f59e0b" text-anchor="middle">MÓDULO DE E/S</text>
+      <!-- bloques internos -->
+      <rect x="140" y="44" width="180" height="36" rx="4" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.2"/>
+      <text x="230" y="66" font-size="9.5" fill="#06b6d4" text-anchor="middle">Registros de datos</text>
+      <rect x="140" y="90" width="180" height="36" rx="4" fill="rgba(124,58,237,0.10)" stroke="#7c3aed" stroke-width="1.2"/>
+      <text x="230" y="112" font-size="9.5" fill="#a78bfa" text-anchor="middle">Registros de estado / control</text>
+      <rect x="140" y="136" width="180" height="36" rx="4" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.2"/>
+      <text x="230" y="158" font-size="9.5" fill="#10b981" text-anchor="middle">Lógica de E/S</text>
+      <rect x="140" y="182" width="180" height="36" rx="4" fill="rgba(245,158,11,0.10)" stroke="#f59e0b" stroke-width="1.2"/>
+      <text x="230" y="204" font-size="9.5" fill="#f59e0b" text-anchor="middle">Buffers</text>
+      <!-- lado bus -->
+      <text x="58" y="115" font-size="9" fill="#94a3b8" text-anchor="middle">Bus del</text>
+      <text x="58" y="127" font-size="9" fill="#94a3b8" text-anchor="middle">sistema</text>
+      <line x1="92" y1="62" x2="120" y2="62" stroke="#7c3aed" stroke-width="1.4" marker-start="url(#ioArrowP)" marker-end="url(#ioArrowP)"/>
+      <text x="60" y="58" font-size="6.5" fill="#a78bfa">datos</text>
+      <line x1="92" y1="155" x2="120" y2="155" stroke="#7c3aed" stroke-width="1.4" marker-end="url(#ioArrowP)"/>
+      <text x="44" y="151" font-size="6.5" fill="#a78bfa">direcciones</text>
+      <line x1="92" y1="200" x2="120" y2="200" stroke="#7c3aed" stroke-width="1.4" marker-end="url(#ioArrowP)"/>
+      <text x="58" y="196" font-size="6.5" fill="#a78bfa">control</text>
+      <!-- lado dispositivo -->
+      <text x="402" y="121" font-size="9" fill="#94a3b8" text-anchor="middle">Dispositivo</text>
+      <line x1="340" y1="62" x2="368" y2="62" stroke="#94a3b8" stroke-width="1.4" marker-start="url(#ioArrowG)" marker-end="url(#ioArrowG)"/>
+      <text x="372" y="58" font-size="6.5" fill="#94a3b8">datos</text>
+      <line x1="340" y1="155" x2="368" y2="155" stroke="#94a3b8" stroke-width="1.4" marker-start="url(#ioArrowG)"/>
+      <text x="372" y="151" font-size="6.5" fill="#94a3b8">estado</text>
+      <line x1="340" y1="200" x2="368" y2="200" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#ioArrowG)"/>
+      <text x="372" y="196" font-size="6.5" fill="#94a3b8">control</text>
+      <text x="402" y="236" font-size="6.5" fill="#f87171" text-anchor="middle">✗ sin direcciones</text>
+    </svg>
+    <div style="font-size:0.6rem;color:#94a3b8;line-height:1.6;margin-top:0.3rem;border-top:1px dashed var(--border);padding-top:0.35rem">
+      <b style="color:#a78bfa">↔ datos</b> viajan en ambos sentidos (lectura/escritura) · <b style="color:#a78bfa">→</b> el <b style="color:#fff">CPU</b> direcciona y ordena al módulo · <b style="color:#94a3b8">→</b> el <b style="color:#fff">módulo</b> ordena al dispositivo (control) · <b style="color:#94a3b8">←</b> el <b style="color:#fff">dispositivo</b> le reporta su estado
+    </div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">📇 Registros direccionables · interfaz de alto nivel</div>
+    <div class="op-rule">
+      Los registros son <strong>direccionados desde el bus de direcciones</strong>: cada uno tiene una <strong>dirección única y unívoca</strong>. El módulo expone una <strong>interfaz de alto nivel</strong> — el programador no maneja motores ni cabezales.
+    </div>
+    <div class="formula amber-f" style="text-align:left">escribir <b style="color:#fff">Formfeed</b> en un registro → la interfaz le ordena al dispositivo <b style="color:#fff">salto de página</b></div>
+    <div class="op-rule" style="margin-bottom:0">
+      Del lado CPU/memoria conecta por el <strong>bus del sistema</strong> (datos·direcciones·control); del lado del periférico expone <strong>datos·estado·control</strong> (no direcciones). Adentro: registros, lógica de E/S, lógica de interfaz de dispositivo y <strong>buffers</strong>.
+    </div>
+    <div class="insight">💡 de la clase · El <strong>chipset</strong> concentra mucha funcionalidad de E/S; un chip Realtek soldado cerca de los jacks de audio es la interfaz de audio (códec).</div>
+  </div>
+
+</div>
+
+<!-- ============ 03 ============ -->
+<div class="section-label" id="s03">03 — Los 3 puertos de E/S <span class="tier core">control · estado · datos</span></div>
+<div class="dek">Cada registro direccionable del módulo es un <b>puerto</b>. Tres clases según quién lee o escribe: <b>control</b> (CPU escribe), <b>estado</b> (CPU lee), <b>datos</b> (lee y escribe). Con esto ya se puede <em>hablar</em> con el dispositivo — falta el <b>cómo</b> se mueven los datos.</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">🎛️ Puerto = cada registro direccionable del módulo</div>
+    <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:0.72rem;margin-top:0.3rem">
+      <thead>
+        <tr>
+          <th style="padding:.45rem .6rem;text-align:left;background:rgba(255,255,255,.05);border-bottom:1px solid var(--border);color:var(--muted)">Puerto</th>
+          <th style="padding:.45rem .6rem;text-align:left;background:rgba(255,255,255,.05);border-bottom:1px solid var(--border);color:var(--muted)">El CPU…</th>
+          <th style="padding:.45rem .6rem;text-align:left;background:rgba(255,255,255,.05);border-bottom:1px solid var(--border);color:var(--muted)">Qué transporta</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="padding:.45rem .6rem;border-bottom:1px solid var(--border);color:#fff">Control</td>
+          <td style="padding:.45rem .6rem;border-bottom:1px solid var(--border);color:#4ade80">escribe ✎</td>
+          <td style="padding:.45rem .6rem;border-bottom:1px solid var(--border);color:var(--muted)">valores que controlan el comportamiento del dispositivo</td>
+        </tr>
+        <tr>
+          <td style="padding:.45rem .6rem;border-bottom:1px solid var(--border);color:#fff">Estado</td>
+          <td style="padding:.45rem .6rem;border-bottom:1px solid var(--border);color:#fbbf24">lee 👁</td>
+          <td style="padding:.45rem .6rem;border-bottom:1px solid var(--border);color:var(--muted)">la situación del dispositivo (listo, ocupado, error)</td>
+        </tr>
+        <tr>
+          <td style="padding:.45rem .6rem;color:#fff">Datos</td>
+          <td style="padding:.45rem .6rem;color:#06b6d4">lee y escribe ⇄</td>
+          <td style="padding:.45rem .6rem;color:var(--muted)">los datos del intercambio en sí</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note ok">✓ Un dispositivo se identifica por <strong>la dirección de E/S de todos sus puertos</strong>. Puede haber más de un puerto de cada clase, o faltar alguno.</div>
+  </div>
+</div>
+
+<!-- ============ 04 ============ -->
+<div class="section-label" id="s04">04 — Las 4 modalidades de E/S <span class="tier key">★ corazón de la unidad</span></div>
+<div class="dek">Ya sabemos QUÉ es el módulo y sus puertos. Acá el corazón de la unidad: <b>las 4 formas de mover datos</b> entre periférico y memoria. No son alternativas sueltas: son una <b>escalera de eficiencia</b> — cada una libera más al CPU que la anterior.</div>
+<div class="cmatrix-wrap">
+  <div class="cmatrix" style="grid-template-columns:160px repeat(4,1fr)">
+    <div class="cm-corner">modalidad →</div>
+    <div class="cm-head">Programada<span class="sub">Polling</span></div>
+    <div class="cm-head">Interrupciones</div>
+    <div class="cm-head">DMA / ADM</div>
+    <div class="cm-head is-key">Canales<span class="sub">la trampa</span></div>
+
+    <div class="cm-rl">descripción</div>
+    <div>El CPU dirige toda la operación: consulta en bucle el puerto de estado hasta que el periférico está listo. El dato pasa por sus registros → <b>espera activa</b> que desperdicia ciclos.</div>
+    <div>El CPU lanza la E/S y sigue con otra tarea; el periférico <b>avisa con una señal de interrupción</b> cuando está listo. Elimina la espera activa, pero el dato sigue pasando por el CPU.</div>
+    <div>Un <b>controlador dedicado</b> transfiere bloques enteros directamente entre periférico y memoria, sin pasar por el CPU. El CPU solo lo configura (origen·destino·longitud·modo) y queda libre; lo interrumpe al terminar.</div>
+    <div class="cm-key"><b>Procesador de E/S autónomo</b> que ejecuta su propio programa de canal y gestiona toda la transferencia sin el CPU. El canal-procesador suma <b>memoria propia</b>: casi un computador dedicado a E/S.</div>
+
+    <div class="cm-rl">¿el periférico interrumpe?</div>
+    <div><span class="no">no</span> · debe esperar</div>
+    <div><span class="ok">sí</span></div>
+    <div><span class="ok">sí</span> · al terminar</div>
+    <div class="cm-key"><span class="ok">sí</span> · al completar</div>
+
+    <div class="cm-rl">¿usa AIM? (pasa por registros del CPU)</div>
+    <div><span class="no">sí</span> → lento</div>
+    <div><span class="no">sí</span> → lento</div>
+    <div><span class="ok">no</span> → rápido</div>
+    <div class="cm-key"><span class="ok">no</span> → rápido</div>
+
+    <div class="cm-rl">¿CPU libre en la transferencia?</div>
+    <div><span class="no">no</span> · bucles de espera</div>
+    <div>parcial · administra</div>
+    <div><span class="ok">sí</span></div>
+    <div class="cm-key"><span class="ok">sí</span> · máximo</div>
+
+    <div class="cm-rl">procesamiento propio</div>
+    <div><span class="no">no</span></div>
+    <div><span class="no">no</span></div>
+    <div>solo transfiere</div>
+    <div class="cm-key"><span class="ok">sí</span> + memoria propia (canal-procesador)</div>
+
+    <div class="cm-rl">chip histórico (8086)</div>
+    <div>i8255 PPI</div>
+    <div>82C59A PIC</div>
+    <div>8237 DMA</div>
+    <div class="cm-key">— grandes sistemas</div>
+  </div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0.6rem auto 0">
+  <div class="note" style="max-width:1400px;margin:0 auto;font-size:0.72rem">📖 <b>AIM vs ADM — el eje que separa las 4 modalidades.</b> <b style="color:#f87171">AIM = Acceso Indirecto a Memoria</b>: el dato viaja periférico → <b>registro del CPU</b> → memoria (hace <em>escala</em> en el CPU). Lo usan <b>Polling</b> e <b>Interrupciones</b> → por eso son <b>lentas</b>. &nbsp;↔&nbsp; <b style="color:#10b981">ADM = Acceso Directo a Memoria</b> (en inglés <b>DMA</b>, <em>Direct Memory Access</em>): el dato va <b>directo periférico ↔ memoria</b>, sin tocar el CPU. Lo usan <b>DMA</b> y <b>Canales</b> → <b>rápidas</b>.</div>
+  <div class="note" style="max-width:1400px;margin:0 auto;font-size:0.7rem">👉 Esta tabla es el <b>resumen comparativo</b> de las 4. La <b>mecánica paso a paso</b> de cada una está abajo: Polling e Interrupciones (05), DMA (06), Canales (07).</div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1rem auto 0">
+  <details class="recall" style="max-width:1400px;margin:0 auto">
+    <summary>💡 ¿Cuáles son las 4 modalidades y cuál es la diferencia central entre DMA y Canales?</summary>
+    <div class="recall-a">Programada (<strong>Polling</strong>), por <strong>Interrupciones</strong>, por <strong>ADM/DMA</strong> y por <strong>Canales</strong>. El DMA transfiere sin CPU pero <strong>debe ser configurado para cada transferencia</strong>; el <strong>Canal</strong> tiene <strong>procesamiento propio</strong> (ejecuta un programa de E/S) y el <strong>canal-procesador</strong> además tiene <strong>memoria propia</strong> — es un computador dedicado a E/S.</div>
+  </details>
+</div>
+
+<!-- ============ 05 ============ -->
+<div class="section-label" id="s05">05 — Polling vs Interrupciones <span class="tier key">★ las 2 lentas (AIM)</span></div>
+<div class="dek">Las <b>dos primeras</b> modalidades y más simples — y las dos <b>lentas</b>, porque el dato pasa por los registros del CPU (<b>AIM</b>). Difieren en quién toma la iniciativa: el CPU <em>encuesta</em> (Polling) vs el periférico <em>avisa</em> (Interrupciones).</div>
+<div class="grid grid-2">
+
+  <div class="card green">
+    <div class="card-title">⚙️ Polling — cómo funciona, paso a paso</div>
+    <div class="step">
+      <div class="s"><b>1.</b> El CPU da la orden de E/S por el puerto de <b>control</b></div>
+      <div class="s"><b>2.</b> Lee el puerto de <b>estado</b> del dispositivo</div>
+      <div class="s"><b>3.</b> ¿Está <b>listo</b>? Si <b>no</b> → vuelve al paso 2. Queda en un <b>bucle de espera</b> (busy-wait), sin poder hacer otra cosa</div>
+      <div class="s"><b>4.</b> Cuando el estado dice "listo", lee/escribe el puerto de <b>datos</b></div>
+      <div class="s"><b>5.</b> El dato pasa por un <b>registro del CPU</b> y recién ahí a memoria (<b>AIM</b>) → por eso es lento</div>
+      <div class="s"><b>6.</b> Relee el estado para verificar que <b>no hubo errores</b></div>
+    </div>
+    <svg viewBox="0 0 320 344" width="100%" style="max-width:340px;display:block;margin:0.6rem auto 0.2rem" font-family="JetBrains Mono,monospace">
+      <defs>
+        <marker id="flowArrPoll" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
+        <marker id="loopArrPoll" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#f87171"/></marker>
+      </defs>
+      <rect x="95" y="12" width="170" height="32" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.2"/>
+      <text x="180" y="32" font-size="9" fill="#10b981" text-anchor="middle">1 · CPU da la orden (control)</text>
+      <line x1="180" y1="44" x2="180" y2="64" stroke="#64748b" stroke-width="1.3" marker-end="url(#flowArrPoll)"/>
+      <rect x="95" y="66" width="170" height="32" rx="5" fill="rgba(251,191,36,0.10)" stroke="#fbbf24" stroke-width="1.2"/>
+      <text x="180" y="86" font-size="9" fill="#fbbf24" text-anchor="middle">2 · lee puerto de ESTADO</text>
+      <line x1="180" y1="98" x2="180" y2="118" stroke="#64748b" stroke-width="1.3" marker-end="url(#flowArrPoll)"/>
+      <rect x="110" y="120" width="140" height="38" rx="19" fill="rgba(251,191,36,0.07)" stroke="#fbbf24" stroke-width="1.4"/>
+      <text x="180" y="144" font-size="9.5" fill="#fde68a" text-anchor="middle">3 · ¿está listo?</text>
+      <path d="M110,139 L42,139 L42,80 L95,80" fill="none" stroke="#f87171" stroke-width="1.4" marker-end="url(#loopArrPoll)"/>
+      <text x="32" y="110" font-size="8" fill="#f87171" transform="rotate(-90 32 110)" text-anchor="middle">NO · reintenta</text>
+      <line x1="180" y1="158" x2="180" y2="178" stroke="#64748b" stroke-width="1.3" marker-end="url(#flowArrPoll)"/>
+      <text x="192" y="172" font-size="8" fill="#4ade80">sí</text>
+      <rect x="95" y="180" width="170" height="32" rx="5" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.2"/>
+      <text x="180" y="200" font-size="9" fill="#06b6d4" text-anchor="middle">4 · lee/escribe DATOS</text>
+      <line x1="180" y1="212" x2="180" y2="232" stroke="#64748b" stroke-width="1.3" marker-end="url(#flowArrPoll)"/>
+      <rect x="80" y="234" width="200" height="40" rx="5" fill="rgba(248,113,113,0.08)" stroke="#f87171" stroke-width="1.2"/>
+      <text x="180" y="251" font-size="8.5" fill="#fca5a5" text-anchor="middle">5 · dato → registro CPU → memoria</text>
+      <text x="180" y="265" font-size="8.5" fill="#f87171" text-anchor="middle">(AIM = lento)</text>
+      <line x1="180" y1="274" x2="180" y2="294" stroke="#64748b" stroke-width="1.3" marker-end="url(#flowArrPoll)"/>
+      <rect x="95" y="296" width="170" height="32" rx="5" fill="rgba(251,191,36,0.10)" stroke="#fbbf24" stroke-width="1.2"/>
+      <text x="180" y="316" font-size="9" fill="#fbbf24" text-anchor="middle">6 · verifica errores (estado)</text>
+    </svg>
+    <div class="insight">💡 "como chequear el celular cada minuto a ver si llegó algo" — el CPU malgasta ciclos preguntando.</div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">⚙️ Interrupciones — cómo funciona, paso a paso</div>
+    <div class="step">
+      <div class="s"><b>1.</b> El CPU da la orden de E/S y <b>sigue con otras tareas</b> (no espera)</div>
+      <div class="s"><b>2.</b> El periférico trabaja solo; cuando está <b>listo</b>, <b>avisa</b> activando su línea de interrupción</div>
+      <div class="s"><b>3.</b> El CPU termina la instrucción en curso, <b>suspende</b> lo que hacía y salta a atender la E/S</div>
+      <div class="s"><b>4.</b> Lee el puerto de <b>estado</b> y transfiere el <b>dato</b> (dato → registro CPU → memoria: <b>sigue siendo AIM</b>)</div>
+      <div class="s"><b>5.</b> <b>Vuelve</b> a lo que estaba haciendo</div>
+    </div>
+    <svg viewBox="0 0 340 346" width="100%" style="max-width:360px;display:block;margin:0.6rem auto 0.2rem" font-family="JetBrains Mono,monospace">
+      <defs>
+        <marker id="flowArrInt" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
+        <marker id="irqArr" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#fbbf24"/></marker>
+      </defs>
+      <text x="85" y="13" font-size="9.5" fill="#a78bfa" text-anchor="middle">CPU</text>
+      <text x="255" y="13" font-size="9.5" fill="#94a3b8" text-anchor="middle">Periférico</text>
+      <line x1="170" y1="18" x2="170" y2="340" stroke="#334155" stroke-width="1" stroke-dasharray="3 3"/>
+      <rect x="14" y="22" width="142" height="28" rx="5" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.2"/>
+      <text x="85" y="40" font-size="8.5" fill="#a78bfa" text-anchor="middle">1 · da la orden</text>
+      <line x1="156" y1="36" x2="184" y2="36" stroke="#64748b" stroke-width="1.2" marker-end="url(#flowArrInt)"/>
+      <rect x="184" y="22" width="142" height="28" rx="5" fill="rgba(148,163,184,0.10)" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="255" y="40" font-size="8.5" fill="#cbd5e1" text-anchor="middle">recibe la orden</text>
+      <rect x="14" y="62" width="142" height="90" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.3"/>
+      <text x="85" y="100" font-size="9" fill="#10b981" text-anchor="middle">2 · sigue con</text>
+      <text x="85" y="114" font-size="9" fill="#10b981" text-anchor="middle">OTRAS tareas</text>
+      <text x="85" y="134" font-size="7.5" fill="#6ee7b7" text-anchor="middle">(no espera)</text>
+      <rect x="184" y="62" width="142" height="90" rx="5" fill="rgba(148,163,184,0.08)" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="255" y="100" font-size="9" fill="#cbd5e1" text-anchor="middle">trabaja solo</text>
+      <text x="255" y="120" font-size="7.5" fill="#94a3b8" text-anchor="middle">en paralelo</text>
+      <rect x="184" y="164" width="142" height="28" rx="5" fill="rgba(251,191,36,0.12)" stroke="#fbbf24" stroke-width="1.3"/>
+      <text x="255" y="182" font-size="8.5" fill="#fde68a" text-anchor="middle">listo ✓</text>
+      <path d="M184,186 L85,186 L85,202" fill="none" stroke="#fbbf24" stroke-width="1.6" marker-end="url(#irqArr)"/>
+      <text x="135" y="180" font-size="8" fill="#fbbf24" text-anchor="middle">⚡ interrumpe</text>
+      <rect x="14" y="204" width="142" height="28" rx="5" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.2"/>
+      <text x="85" y="222" font-size="8.5" fill="#a78bfa" text-anchor="middle">3 · suspende y atiende</text>
+      <line x1="85" y1="232" x2="85" y2="248" stroke="#64748b" stroke-width="1.2" marker-end="url(#flowArrInt)"/>
+      <rect x="14" y="250" width="142" height="34" rx="5" fill="rgba(248,113,113,0.08)" stroke="#f87171" stroke-width="1.2"/>
+      <text x="85" y="266" font-size="8" fill="#fca5a5" text-anchor="middle">4 · transfiere dato</text>
+      <text x="85" y="278" font-size="8" fill="#f87171" text-anchor="middle">(sigue siendo AIM)</text>
+      <line x1="85" y1="284" x2="85" y2="300" stroke="#64748b" stroke-width="1.2" marker-end="url(#flowArrInt)"/>
+      <rect x="14" y="302" width="142" height="28" rx="5" fill="rgba(16,185,129,0.10)" stroke="#10b981" stroke-width="1.2"/>
+      <text x="85" y="320" font-size="8.5" fill="#10b981" text-anchor="middle">5 · vuelve a su tarea</text>
+    </svg>
+    <div class="insight">💡 "como cuando suena el celular al llegar el mensaje" — no pregunta, lo avisan. <em>(El detalle de vector/ISR/pila es unidad 12.)</em></div>
+  </div>
+
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1rem auto 0">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">🔌 Los 4 actores — quién mueve el dato (y quién avisa)</div>
+    <div class="op-rule">Las dos modalidades AIM con los <b>mismos 4 actores</b>: CPU · módulo de E/S · periférico · memoria. Mirá el <b style="color:#10b981">camino verde del dato</b>: es <b>idéntico</b> en las dos — sube al CPU y recién de ahí va a memoria. Lo único que cambia es la <b>flecha de disparo</b>: en Polling el CPU pregunta (<span style="color:#38bdf8">↻</span>), en Interrupciones el módulo avisa (<span style="color:#fbbf24">⚡</span>).</div>
+    <div style="margin-top:0.6rem">
+      <svg viewBox="0 0 600 256" width="100%" style="max-width:560px;display:block;margin:0 auto" font-family="JetBrains Mono,monospace">
+        <defs>
+          <marker id="aimData4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#10b981"/></marker>
+          <marker id="trigPoll4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#38bdf8"/></marker>
+          <marker id="trigInt4" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#fbbf24"/></marker>
+        </defs>
+        <rect x="225" y="16" width="150" height="46" rx="6" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.4"/>
+        <text x="300" y="44" font-size="11" fill="#a78bfa" text-anchor="middle">CPU</text>
+        <rect x="20" y="172" width="150" height="48" rx="6" fill="rgba(148,163,184,0.10)" stroke="#94a3b8" stroke-width="1.3"/>
+        <text x="95" y="200" font-size="10" fill="#cbd5e1" text-anchor="middle">Periférico</text>
+        <rect x="225" y="172" width="150" height="48" rx="6" fill="rgba(245,158,11,0.10)" stroke="#f59e0b" stroke-width="1.3"/>
+        <text x="300" y="200" font-size="9.5" fill="#fbbf24" text-anchor="middle">Módulo de E/S</text>
+        <rect x="430" y="172" width="150" height="48" rx="6" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.3"/>
+        <text x="505" y="200" font-size="10" fill="#67e8f9" text-anchor="middle">Memoria</text>
+        <line x1="170" y1="196" x2="225" y2="196" stroke="#10b981" stroke-width="4" marker-start="url(#aimData4)" marker-end="url(#aimData4)"/>
+        <line x1="330" y1="172" x2="330" y2="62" stroke="#10b981" stroke-width="4" marker-start="url(#aimData4)" marker-end="url(#aimData4)"/>
+        <line x1="360" y1="62" x2="475" y2="172" stroke="#10b981" stroke-width="4" marker-start="url(#aimData4)" marker-end="url(#aimData4)"/>
+        <line x1="252" y1="62" x2="252" y2="172" stroke="#38bdf8" stroke-width="1.6" marker-end="url(#trigPoll4)"/>
+        <text x="246" y="104" font-size="8" fill="#38bdf8" text-anchor="end">↻ Polling</text>
+        <text x="246" y="115" font-size="7" fill="#7dd3fc" text-anchor="end">encuesta</text>
+        <line x1="290" y1="172" x2="290" y2="62" stroke="#fbbf24" stroke-width="1.6" marker-end="url(#trigInt4)"/>
+        <text x="296" y="128" font-size="8" fill="#fbbf24" text-anchor="start">⚡ Interrup.</text>
+        <text x="296" y="139" font-size="7" fill="#fcd34d" text-anchor="start">avisa</text>
+        <text x="300" y="240" font-size="8" fill="#6ee7b7" text-anchor="middle">dato: periférico → módulo → CPU → memoria (idéntico en ambas)</text>
+        <text x="300" y="251" font-size="8" fill="#f87171" text-anchor="middle">✗ pasa por el CPU = AIM (lento)</text>
+      </svg>
+    </div>
+    <div class="note danger">🚨 <strong>Mismo camino de datos (AIM):</strong> el dato hace <strong>escala en el CPU</strong> → por eso las dos son "lentas". El <strong>DMA</strong> (sección 6) es el que rompe este camino.</div>
+  </div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1rem auto 0">
+  <details class="recall" style="max-width:1400px;margin:0 auto">
+    <summary>💡 Diferencia entre Polling e Interrupciones en cuanto al rol del periférico</summary>
+    <div class="recall-a">En <strong>Polling</strong> el periférico <strong>no puede interrumpir</strong>: el CPU/SO encuesta sin parar los puertos de estado (prioridades por software). En <strong>Interrupciones</strong> el periférico <strong>avisa</strong> al CPU mediante su interfaz — el CPU no censa si nadie pide atención.</div>
+  </details>
+</div>
+
+<!-- ============ 06 ============ -->
+<div class="section-label" id="s06">06 — Modalidad 3 · DMA (Acceso Directo a Memoria) <span class="tier key">★ origen·destino·longitud·modo</span></div>
+<div class="dek">El salto de eficiencia: un <b>módulo dedicado mueve los datos sin pasar por el CPU</b> — se acabó el AIM. El CPU solo lo configura (<b>origen · destino · longitud · modo</b>), le cede el bus y sigue trabajando.</div>
+<div class="grid grid-2">
+
+  <div class="card green">
+    <div class="card-title">⚙️ Cómo funciona — el CPU configura y se va</div>
+    <div class="step">
+      <div class="s"><b>1.</b> El CPU configura el DMA: <b>dirección de origen</b></div>
+      <div class="s"><b>2.</b> <b>dirección de destino</b></div>
+      <div class="s"><b>3.</b> <b>longitud</b> del bloque (cuántos bytes)</div>
+      <div class="s"><b>4.</b> <b>modo</b> de operación (lectura / escritura)</div>
+      <div class="s"><b>5.</b> El CPU <b>cede el control del bus</b> → el DMA es <b>Máster de bus</b>; el CPU sigue procesando</div>
+      <div class="s"><b>6.</b> Al terminar, el DMA <b>genera una interrupción</b> para avisar</div>
+    </div>
+    <div class="insight">💡 Analogía (05-18) · "Le digo al encargado: Alan vive acá, Diego vive allá, el mensaje tiene 5 palabras, el modo es tal… y me despreocupo. Esa persona va, recibe lo de Alan, se lo lleva a Diego. Eso hace el DMA."</div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">🔁 Robo de ciclo + Master/Slave</div>
+    <div class="op-rule">
+      <strong>Robo de ciclo (cycle stealing):</strong> el DMA usa el bus cuando el CPU no lo necesita, o lo fuerza a suspender en puntos concretos del ciclo de instrucción. La demora es <strong>ínfima</strong> vs. que el CPU haga la transferencia.
+    </div>
+    <div class="proplist pl-purple">
+      <div><b style="color:#fff">Masters</b> — controlan el bus: CPU, DMA</div>
+      <div><b style="color:#fff">Slaves</b> — son controlados: memoria, disco</div>
+    </div>
+    <div class="note ok">✓ Histórico: chip <strong>Intel 8237</strong> en la placa del 8086. <strong>Hoy</strong> el DMA está distribuido: en el CPU, el chipset y los propios periféricos (→ Bus Mastering, sección 11).</div>
+  </div>
+
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1rem auto 0">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🛣️ El camino del dato — directo, sin pasar por el CPU</div>
+    <svg viewBox="0 0 600 256" width="100%" style="max-width:640px;display:block;margin:0.4rem auto 0.2rem" font-family="JetBrains Mono,monospace">
+      <defs>
+        <marker id="dmaThin" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
+        <marker id="dmaIrq" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#fbbf24"/></marker>
+        <marker id="dmaData" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#10b981"/></marker>
+      </defs>
+      <rect x="225" y="16" width="150" height="46" rx="6" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.4"/>
+      <text x="300" y="36" font-size="11" fill="#a78bfa" text-anchor="middle">CPU</text>
+      <text x="300" y="51" font-size="8" fill="#6ee7b7" text-anchor="middle">libre · sigue procesando</text>
+      <line x1="258" y1="62" x2="258" y2="168" stroke="#64748b" stroke-width="1.3" marker-end="url(#dmaThin)"/>
+      <text x="250" y="113" font-size="8" fill="#94a3b8" text-anchor="end">① configura</text>
+      <text x="250" y="124" font-size="7" fill="#64748b" text-anchor="end">origen·destino·long·modo</text>
+      <line x1="342" y1="168" x2="342" y2="62" stroke="#fbbf24" stroke-width="1.3" stroke-dasharray="4 3" marker-end="url(#dmaIrq)"/>
+      <text x="350" y="113" font-size="8" fill="#fbbf24" text-anchor="start">④ interrumpe</text>
+      <text x="350" y="124" font-size="7" fill="#d4a72c" text-anchor="start">al terminar</text>
+      <rect x="20" y="172" width="150" height="48" rx="6" fill="rgba(148,163,184,0.10)" stroke="#94a3b8" stroke-width="1.3"/>
+      <text x="95" y="200" font-size="10" fill="#cbd5e1" text-anchor="middle">Periférico</text>
+      <rect x="225" y="172" width="150" height="48" rx="6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="300" y="193" font-size="9.5" fill="#fbbf24" text-anchor="middle">Módulo de E/S</text>
+      <text x="300" y="207" font-size="7.5" fill="#fcd34d" text-anchor="middle">DMA · máster del bus</text>
+      <rect x="430" y="172" width="150" height="48" rx="6" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.3"/>
+      <text x="505" y="200" font-size="10" fill="#67e8f9" text-anchor="middle">Memoria</text>
+      <line x1="170" y1="196" x2="225" y2="196" stroke="#10b981" stroke-width="4" marker-start="url(#dmaData)" marker-end="url(#dmaData)"/>
+      <line x1="375" y1="196" x2="430" y2="196" stroke="#10b981" stroke-width="4" marker-start="url(#dmaData)" marker-end="url(#dmaData)"/>
+      <text x="300" y="238" font-size="8.5" fill="#6ee7b7" text-anchor="middle">② el bloque viaja directo: periférico ↔ DMA ↔ memoria</text>
+      <text x="300" y="250" font-size="8.5" fill="#f87171" text-anchor="middle">✗ NO pasa por los registros del CPU — se acabó el AIM</text>
+    </svg>
+  </div>
+</div>
+<!-- ============ 07 ============ -->
+<div class="section-label" id="s07">07 — Modalidad 4 · Canales de E/S <span class="tier key">⚠️ TRAMPA del profe</span></div>
+<div class="dek">La 4ª modalidad — <span class="q">la trampa del profe</span>: un DMA <b>tan autónomo</b> que se vuelve casi un <b>computador dedicado a E/S</b>. Los apuntes viejos traían solo 3 → por eso la pregunta.</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">🪤 Canal / módulo I/O vs Canal-procesador I/O</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Canal / módulo de I/O</h4>
+        <div class="vs-row"><strong>procesamiento propio</strong> + instrucciones dedicadas de E/S</div>
+        <div class="vs-row">DMA <strong>más independiente</strong>: no pide permiso por cada bloque</div>
+        <div class="vs-row">el CPU le ordena ejecutar un programa de E/S en memoria</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>Canal-procesador de I/O</h4>
+        <div class="vs-row">procesamiento propio <strong>+ memoria propia</strong></div>
+        <div class="vs-row">es <strong>un computador en sí mismo</strong> dedicado a E/S</div>
+        <div class="vs-row">puede ir <strong>en cascada</strong> (sobre módulos I/O o DMA secundarios)</div>
+      </div>
+    </div>
+    <div class="note danger">⚠️ <strong>TRAMPA (05-18):</strong> "Otra modalidad que se la pierden, como los viejos apuntes había 3… estudian de apuntes viejos, no la ven, y en el examen si les pregunto, es como que les pregunto algo que no existía." → <strong>Estudiar Canales sí o sí.</strong></div>
+    <div class="insight">🎯 Alcance evaluable · "Se usa en grandes sistemas… mainframes (ej. IBM Z13)… <strong>eso no lo van a ver en una PC</strong>". Lo que entra es que la <strong>modalidad existe</strong> y <strong>en qué se diferencia</strong> — no el detalle del Z13.</div>
+  </div>
+</div>
+<!-- ============ 08 ============ -->
+<div class="section-label" id="s08">08 — Direccionamiento de E/S <span class="tier key">★ mapeado vs aislado</span></div>
+<div class="dek">Sabemos cómo se transfieren los datos. <span class="q">¿Pero cómo identifica el CPU a qué puerto va cada dato?</span> Dos esquemas: comparte el mapa de la memoria (<b>mapeado a memoria</b>) o usa un espacio aparte con instrucciones propias (<b>aislado</b>).</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="card-title">⚔️ Mapeada a Memoria vs Mapeada Aislada</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Mapeada a Memoria (Memory-Mapped)</h4>
+        <div class="vs-row">MP y puertos de E/S <strong>comparten el mismo espacio</strong> de direcciones</div>
+        <div class="vs-row">las instrucciones de E/S <strong>no se distinguen</strong> de las de acceso a MP</div>
+        <div class="vs-row"><strong>la usan la mayoría de los procesadores actuales</strong></div>
+        <div class="vs-row">✓ simplifica estructura e instrucciones · <strong>menor latencia</strong></div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>Mapeada Aislada (Isolated)</h4>
+        <div class="vs-row"><strong>dos espacios separados</strong>: uno para MP, otro para E/S</div>
+        <div class="vs-row">8086: 20 bits para MP · <strong>16 bits para E/S</strong> (0000h–FFFFh)</div>
+        <div class="vs-row">requiere <strong>instrucciones dedicadas</strong> de E/S (señal IO/M̅)</div>
+        <div class="vs-row">distingue el espacio por una línea de control</div>
+      </div>
+    </div>
+    <div style="font-family:var(--mono);font-size:0.6rem;color:var(--muted);margin-top:0.9rem;letter-spacing:0.05em">EJEMPLO MAPEADA A MEMORIA · bus de 20 bits → 2²⁰ ≈ 1 Mega direcciones (00000h–FFFFFh)</div>
+    <div class="addrmap">
+      <div class="seg-mp" style="flex:5">Memoria principal<small>0 → 50000</small></div>
+      <div class="seg-io" style="flex:5">★ Puertos E/S<small>50000 → 100000</small></div>
+      <div class="seg-mp" style="flex:20">Memoria principal<small>100000 → 300000 → …</small></div>
+    </div>
+    <div class="note warn">⚠️ Según la dirección que pongo, el mismo dato va a un <strong>puerto de E/S</strong> o a una <strong>celda de memoria</strong> — sin instrucciones especiales. Esa es la idea de "mapear la E/S dentro del mapa de memoria".</div>
+  </div>
+</div>
+<!-- ============ 09 ============ -->
+<div class="section-label" id="s09">09 — Ancho de banda · POR UNIDAD DE TIEMPO <span class="tier key">★ RÚBRICA de corrección</span></div>
+<div class="dek">Toda esta maquinaria se mide en velocidad. <span class="q">Regla de oro del profe</span>: ancho de banda = datos <b>POR UNIDAD DE TIEMPO</b> (sin el tiempo, no da el punto). No confundir con <b>latencia</b> (tiempo de acceso, ↓ mejor).</div>
+<div class="grid grid-3">
+
+  <div class="card cyan">
+    <div class="card-title">📊 Definición + conversión</div>
+    <div class="op-rule">
+      <strong>Ancho de banda</strong> = cantidad de información transmitida <strong>por unidad de tiempo</strong> (GB/s, MB/s, Gbit/s). Distinto de <strong>latencia</strong> (tiempo de acceso, <strong>cuanto más bajo mejor</strong>).
+    </div>
+    <div class="formula cyan-f">Gbit/s ÷ 8 = GB/s &nbsp;·&nbsp; 717 Gbit/s ≈ 90 GB/s</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">⚡ La cifra que se recuerda</div>
+    <div class="stat" style="padding-top:0.3rem">
+      <div class="stat-num">717</div>
+      <div class="stat-unit">Gbit/s</div>
+      <div class="stat-cap">CPU ↔ DDR5 doble canal (i9-13900K) ≈ 90 GB/s</div>
+    </div>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">🚨 La rúbrica</div>
+    <div class="exam-q">
+      <div class="q">Definí "ancho de banda" para llevarte el punto completo.</div>
+      <div class="a">"Cantidad de información transmitida <strong>POR UNIDAD DE TIEMPO</strong>." Sin la unidad de tiempo, el profe descuenta: <em>"¿en cuánto tiempo? ¿en 7 años?"</em>.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 10 ============ -->
+<div class="section-label" id="s10">10 — Chipset · Northbridge/Southbridge → PCH / IOD <span class="tier core">evolución</span></div>
+<div class="dek">Hasta acá, la E/S en teoría. Ahora cómo se implementa en una PC real: el <b>chipset</b> coordina todo el tráfico de E/S. Su evolución — muchos chips → Northbridge/Southbridge → hoy casi todo dentro del CPU (<b>PCH / IOD</b>).</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">📅 De varios chips TTL al chip único</div>
+    <div class="op-rule">📖 <strong>¿Qué es un "chip TTL"?</strong> <strong>TTL = Transistor-Transistor Logic</strong> (lógica transistor-transistor): circuitos integrados hechos de transistores que implementan <strong>funciones lógicas</strong>. Las primeras PCs no tenían el chipset en un solo chip — usaban <strong>varios chips TTL sueltos</strong>, cada uno con una función (clock, control de bus, interrupciones, DMA). Ese <em>conjunto de chips</em> es el origen de la palabra <strong>"chipset"</strong>.</div>
+    <div class="op-rule"><strong>¿Qué son los dos "puentes"?</strong> Chips que conectaban el CPU con los dispositivos, repartidos por <strong>velocidad</strong>. El <strong>Northbridge</strong> (puente norte, pegado al CPU) manejaba lo <strong>rápido</strong>: memoria RAM + placa de video. El <strong>Southbridge</strong> (puente sur) manejaba lo <strong>lento</strong>: USB, audio, discos, Ethernet, teclado — y le hablaba al CPU <em>a través del</em> Northbridge. Los nombres salen de su posición en el diagrama de la placa (norte arriba, sur abajo).</div>
+    <div class="timeline">
+      <div class="tl-item gen0"><span class="tl-year">años 80</span><span class="tl-dot"></span><span class="tl-label">Chips TTL sueltos</span><span class="tl-sub">clock 8284 · bus 8288 · PIC 8259 · DMA 8237</span></div>
+      <div class="tl-item gen1"><span class="tl-year">fin de siglo</span><span class="tl-dot"></span><span class="tl-label">Northbridge + Southbridge</span><span class="tl-sub">NB = alta velocidad (CPU·MP·gráfica) · SB = lento (USB, audio, discos, Ethernet)</span></div>
+      <div class="tl-item gen2"><span class="tl-year">2009+</span><span class="tl-dot"></span><span class="tl-label">NB dentro del CPU</span><span class="tl-sub">queda el SB → Intel PCH (Platform Controller Hub)</span></div>
+      <div class="tl-item gen3"><span class="tl-year">actual</span><span class="tl-dot"></span><span class="tl-label">PCH (Intel) · IOD (AMD)</span><span class="tl-sub">CPU↔chipset por DMI (Intel) · IOD con Infinity Fabric (AMD)</span></div>
+    </div>
+    <div class="insight">💡 de la clase · "Esta parte muchas veces la tomo… no voy tanto al súper detalle." Saber la <strong>evolución</strong> y <strong>qué administra cada puente</strong> (norte = rápido, sur = lento) — no los modelos de chip.</div>
+  </div>
+</div>
+
+<!-- ============ 11 ============ -->
+<div class="section-label" id="s11">11 — Bus Mastering · el DMA actual <span class="tier core">First-Party DMA</span></div>
+<div class="dek">El DMA de la sección 6, hoy: ya no es <b>un</b> chip, está <b>distribuido</b> — CPU, chipset y los propios dispositivos (PCIe · USB · SATA) toman el bus por su cuenta. Eso es el <b>Bus Mastering</b> (First-Party DMA).</div>
+<div class="grid grid-2">
+
+  <div class="card amber">
+    <div class="card-title">🚌 DMA distribuido</div>
+    <div class="op-rule">
+      Los CPU actuales <strong>integraron el DMA</strong> en vez de un chip dedicado. Está <strong>distribuido</strong>: en el CPU (controlador de memoria + <strong>PCIe Root Complex</strong>), en el chipset y en los propios dispositivos.
+    </div>
+    <div class="op-rule" style="margin-bottom:0">
+      <strong>Bus Mastering (First-Party DMA):</strong> los dispositivos integran lógica DMA y <strong>pueden tomar control del bus</strong> para hablar con la memoria directamente. <strong>PCIe, USB y SATA</strong> tienen su propia lógica DMA.
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">✓ Reparto típico + ventajas</div>
+    <div class="proplist pl-green">
+      <div>el <b style="color:#fff">chipset</b> maneja por DMA los lentos: USB, SATA, Ethernet, audio</div>
+      <div><span style="color:#f87171">NO</span> la placa de video ni el NVMe (van directo por PCIe al CPU)</div>
+    </div>
+    <div class="note ok">✓ Ventajas: <strong>reduce la carga del CPU</strong>, aprovecha mejor el ancho de banda y <strong>baja la latencia</strong>. El motor DMA empaqueta los datos en <strong>TLPs</strong> que viaja por PCIe (→ sección 13).</div>
+  </div>
+
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1rem auto 0">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">⚙️ Cómo trabaja el DMA en una PC actual — sobre PCIe, paso a paso</div>
+    <div class="op-rule">El DMA distribuido no mueve los datos "a pelo": los <strong>empaqueta en TLPs</strong> y los manda por PCIe. Así se conecta la modalidad DMA (sección 6) con la interconexión real (sección 13). <em>"Muy parecido a lo anterior, pero con mayor detalle: es cómo trabaja el DMA en una PC actual"</em> (05-18).</div>
+    <div class="step">
+      <div class="s"><b>1.</b> En la inicialización, el CPU <b>configura el controlador DMA</b> (puede estar en el CPU, el chipset o el propio dispositivo PCIe): <b>origen · destino · longitud · modo</b></div>
+      <div class="s"><b>2.</b> El CPU <b>verifica que el dispositivo externo esté listo</b> para la transferencia</div>
+      <div class="s"><b>3.</b> El CPU indica al <b>motor DMA</b> que los datos están en la dirección origen → <b>sigue procesando instrucciones</b></div>
+      <div class="s"><b>4.</b> El motor DMA <b>lee el origen y empaqueta los datos en TLPs</b></div>
+      <div class="s"><b>5.</b> Envía los TLPs a la <b>dirección destino</b> (memoria principal u otro dispositivo) por el bus PCIe</div>
+      <div class="s"><b>6.</b> Al terminar, el motor DMA <b>interrumpe al CPU</b> para avisar (puede pedir el siguiente bloque en cola)</div>
+    </div>
+    <div class="note ok">✓ Un dispositivo <strong>DMA master</strong> (al que el CPU le cedió el bus) revisa en sus registros las tareas en cola, sabe a dónde y cuánto transferir, lee de su <strong>memoria local</strong> y construye los TLPs para enviarlos por PCIe — al final, interrumpe al CPU.</div>
+  </div>
+</div>
+
+<!-- ============ 12 ============ -->
+<div class="section-label" id="s12">12 — Almacenamiento secundario <span class="tier core">HDD vs SSD-SATA vs NVMe</span></div>
+<div class="dek">Un caso concreto de E/S que se mide en ancho de banda: los discos. La evolución <b>HDD → SSD-SATA → SSD-NVMe</b> es, justamente, ganar ancho de banda y bajar latencia (NVMe ~30× un HDD).</div>
+<div class="cmatrix-wrap">
+  <div class="cmatrix" style="grid-template-columns:140px repeat(3,1fr)">
+    <div class="cm-corner">dispositivo →</div>
+    <div class="cm-head">HDD mecánico</div>
+    <div class="cm-head">SSD-SATA</div>
+    <div class="cm-head is-key">SSD-NVMe (M.2)</div>
+
+    <div class="cm-rl">tecnología</div>
+    <div>platos magnéticos + cabezales</div>
+    <div>memorias Flash (sin partes móviles)</div>
+    <div class="cm-key">Flash + protocolo NVMe sobre PCIe</div>
+
+    <div class="cm-rl">tiempo de acceso</div>
+    <div>~10 ms (≈10.000 ns)</div>
+    <div>~0,1–0,2 ms</div>
+    <div class="cm-key">&lt; 0,1 ms</div>
+
+    <div class="cm-rl">interfaz</div>
+    <div>SATA 3</div>
+    <div>Serial ATA 3 (4,8 Gbps)</div>
+    <div class="cm-key">PCIe 4.0 x4 (ranura M.2)</div>
+
+    <div class="cm-rl">transferencia aprox.</div>
+    <div>~1,2 Gbps · 100–150 MB/s</div>
+    <div>~4,4 Gbps · ≈550 MB/s</div>
+    <div class="cm-key">~64 Gbps · 5.000–7.000 MB/s</div>
+  </div>
+</div>
+<div class="grid grid-3" style="margin-top:1rem">
+  <div class="card cyan">
+    <div class="card-title">📊 Interconexiones · BW teórico máx.</div>
+    <div class="proplist pl-cyan">
+      <div>DDR5 doble canal (i9): <b style="color:#fff">717 Gbit/s ≈ 90 GB/s</b></div>
+      <div>PCIe 4.0 x16 (gráfica): <b style="color:#fff">256 Gbit/s</b></div>
+      <div>DMI 4.0 (CPU↔chipset): <b style="color:#fff">126 Gbit/s</b></div>
+      <div>M.2 NVMe PCIe 4.0 x4: <b style="color:#fff">64 Gbit/s</b></div>
+      <div>USB 3.2 Gen2: <b style="color:#fff">10 Gbit/s</b> · Gigabit Eth: <b style="color:#fff">1 Gbit/s</b></div>
+    </div>
+  </div>
+  <div class="card green" style="grid-column:span 2">
+    <div class="card-title">💡 Relaciones que importan</div>
+    <div class="op-rule">
+      Un <strong>NVMe PCIe 4.0</strong> puede tener <strong>&gt;10×</strong> la transferencia de un SSD-SATA; y un <strong>SSD-SATA &gt;3×</strong> la de un HDD. Comparada en transferencia sostenida, la <strong>DDR5 (~90 GB/s) es ≈700× un HDD</strong> (~1 Gbit/s).
+    </div>
+    <div class="insight">💡 de la clase · Importa para <strong>acelerar arranque, apertura de programas y bases de consulta</strong> (NVMe ≈30× un HDD). Cuidado: los SSD en cargas de <strong>mucha escritura</strong> se desgastan (duran X petabytes y hay que cambiarlos).</div>
+  </div>
+</div>
+
+<!-- ============ 13 ============ -->
+<div class="section-label" id="s13">13 — PCIe · capas, Root Complex, TLP, arbitraje <span class="tier core">interconexión de E/S</span></div>
+<div class="dek">La interconexión que une todo lo anterior. <b>3 capas</b> (física · datos · transacción), un <b>Root Complex</b> que arranca la jerarquía y los <b>TLP</b> (paquetes). El <b>apunte de buses (U10) entra al final</b> — y estas piezas el profe además las <b>reusa</b> para el DMA actual (TLP) y las interrupciones MSI.</div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🧱 Las 3 capas de protocolo</div>
+    <div class="lstack">
+      <div class="ly-t"><b>Transacción</b> — genera y consume los <b>TLPs</b> (Transaction Layer Packets), con identificador único para enrutar</div>
+      <div class="ly-d"><b>Enlace de datos</b> — controla el flujo y la integridad</div>
+      <div class="ly-f"><b>Física</b> — transmite señales; codifica bloques de <b>128 bits en 130 bits</b> (overhead de sincronización)</div>
+    </div>
+    <div class="note ok">✓ Por qué entra: el <strong>motor DMA empaqueta los datos en TLPs</strong> (sección 11) y las <strong>interrupciones MSI</strong> (unidad 12) también viajan como TLP. El profe reusa estas capas para explicar ambos.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🌐 Root Complex + endpoint</div>
+    <div class="op-rule">
+      PCIe es una <strong>interconexión punto a punto serial</strong> (pares trenzados que anulan interferencia). El <strong>PCIe Root Complex</strong> (en el CPU o chipset) es el inicio de la jerarquía: actúa de <strong>buffer</strong>, traduce formatos y soporta múltiples puertos.
+    </div>
+    <div class="op-rule" style="margin-bottom:0">
+      Las pistas terminan en un <strong>endpoint</strong>: placa gráfica, switch Gigabit, controlador de disco.
+    </div>
+    <div class="note ok">✓ Abajo: el <strong>arbitraje distribuido REQ#/GNT#</strong> (lo desarrolla en clase → entra al final) y, como <strong>lectura opcional</strong>, los <strong>4 espacios de direcciones</strong> y la <strong>técnica de transacción dividida</strong>.</div>
+  </div>
+
+</div>
+
+<div class="grid grid-1" style="max-width:1400px;margin:1rem auto 0">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">⚖️ Arbitraje distribuido de E/S — REQ# / GNT# <span class="tier core" style="margin-left:.4rem">entra al final</span></div>
+    <div class="op-rule">¿Quién controla el bus PCIe cuando varios dispositivos lo piden a la vez? El controlador PCIe y el chipset implementan <strong>arbitraje distribuido</strong> a través de su topología punto a punto. El profe lo desarrolla en clase (05-18), sin disclaimer → <strong>entra</strong>.</div>
+    <div class="step">
+      <div class="s"><b>1.</b> Cada dispositivo externo tiene su <b>lógica de arbitraje propia</b> con su <b>nivel de prioridad</b></div>
+      <div class="s"><b>2.</b> Compite por el acceso al bus enviando una <b>señal de solicitud REQ#</b></div>
+      <div class="s"><b>3.</b> El <b>controlador PCIe / chipset</b> recibe las solicitudes y <b>administra las prioridades</b></div>
+      <div class="s"><b>4.</b> El dispositivo ganador recibe <b>GNT# (solicitud concedida)</b> y se convierte en <b>bus master</b></div>
+      <div class="s"><b>5.</b> Cada camino dispositivo→controlador tiene su propia lógica → <b>mejora escalabilidad y utilización de recursos</b></div>
+    </div>
+    <div class="note ok">✓ Mnemotecnia: <strong>REQ#</strong> = request (pido el bus) · <strong>GNT#</strong> = grant (me lo conceden → soy master). Los TLP llevan <strong>órdenes de prioridad</strong>, justamente lo que usa este arbitraje.</div>
+  </div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1rem auto 0.2rem">
+  <div class="note warn" style="max-width:1400px;margin:0 auto;font-size:0.72rem">📖 <b>PCIe avanzado — está en el apunte y entra al final, pero es baja probabilidad.</b> Sobre la <b>técnica de transacción dividida</b> y el <b>direccionamiento de la capa de transacción</b>: <em>"no me voy a meter mucho en este detalle, si quieren léanlo… eso por ahí no se lo suelo tomar"</em> (05-18). Lectura opcional para redondear.</div>
+</div>
+<div class="grid grid-2 is-ctx" style="margin-top:0.6rem">
+
+  <div class="card purple">
+    <div class="card-title">🗂️ 4 espacios de direcciones de la capa de transacción</div>
+    <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:0.68rem;margin-top:0.2rem">
+      <thead>
+        <tr>
+          <th style="padding:.4rem .55rem;text-align:left;background:rgba(255,255,255,.05);border-bottom:1px solid var(--border);color:var(--muted)">Espacio</th>
+          <th style="padding:.4rem .55rem;text-align:left;background:rgba(255,255,255,.05);border-bottom:1px solid var(--border);color:var(--muted)">Para qué</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:.4rem .55rem;border-bottom:1px solid var(--border);color:#fff">Memoria</td><td style="padding:.4rem .55rem;border-bottom:1px solid var(--border);color:var(--muted)">MP + dispositivos PCIe mapeados en memoria (E/S mapeada a memoria). Admite <i>locked operations</i> para acceso individual a registros</td></tr>
+        <tr><td style="padding:.4rem .55rem;border-bottom:1px solid var(--border);color:#fff">I/O</td><td style="padding:.4rem .55rem;border-bottom:1px solid var(--border);color:var(--muted)">direcciones de dispositivos PCI previos al PCIe (Legacy)</td></tr>
+        <tr><td style="padding:.4rem .55rem;border-bottom:1px solid var(--border);color:#fff">Configuración</td><td style="padding:.4rem .55rem;border-bottom:1px solid var(--border);color:var(--muted)">leer/escribir los <b style="color:#fff">registros (puertos) de configuración</b> de los dispositivos de E/S</td></tr>
+        <tr><td style="padding:.4rem .55rem;color:#fff">Message</td><td style="padding:.4rem .55rem;color:var(--muted)">señales de control: <b style="color:#fff">interrupciones (MSI)</b>, control de errores, administración de energía</td></tr>
+      </tbody>
+    </table>
+    <div class="note ok">✓ Memoria, I/O y Configuración admiten <strong>lectura y escritura</strong>. El espacio <strong>Message</strong> es el canal por donde viaja la <strong>MSI</strong> (interrupción por mensaje) → conecta con unidad 12.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">✂️ Técnica de transacción dividida (split transaction)</div>
+    <div class="step">
+      <div class="s"><b>1.</b> Un dispositivo PCIe envía un <b>paquete de solicitud</b> y queda a la espera (no bloquea)</div>
+      <div class="s"><b>2.</b> El <b>completador</b> (el otro extremo punto a punto) inicia el <b>paquete completado</b> <b>solo cuando tiene datos + estado listos</b></div>
+      <div class="s"><b>3.</b> Cada <b>TLP lleva un identificador único</b> para enrutar la respuesta a su solicitante</div>
+      <div class="s"><b>4.</b> Los mensajes de la capa de transacción <b>no requieren respuesta (Acknowledge)</b></div>
+    </div>
+    <div class="note warn" style="opacity:0.9">⚪ Solicitud y completado van <strong>desacoplados</strong> (como una red) → mejor uso del bus. "Cualquier periférico puede enviar y recibir TLP para lectura y escritura como lo haría una red" (apunte).</div>
+  </div>
+
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:1rem auto 0">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🔗 Para el final — módulos vecinos que también entran</div>
+    <div class="proplist pl-green">
+      <div><b style="color:#fff">Buses (U10)</b> — el apunte de buses completo <b>entra al final</b> (<em>"buses en este [parcial] no, en el final sí"</em>, 06-01): PCIe como interconexión punto a punto, jerarquía de buses, USB/SATA. → ver cheatsheet <b>unidad-10-buses</b></div>
+      <div><b style="color:#fff">Interrupciones (U12)</b> — vector/ISR/pila/IRET/enmascarables/NMI y <b>MSI</b> entran al final. La E/S por interrupciones (sección 5) es solo el <em>disparo</em>; el ciclo completo está en U12. → ver cheatsheet <b>unidad-12-interrupciones-y-excepciones</b></div>
+      <div><b style="color:#fff">Nuevas tecnologías (U13)</b> — SoC (System on Chip), Cloud Computing y arquitecturas de software <b>entran al final</b> como módulo aparte (<em>"se toman en el final"</em>, 06-01). → apunte <b>unidad-13-nuevastecnologias</b> (aún sin cheatsheet)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 14 ============ -->
+<div class="section-label" id="s14">14 — Claves para el examen</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">💡 Tips de clase — claves para el examen</div>
+    <div class="step">
+      <div class="s"><b>1.</b> Las <b>4 modalidades</b>: Polling · Interrupciones · DMA · <b>Canales</b>. Canales es la 4ª (trampa de apuntes viejos). DMA transfiere sin CPU; el <b>canal-procesador tiene memoria propia</b>.</div>
+      <div class="s"><b>2.</b> Ancho de banda SIEMPRE <b>"por unidad de tiempo"</b> (rúbrica top). <b>Latencia ≠ ancho de banda</b>: latencia más baja mejor; ancho de banda = datos/tiempo.</div>
+      <div class="s"><b>3.</b> Polling e Interrupciones son <b>AIM</b> → el dato pasa por los registros del CPU → lentas. El <b>DMA</b> rompe eso.</div>
+      <div class="s"><b>4.</b> El módulo, del lado del periférico, <b>NO reconoce direcciones</b> (las envía el CPU).</div>
+      <div class="s"><b>5.</b> <b>Mapeado a memoria</b> = mismo espacio + mismas instrucciones (procesadores actuales, menor latencia). <b>Aislado</b> = dos espacios + instrucciones dedicadas (8086: 16 bits de E/S).</div>
+      <div class="s"><b>6.</b> Los <b>3 puertos</b>: control (CPU escribe) · estado (CPU lee) · datos (lee/escribe).</div>
+      <div class="s"><b>7.</b> <b>DMA</b>: configurar <b>origen · destino · longitud · modo</b> → cede el bus (Master) → CPU sigue → al terminar interrumpe (robo de ciclo).</div>
+      <div class="s"><b>8.</b> Vocabulario en <b>castellano y completo, no siglas</b>: "acceso directo a memoria" (no solo DMA), "solicitud de interrupción" (no solo INTR). El profe lo valora.</div>
+      <div class="s"><b>9.</b> Para el <b>final</b> también entran, como módulos aparte: <b>apunte de Buses</b> completo → U10 · <b>interrupciones</b> vector/ISR/pila/MSI → U12 · <b>nuevas tecnologías</b> SoC/Cloud → U13. La <b>transacción dividida</b> y el direccionamiento de la capa de transacción están en el apunte pero son <b>baja prob</b> ("no se lo suele tomar").</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Entrada / Salida · Arquitectura de Computadores · Universidad de Palermo</p>
+  <p class="out">Alcance <strong>final</strong>: entra todo el apunte de E/S — incluidos PCIe (capas, Root Complex, TLP), arbitraje REQ#/GNT#, bus mastering y almacenamiento. Buses (U10), interrupciones/MSI (U12) y nuevas tecnologías SoC/Cloud (U13) entran como módulos propios. Baja prob (lectura opcional): transacción dividida y direccionamiento de la capa de transacción. Fuera de evaluación: el detalle del IBM Z13 (el concepto de canales sí) y el formato de video 4:2:2.</p>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#arquitectura-de-computadores" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

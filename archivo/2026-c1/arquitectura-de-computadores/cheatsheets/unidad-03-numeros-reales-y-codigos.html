@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Números Reales y Códigos — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  header { text-align: center; margin-bottom: 2rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px; margin: 1.2rem auto 0; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .section-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--accent);
+    margin: 2.5rem auto 1rem; max-width: 1400px;
+    display: flex; align-items: center; gap: 0.8rem; scroll-margin-top: 1rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-label.is-ctx { color: var(--muted); }
+
+  .grid   { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid.is-ctx { opacity: 0.82; }
+
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem; font-family: var(--mono); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule {
+    font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border); border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  .formula {
+    font-family: var(--mono); font-size: 0.82rem; color: #fff;
+    background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 5px; padding: 0.5rem 0.7rem; text-align: center; margin: 0.5rem 0;
+  }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+
+  .proplist {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    display: grid; gap: 0.35rem;
+  }
+  .proplist div { padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div { background: rgba(16,185,129,0.06); }
+
+  .step { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.4rem; }
+  .step .s {
+    padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0;
+  }
+  .step .s b { color: #fff; }
+
+  .note {
+    font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem;
+    padding: 0.35rem 0.55rem; border-radius: 4px;
+  }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.06); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  .flag      { color: #f87171;          font-size: 0.55rem; margin-left: 0.5rem; }
+  .flag.info { color: var(--accent3);   font-size: 0.55rem; margin-left: 0.5rem; }
+
+  .insight {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--accent3);
+    background: rgba(245,158,11,0.06); border-left: 2px solid var(--accent3);
+    border-radius: 0 4px 4px 0; padding: 0.4rem 0.6rem; margin-top: 0.5rem;
+  }
+
+  .matrix {
+    display: inline-grid; gap: 0.15rem 0.55rem; font-family: var(--mono);
+    font-size: 0.8rem; color: var(--text); padding: 0.3rem 0.65rem; position: relative;
+  }
+  .matrix::before, .matrix::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 7px;
+    border: 1.5px solid var(--accent2);
+  }
+  .matrix::before { left: 0; border-right: none; }
+  .matrix::after  { right: 0; border-left: none; }
+  .matrix span { text-align: center; }
+  .matrix .hl { color: var(--accent3); font-weight: 700; }
+  .matrix .z  { color: #475569; }
+
+  .mwrap { display: flex; justify-content: center; align-items: center; gap: 0.6rem; margin: 0.6rem 0; flex-wrap: wrap; }
+  .mwrap .eq { font-family: var(--mono); color: var(--muted); font-size: 0.95rem; }
+
+  .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+  .vs-side { padding: 0.8rem; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.35rem; }
+  .vs-side h4 { font-family: var(--display); font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+  .vs-mid { display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.75rem; font-weight: 700; color: var(--accent3); padding: 0 0.7rem; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .vs-row { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .vs-row:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .versus { grid-template-columns: 1fr; }
+    .vs-mid { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0.4rem; text-align: center; }
+  }
+
+  .stat { text-align: center; padding: 0.8rem 0.4rem; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+  .stat-num {
+    font-family: var(--display); font-size: 2rem; font-weight: 800; line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .stat-unit { font-family: var(--mono); font-size: 0.72rem; color: var(--accent2); letter-spacing: 0.08em; }
+  .stat-cap { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); margin-top: 0.1rem; }
+
+  /* recall */
+  .recall { font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0; border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden; }
+  .recall summary { cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2); background: rgba(124,58,237,0.06); list-style: none; display: flex; align-items: center; gap: 0.5rem; user-select: none; }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before { content: '▸'; font-size: 0.7rem; color: var(--accent); transition: transform 0.15s; flex-shrink: 0; }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a { padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5; border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04); }
+  .recall-a strong { color: #fff; }
+
+  /* tier + scope */
+  .tier { display: inline-flex; align-items: center; gap: 0.3rem; font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 3px; vertical-align: middle; line-height: 1; }
+  .tier::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .tier.core { color: var(--accent4); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.35); }
+  .tier.core::before { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .tier.key  { color: var(--accent3); background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.4); }
+  .tier.key::before  { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .tier.ctx  { color: var(--muted); background: rgba(148,163,184,0.06); border: 1px solid var(--border); }
+  .tier.ctx::before  { background: var(--muted); }
+
+  .scope { max-width: 1400px; margin: 0 auto 1rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent3); border-radius: 6px; padding: 0.8rem 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; align-items: center; }
+  .scope-label { font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent3); font-weight: 700; writing-mode: vertical-rl; transform: rotate(180deg); border-right: 1px solid var(--border); padding-right: 0.7rem; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+  .scope-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spill { font-family: var(--mono); font-size: 0.6rem; padding: 0.22rem 0.55rem; border-radius: 3px; border: 1px solid var(--border); color: var(--muted); }
+  .spill.in  { color: var(--accent4); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
+  .spill.key { color: var(--accent3); border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+  .spill.cut { color: var(--muted); border-style: dashed; text-decoration: line-through; opacity: 0.75; }
+  @media (max-width: 600px) {
+    .scope { grid-template-columns: 1fr; }
+    .scope-label { writing-mode: horizontal-tb; transform: none; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.4rem; }
+  }
+
+  /* bitstrip */
+  .bitstrip { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; margin: 0.8rem 0 0.4rem; }
+  .bitstrip .cell { text-align: center; padding: 0.55rem 0.2rem 0.45rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 5px; font-family: var(--mono); }
+  .bitstrip .cell .dg { font-size: 1.4rem; font-weight: 700; color: #fff; line-height: 1; }
+  .bitstrip .cell.on  .dg { color: var(--accent2); }
+  .bitstrip .cell.off .dg { color: #475569; }
+  .bitstrip .cell .pos { font-size: 0.5rem; color: var(--muted); letter-spacing: 0.05em; margin-top: 0.35rem; }
+  .bitstrip .cell .wt  { font-size: 0.55rem; color: var(--accent2); margin-top: 0.15rem; }
+  .bitstrip .cell.msb { border-color: var(--accent3); }
+  .bitstrip .cell.msb .pos { color: var(--accent3); }
+  .bitstrip .cell.lsb { border-color: var(--accent2); }
+  .bitstrip .cell.lsb .pos { color: var(--accent2); }
+  .strip-legend { font-family: var(--mono); font-size: 0.55rem; color: var(--muted); display: flex; justify-content: space-between; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* power-table (process of decision) */
+  .ptbl-wrap { overflow-x: auto; margin: 0.8rem 0; }
+  .power-table { display: grid; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-family: var(--mono); font-size: 0.7rem; min-width: 460px; }
+  .power-table > div { padding: 0.4rem 0.25rem; text-align: center; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
+  .power-table .pt-rl { justify-content: flex-start; color: var(--muted); font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.08em; background: rgba(255,255,255,0.03); padding-left: 0.6rem; }
+  .power-table .pt-pow { color: var(--accent2); font-weight: 700; }
+  .power-table .pt-cell.on  { background: rgba(6,182,212,0.16); color: var(--accent2); font-weight: 700; }
+  .power-table .pt-cell.off { color: #475569; }
+  .power-table .pt-bit.on  { color: var(--accent2); font-weight: 700; }
+  .power-table .pt-bit.off { color: #475569; }
+
+  /* worked — derivación con color por concepto */
+  .worked { font-family: var(--mono); font-size: 0.74rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-left: 2px solid var(--accent3); border-radius: 0 6px 6px 0; padding: 0.7rem 0.9rem; margin: 0.6rem 0; }
+  .worked .wr { display: grid; grid-template-columns: 110px 1fr; gap: 0.7rem; align-items: baseline; padding: 0.18rem 0; }
+  .worked .wl { font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .worked .wb { color: var(--text); letter-spacing: 0.06em; word-break: break-all; }
+  .worked .sign { color: var(--accent3); font-weight: 700; }
+  .worked .exp  { color: var(--accent4); font-weight: 700; }
+  .worked .mant { color: var(--accent2); }
+  .worked .res  { color: #fff; font-weight: 700; }
+  .worked .wr.total { border-top: 1px solid var(--border); margin-top: 0.2rem; padding-top: 0.35rem; }
+
+  /* cmatrix */
+  .cmatrix-wrap { overflow-x: auto; max-width: 1400px; margin: 0.5rem auto; }
+  .cmatrix { display: grid; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-family: var(--mono); font-size: 0.66rem; min-width: 640px; }
+  .cmatrix > div { padding: 0.5rem 0.6rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .cmatrix .cm-corner, .cmatrix .cm-rl { background: rgba(255,255,255,0.03); color: var(--muted); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; }
+  .cmatrix .cm-head { font-family: var(--display); font-weight: 700; color: #fff; font-size: 0.8rem; text-align: center; position: relative; display: block; }
+  .cmatrix .cm-head .sub { display: block; font-family: var(--mono); font-size: 0.5rem; color: var(--muted); margin-top: 0.2rem; letter-spacing: 0.04em; }
+  .cmatrix .ok { color: var(--accent4); font-weight: 700; }
+  .cmatrix .no { color: #f87171; font-weight: 700; }
+
+  /* exam-q */
+  .exam-q { position: relative; margin: 0.6rem 0; padding: 0.7rem 0.9rem 0.7rem 2.7rem; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.3); border-left: 2px solid var(--red); border-radius: 0 6px 6px 0; font-family: var(--mono); font-size: 0.7rem; }
+  .exam-q::before { content: 'Q'; position: absolute; left: 0.65rem; top: 0.7rem; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--red); color: #fff; font-family: var(--display); font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+  .exam-q .q { color: #fff; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.4; }
+  .exam-q .a { color: var(--muted); line-height: 1.55; }
+  .exam-q .a strong { color: var(--text); }
+
+  /* units */
+  .units { display: grid; grid-template-columns: auto auto 1fr; font-family: var(--mono); font-size: 0.68rem; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  .units > div { padding: 0.4rem 0.7rem; border-bottom: 1px solid var(--border); }
+  .units .u-sym { color: var(--accent2); font-weight: 700; }
+  .units .u-nm  { color: #fff; }
+  .units .u-eq  { color: var(--muted); text-align: right; }
+  .units > div:nth-last-child(-n+3) { border-bottom: none; }
+
+  /* SVG field diagram */
+  .svgwrap { margin: 0.4rem 0; }
+
+  /* nav */
+  .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .toc-rail { position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem; }
+  .toc-rail a { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; font-family: var(--mono); font-size: 0.55rem; color: var(--muted); padding: 0.12rem 0.25rem; border-radius: 3px; }
+  .toc-rail a .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; transition: all 0.2s; }
+  .toc-rail a .lbl { opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap; }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  footer { text-align: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; color: var(--muted); }
+  footer .out { color: var(--muted); margin-top: 0.5rem; opacity: 0.85; }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1, .stat-num { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .scope, .cmatrix, .power-table, .worked, .exam-q, .recall, .stat, .bitstrip { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="toc-rail">
+  <a href="#s01"><span class="dot"></span><span class="lbl">01 · IEEE 754 directo</span></a>
+  <a href="#s02"><span class="dot"></span><span class="lbl">02 · IEEE 754 inverso</span></a>
+  <a href="#s03"><span class="dot"></span><span class="lbl">03 · Complemento a 2</span></a>
+  <a href="#s04"><span class="dot"></span><span class="lbl">04 · Cambio de base</span></a>
+  <a href="#s05"><span class="dot"></span><span class="lbl">05 · Coma fija</span></a>
+  <a href="#s06"><span class="dot"></span><span class="lbl">06 · Normalización</span></a>
+  <a href="#s07"><span class="dot"></span><span class="lbl">07 · Precisión vs rango</span></a>
+  <a href="#s08"><span class="dot"></span><span class="lbl">08 · Rango · overflow</span></a>
+  <a href="#s09"><span class="dot"></span><span class="lbl">09 · Códigos</span></a>
+  <a href="#s10"><span class="dot"></span><span class="lbl">10 · Unidades</span></a>
+  <a href="#s11"><span class="dot"></span><span class="lbl">11 · Auto-test</span></a>
+  <a href="#s12"><span class="dot"></span><span class="lbl">12 · Claves examen</span></a>
+</nav>
+
+<header>
+  <div class="badge">Arq. de Computadores · Unidad 03 · Números Reales y Códigos · Repaso FINAL</div>
+  <h1>Números Reales y Códigos</h1>
+  <p class="subtitle">IEEE 754 · complemento a 2 · cambio de base · coma fija · overflow · códigos · unidades</p>
+  <div class="divider"></div>
+</header>
+
+<div class="scope">
+  <div class="scope-label">Scope · final</div>
+  <div class="scope-pills">
+    <span class="spill key">IEEE 754 directo</span>
+    <span class="spill key">complemento a 2</span>
+    <span class="spill key">cambio de base</span>
+    <span class="spill key">overflow / underflow</span>
+    <span class="spill in">decodificar IEEE 754</span>
+    <span class="spill in">normalizar / coma fija</span>
+    <span class="spill in">rango con / sin signo</span>
+    <span class="spill in">ASCII · BCD · paridad · Unicode</span>
+    <span class="spill in">unidades de medida</span>
+    <span class="spill cut">Gray · Hamming · BCD exceso-3</span>
+    <span class="spill cut">IEEE 754 doble / extendido</span>
+  </div>
+</div>
+<div style="max-width:1400px;margin:-0.4rem auto 1rem;font-family:var(--mono);font-size:0.62rem;color:var(--muted);line-height:1.5;padding:0 0.2rem">
+  📚 <strong style="color:#fbbf24">Scope del final:</strong> entra <strong>todo el apunte</strong> de la unidad — además de los 3 cálculos (IEEE 754, complemento a 2, cambio de base), el profe toma <strong style="color:#4ade80">códigos y unidades de medida</strong>: "suelo preguntar de la última parte, que es la que nadie estudia". Tachado = no desarrollado / fuera del apunte de esta unidad.
+</div>
+
+<!-- ============ 01 ============ -->
+<div class="section-label" id="s01">01 — Punto flotante IEEE 754 (decimal → IEEE 754) <span class="tier key">muy mecánico</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🔢 Definición</div>
+    <div class="op-name">IEEE 754 precisión simple</div>
+    <div class="op-notation">32 bits · N = ±m × 2ᵉ con 1 ≤ m &lt; 2</div>
+    <div class="op-rule">
+      Formato estándar de <strong>32 bits</strong> para reales en notación científica binaria normalizada. Tres campos: <strong>signo</strong> (b₃₁) · <strong>exponente</strong> con sesgo de 8 bits (b₃₀–b₂₃) · <strong>mantisa</strong> de 23 bits (b₂₂–b₀).
+    </div>
+    <div class="op-rule">
+      La mantisa normalizada arranca siempre con <strong>"1,"</strong> → ese 1 es <strong>implícito</strong>, no se guarda. Se gana 1 bit de precisión: 23 bits guardados = 24 bits efectivos.
+    </div>
+    <div class="svgwrap">
+      <svg viewBox="0 0 420 64" width="100%" style="display:block;margin:0.4rem auto" role="img" aria-label="Layout de 32 bits de IEEE 754">
+        <rect x="6" y="14" width="34" height="34" rx="4" fill="rgba(245,158,11,0.14)" stroke="#f59e0b" stroke-width="1.5"/>
+        <text x="23" y="35" font-family="JetBrains Mono,monospace" font-size="12" fill="#f59e0b" text-anchor="middle">S</text>
+        <text x="23" y="60" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#94a3b8" text-anchor="middle">b31</text>
+        <text x="23" y="10" font-family="JetBrains Mono,monospace" font-size="7" fill="#94a3b8" text-anchor="middle">1</text>
+        <rect x="46" y="14" width="120" height="34" rx="4" fill="rgba(16,185,129,0.12)" stroke="#10b981" stroke-width="1.5"/>
+        <text x="106" y="35" font-family="JetBrains Mono,monospace" font-size="11" fill="#10b981" text-anchor="middle">EXPONENTE</text>
+        <text x="106" y="60" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#94a3b8" text-anchor="middle">b30 … b23</text>
+        <text x="106" y="10" font-family="JetBrains Mono,monospace" font-size="7" fill="#94a3b8" text-anchor="middle">8 bits (sesgo 127)</text>
+        <rect x="172" y="14" width="242" height="34" rx="4" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.5"/>
+        <text x="293" y="35" font-family="JetBrains Mono,monospace" font-size="11" fill="#06b6d4" text-anchor="middle">MANTISA (fracción)</text>
+        <text x="293" y="60" font-family="JetBrains Mono,monospace" font-size="7.5" fill="#94a3b8" text-anchor="middle">b22 … b0</text>
+        <text x="293" y="10" font-family="JetBrains Mono,monospace" font-size="7" fill="#94a3b8" text-anchor="middle">23 bits</text>
+      </svg>
+    </div>
+    <div class="formula amber-f">sesgo = 2ⁿ⁻¹ − 1 = 2⁷ − 1 = <strong style="color:#fbbf24">127</strong> &nbsp;·&nbsp; exp. almacenado = exp. real + 127</div>
+    <div class="insight">💡 de la clase · El exceso <strong>siempre es 127</strong>, sin importar hacia dónde corrés la coma. Truco: en vez de 4 + 127, sumá 3 + 128 (128 = un 1 con 7 ceros, más cómodo).</div>
+    <div class="note danger">🚨 NO apliques complemento a 2 porque el número sea negativo. En flotante el signo es solo el bit b₃₁. Mezclar Ca2 con punto flotante es el error que el profe corrige.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">✍️ Método paso a paso — ejemplo canónico</div>
+    <div class="op-notation">−235,69140625<sub>10</sub> → IEEE 754 (apunte)</div>
+    <div class="worked">
+      <div class="wr"><span class="wl">1 · entero</span><span class="wb">235 = <span class="mant">11101011</span></span></div>
+      <div class="wr"><span class="wl">2 · fracción</span><span class="wb">0,69140625 = <span class="mant">0,10110001</span></span></div>
+      <div class="wr"><span class="wl">3 · binario</span><span class="wb"><span class="mant">11101011,10110001</span> × 2⁰</span></div>
+      <div class="wr"><span class="wl">4 · normalizar</span><span class="wb">1,<span class="mant">110101110110001</span> × 2<span class="exp">⁷</span></span></div>
+      <div class="wr"><span class="wl">5 · signo</span><span class="wb"><span class="sign">1</span> (negativo)</span></div>
+      <div class="wr"><span class="wl">6 · exponente</span><span class="wb">7 + 127 = 134 = <span class="exp">10000110</span></span></div>
+      <div class="wr"><span class="wl">7 · mantisa 23b</span><span class="wb"><span class="mant">11010111011000100000000</span></span></div>
+      <div class="wr"><span class="wl">8 · ensamblar</span><span class="wb"><span class="sign">1</span> <span class="exp">10000110</span> <span class="mant">11010111011000100000000</span></span></div>
+      <div class="wr total"><span class="wl">→ hexa</span><span class="wb"><span class="res">C36BB100<sub>16</sub></span></span></div>
+    </div>
+    <div class="proplist pl-amber" style="margin-top:0.6rem">
+      <div><span style="color:#f59e0b">signo</span> · <span style="color:#10b981">exponente</span> · <span style="color:#06b6d4">mantisa</span> — seguí cada color por los pasos</div>
+    </div>
+    <div class="note warn">⚠️ En matemática es estricto: un dígito mal (un 1, un 0, una coma fuera de lugar) cambia el resultado. Explicá el procedimiento paso a paso — el profe lo espera bien hecho.</div>
+  </div>
+
+</div>
+
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">📝 Segundo ejemplo · fracción periódica (0,3)</div>
+    <div class="exam-q">
+      <div class="q">Pasar a IEEE 754 precisión simple (32 bits) el número negativo −19,3.</div>
+      <div class="a">19 = <strong>10011</strong>; 0,3 → 0,0100110011…<sub>2</sub> (<strong>periódico</strong>). Combinado: 10011,01001100…<sub>2</sub>. Normalizar → 1,00110100110011…<sub>2</sub> × 2⁴. Signo = <strong>1</strong>. Exponente = 4 + 127 = 131 = <strong>10000011</strong>. Mantisa (23 bits, truncada) = <strong>00110100110011001100110</strong>. Ensamblar y agrupar de a 4 → <strong>−19,3 ≈ C19A6666<sub>16</sub></strong>.</div>
+    </div>
+    <div class="insight">💡 de la clase · El de punto flotante es <strong>muy mecánico</strong>: si conocés el método, sale solo. Cuando la fracción es periódica (0,3), se completan los 23 bits de mantisa y listo.</div>
+  </div>
+</div>
+
+<!-- ============ 02 ============ -->
+<div class="section-label" id="s02">02 — Decodificación IEEE 754 (hexa → decimal) <span class="tier key">cálculo inverso</span></div>
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">🔁 Camino inverso</div>
+    <div class="op-name">De IEEE 754 a decimal</div>
+    <div class="op-notation">exp. real = exp. almacenado − 127</div>
+    <div class="step">
+      <div class="s"><b>1.</b> Hexa → binario (cada dígito = 4 bits) y armar los 32 bits.</div>
+      <div class="s"><b>2.</b> Separar campos: b₃₁ signo · b₃₀–b₂₃ exponente · b₂₂–b₀ mantisa.</div>
+      <div class="s"><b>3.</b> Exponente real = almacenado − 127 (quitar el sesgo).</div>
+      <div class="s"><b>4.</b> Reponer el "1," implícito delante de la mantisa.</div>
+      <div class="s"><b>5.</b> Aplicar el signo y desnormalizar (correr la coma según el exponente).</div>
+      <div class="s"><b>6.</b> Sumar los pesos de los "1" → decimal.</div>
+    </div>
+    <div class="insight">💡 de la clase · Aclarar siempre que el número hexa es la representación de un binario de punto flotante IEEE 754: la igualdad hexa↔decimal solo vale bajo ese supuesto.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">✍️ Ejemplo resuelto (apunte)</div>
+    <div class="op-notation">3EBC4000<sub>16</sub> → +0,36767578125<sub>10</sub></div>
+    <div class="worked">
+      <div class="wr"><span class="wl">1 · binario</span><span class="wb"><span class="mant">0011 1110 1011 1100 0100 0000 0000 0000</span></span></div>
+      <div class="wr"><span class="wl">2 · signo</span><span class="wb">b₃₁ = <span class="sign">0</span> → "+"</span></div>
+      <div class="wr"><span class="wl">3 · exponente</span><span class="wb"><span class="exp">01111101</span> = 125 − 127 = <span class="exp">−2</span></span></div>
+      <div class="wr"><span class="wl">4 · reponer 1,</span><span class="wb">1,<span class="mant">011110001</span> × 2⁻²</span></div>
+      <div class="wr"><span class="wl">5 · desnormalizar</span><span class="wb">0,<span class="mant">01011110001</span> × 2⁰</span></div>
+      <div class="wr total"><span class="wl">→ decimal</span><span class="wb"><span class="res">+0,36767578125<sub>10</sub></span></span></div>
+    </div>
+    <div class="formula cyan-f">0,25 + 0,125 + 0,03125 + 0,015625 + 0,0078125 + 0,00048828125 = 0,36767578125</div>
+  </div>
+
+</div>
+
+<!-- ============ 03 ============ -->
+<div class="section-label" id="s03">03 — Complemento a 2 (negativo → binario) <span class="tier key">cuidado el bit de signo</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🔢 Definición + procedimiento</div>
+    <div class="op-name">Complemento a 2 (Ca2)</div>
+    <div class="op-notation">MSB = bit de signo (0 = "+", 1 = "−")</div>
+    <div class="op-rule">
+      Representa enteros (y punto fijo) <strong>con signo</strong>. Positivos: bit de signo 0. Negativos: convenio de Ca2 sobre el positivo.
+    </div>
+    <div class="step">
+      <div class="s"><b>1.</b> Pasar el <b>valor absoluto</b> a binario.</div>
+      <div class="s"><b>2.</b> Agregar el <b>bit de signo</b> (un 0 adelante — todavía no tiene signo).</div>
+      <div class="s"><b>3.</b> Si es negativo: <b>Ca1</b> (invertir todos los bits) + <b>sumar 1</b> en la columna del LSB.</div>
+    </div>
+    <div class="note danger">🚨 El error más común: <strong>olvidar el bit de signo</strong> → da positivo cuando se pedía un negativo. Si te dan un negativo en Ca2 y no lo invertís, el profe "no lo deja pasar".</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">✍️ −199 → Ca2 · seguí el bit de signo</div>
+    <div class="worked">
+      <div class="wr"><span class="wl">1 · |199| bin</span><span class="wb"><span class="mant">11000111</span></span></div>
+      <div class="wr"><span class="wl">2 · + signo</span><span class="wb"><span class="sign">0</span><span class="mant">11000111</span></span></div>
+      <div class="wr"><span class="wl">3 · invertir Ca1</span><span class="wb"><span class="sign">1</span><span class="mant">00111000</span></span></div>
+      <div class="wr"><span class="wl">4 · + 1 (LSB)</span><span class="wb"><span class="sign">1</span><span class="mant">00111001</span></span></div>
+      <div class="wr total"><span class="wl">−199 =</span><span class="wb"><span class="res">100111001</span></span></div>
+    </div>
+    <div class="op-notation" style="margin-top:0.7rem">Punto fijo con signo · −6,625<sub>10</sub> → 1001,011<sub>2</sub></div>
+    <div class="step">
+      <div class="s"><b>1.</b> Positivo + signo: +6,625 = 0110,101<sub>2</sub></div>
+      <div class="s"><b>2.</b> Ca1: 1001,010<sub>2</sub></div>
+      <div class="s"><b>3.</b> +1 en el LSB (sin importar la coma): <b>1001,011<sub>2</sub></b> · MSB = 1 → negativo ✓</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 04 ============ -->
+<div class="section-label" id="s04">04 — Cambio de base (decimal → binario → hexa) <span class="tier key">el más fácil</span></div>
+<div class="grid grid-2">
+
+  <div class="card green">
+    <div class="card-title">🔢 193 en binario · pesos posicionales</div>
+    <div class="op-rule">
+      Pasá el decimal a binario (división sucesiva por 2 o tabla de potencias prendido/apagado), después <strong>agrupá de a 4 bits</strong> para leer el hexa.
+    </div>
+    <div class="strip-legend"><span>MSB · pesa más</span><span>193 = 11000001</span><span>LSB · pesa menos</span></div>
+    <div class="bitstrip">
+      <div class="cell msb on"><div class="dg">1</div><div class="pos">d₇</div><div class="wt">128</div></div>
+      <div class="cell on"><div class="dg">1</div><div class="pos">d₆</div><div class="wt">64</div></div>
+      <div class="cell off"><div class="dg">0</div><div class="pos">d₅</div><div class="wt">32</div></div>
+      <div class="cell off"><div class="dg">0</div><div class="pos">d₄</div><div class="wt">16</div></div>
+      <div class="cell off"><div class="dg">0</div><div class="pos">d₃</div><div class="wt">8</div></div>
+      <div class="cell off"><div class="dg">0</div><div class="pos">d₂</div><div class="wt">4</div></div>
+      <div class="cell off"><div class="dg">0</div><div class="pos">d₁</div><div class="wt">2</div></div>
+      <div class="cell lsb on"><div class="dg">1</div><div class="pos">d₀</div><div class="wt">1</div></div>
+    </div>
+    <div class="formula cyan-f">128 + 64 + 1 = 193 → 11000001<sub>2</sub></div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🔡 Agrupar de a 4 → hexa</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(4,1fr)">
+        <span class="hl">1</span><span class="hl">1</span><span class="z">0</span><span class="z">0</span>
+      </div>
+      <div class="matrix" style="grid-template-columns:repeat(4,1fr)">
+        <span class="z">0</span><span class="z">0</span><span class="z">0</span><span class="hl">1</span>
+      </div>
+      <span class="eq">→</span>
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr)">
+        <span class="hl">C</span><span class="hl">1</span>
+      </div>
+    </div>
+    <div class="formula">1100<sub>2</sub> = 12 = C<sub>16</sub> &nbsp;·&nbsp; 0001<sub>2</sub> = 1 = 1<sub>16</sub> &nbsp;→&nbsp; <strong>193 = C1<sub>16</sub></strong></div>
+    <div class="insight">💡 de la clase · Lo llamó "un <strong>regalito de carnaval</strong>": es lo más mecánico de la unidad, hay que tenerlo bien sí o sí. Bien en binario pero mal a hexa → puede dar medio punto, pero no conviene errar algo tan simple.</div>
+  </div>
+
+</div>
+
+<!-- ============ 05 ============ -->
+<div class="section-label" id="s05">05 — Representación con coma fija / punto fijo <span class="tier core">base de los cálculos</span></div>
+<div class="grid grid-2">
+
+  <div class="card amber">
+    <div class="card-title">⚔️ Las dos partes, dos métodos</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Parte entera</h4>
+        <div class="vs-row">división sucesiva ÷ 2</div>
+        <div class="vs-row">los restos, de abajo hacia arriba</div>
+        <div class="vs-row">hasta cociente 0</div>
+        <div class="vs-row">o tabla de potencias on/off</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>Parte fraccionaria</h4>
+        <div class="vs-row">multiplicación sucesiva × 2</div>
+        <div class="vs-row">el dígito entero, de arriba hacia abajo</div>
+        <div class="vs-row">hasta llegar a 0 (o periódico)</div>
+        <div class="vs-row">pesos 2⁻¹, 2⁻², 2⁻³ = ½, ¼, ⅛</div>
+      </div>
+    </div>
+    <div class="formula cyan-f">11,101<sub>2</sub> = 2 + 1 + 0,5 + 0,125 = 3,625<sub>10</sub></div>
+    <div class="insight">💡 La parte decimal se lee de <strong>arriba hacia abajo</strong>; la columna entera siempre arranca con el 0 del bit de signo.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">📊 Fracción por × 2 — mostrá la cuenta</div>
+    <div class="op-notation">0,828125 → 0,110101<sub>2</sub> &nbsp;(de 4,828125<sub>10</sub>)</div>
+    <div class="ptbl-wrap">
+      <div class="power-table" style="grid-template-columns:auto repeat(6,1fr)">
+        <div class="pt-rl">valor × 2 =</div>
+        <div class="pt-pow">1,656</div><div class="pt-pow">1,313</div><div class="pt-pow">0,625</div><div class="pt-pow">1,25</div><div class="pt-pow">0,5</div><div class="pt-pow">1,0</div>
+        <div class="pt-rl">bit (entero) ↑</div>
+        <div class="pt-bit on">1</div><div class="pt-bit on">1</div><div class="pt-bit off">0</div><div class="pt-bit on">1</div><div class="pt-bit off">0</div><div class="pt-bit on">1</div>
+      </div>
+    </div>
+    <div class="formula">4,828125<sub>10</sub> = 100,<strong>110101</strong><sub>2</sub></div>
+    <div class="note warn">⚠️ 0,2<sub>10</sub> × 2 nunca cierra: 0,2 = 0,0011001100…<sub>2</sub> (<strong>periódico</strong>). No todo decimal exacto tiene binario finito.</div>
+  </div>
+
+</div>
+
+<!-- ============ 06 ============ -->
+<div class="section-label" id="s06">06 — Notación científica y normalización <span class="tier core">engranaje de IEEE 754</span></div>
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">🧮 Normalización</div>
+    <div class="op-rule">
+      Todo real se reescribe como <strong>±f × baseᵉ</strong>. Decimal normalizada: 0,1 ≤ f &lt; 1. En <strong>IEEE 754</strong> la norma exige 1 ≤ m &lt; 2 (se normaliza <em>después</em> del primer 1, ganando el bit implícito).
+    </div>
+    <div class="formula">N = ±f × 2±ᵉ</div>
+    <div class="formula cyan-f">+1011,1<sub>2</sub> = +11,5<sub>10</sub> → +0,10111<sub>2</sub> × 2⁴ &nbsp;|&nbsp; IEEE 754: +1,0111<sub>2</sub> × 2³</div>
+    <div class="insight">💡 de la clase · La cantidad de veces que <strong>corrés la coma hasta el primer 1</strong> es el exponente al que va elevada la base 2. ("Correr la coma" = normalizar.)</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">✍️ Verificación rápida</div>
+    <div class="step">
+      <div class="s"><b>1.</b> +0,10111<sub>2</sub> = 0,5 + 0,125 + 0,0625 + 0,03125 = 0,71875</div>
+      <div class="s"><b>2.</b> 0,71875 × 2⁴ = 0,71875 × 16 = <b>+11,5<sub>10</sub></b> ✓</div>
+    </div>
+    <div class="proplist pl-amber" style="margin-top:0.7rem">
+      <div>m normalizada IEEE 754: <span style="color:#4ade80">1,0 ≤ m &lt; 2,0</span></div>
+      <div>el "1," nunca se guarda <span style="color:#4ade80">✓ bit implícito</span></div>
+      <div>el exponente puede ser <span style="color:#fbbf24">+ o −</span> según hacia dónde se corre</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 07 ============ -->
+<div class="section-label" id="s07">07 — Precisión vs. rango · truncamiento <span class="tier core">fundamento · el "por qué" del rango</span></div>
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">📊 Trade-off con dígitos fijos (π en 3 dígitos)</div>
+    <div class="grid grid-3" style="margin-top:0.5rem">
+      <div class="stat"><div class="stat-num">4,72%</div><div class="stat-unit">[0…999]</div><div class="stat-cap">π ≈ 3 · precisión 1</div></div>
+      <div class="stat"><div class="stat-num">1,34%</div><div class="stat-unit">[0,0…99,9]</div><div class="stat-cap">π ≈ 3,1 · precisión 0,1</div></div>
+      <div class="stat"><div class="stat-num">0,05%</div><div class="stat-unit">[0,00…9,99]</div><div class="stat-cap">π ≈ 3,14 · precisión 0,01</div></div>
+    </div>
+    <div class="op-rule" style="margin-top:0.7rem">
+      Con cantidad fija de dígitos: a mayor <strong>rango</strong>, menor <strong>precisión</strong>. Más dígitos a la izquierda de la coma → más rango; a la derecha → más precisión. El error máximo de representación es la mitad de la precisión.
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">✂️ Truncamiento vs redondeo</div>
+    <div class="proplist pl-amber">
+      <div><b style="color:#fff">Truncamiento:</b> se completan los dígitos que entran y se descartan los demás</div>
+      <div><b style="color:#fff">Redondeo:</b> a la combinación binaria más próxima y luego trunca</div>
+    </div>
+    <div class="formula amber-f">error trunc. &lt; 2⁻ᵐ &nbsp;·&nbsp; error redondeo &lt; 2⁻⁽ᵐ⁺¹⁾</div>
+    <div class="note ok">✓ El redondeo reduce el error un orden de magnitud (la mitad) frente al truncamiento. m = cantidad de dígitos fraccionarios.</div>
+  </div>
+
+</div>
+
+<!-- ============ 08 ============ -->
+<div class="section-label" id="s08">08 — Rango · overflow · underflow <span class="tier key">entra · "se tienen que saber"</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">📐 Exponentes especiales</div>
+    <div class="proplist pl-purple">
+      <div>FE<sub>16</sub> (254) <span style="color:#94a3b8">→ exponente máximo normalizado</span></div>
+      <div>FF<sub>16</sub> (255) <span style="color:#f87171">→ reservado: ∞ y NaN</span></div>
+      <div>01<sub>16</sub> (1) <span style="color:#94a3b8">→ exponente normalizado mínimo</span></div>
+      <div>00<sub>16</sub> (0) <span style="color:#fbbf24">→ desnormalizados (0,xxx) y ceros</span></div>
+    </div>
+    <div class="formula">rango normalizados ≈ 2⁻¹²⁶ … 2⁺¹²⁷</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">⓿ Casos límite</div>
+    <div class="proplist pl-cyan">
+      <div>+0 = <span style="color:#06b6d4">00000000<sub>16</sub></span> &nbsp;·&nbsp; −0 = <span style="color:#06b6d4">80000000<sub>16</sub></span> <span style="color:#94a3b8">(ceros signados)</span></div>
+      <div><b style="color:#fff">Desnormalizados:</b> 0,xxxx…b en vez de 1,xxxx…b → amplían el rango cerca de cero</div>
+      <div><b style="color:#fff">4 formatos:</b> simple (32) · doble (64) · simple ext. (43) · doble ext. (80)</div>
+    </div>
+    <div class="note warn">⚠️ El curso solo desarrolla <strong>precisión simple (32 bits)</strong>; doble/extendido se nombran pero no se desarrollan (en el final tampoco se piden en detalle).</div>
+  </div>
+
+</div>
+
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">⚡ Overflow y underflow <span class="tier key" style="margin-left:auto">🟢 directo del final</span></div>
+    <div class="op-rule">
+      Ocurren cuando el resultado de una operación <strong>cae fuera del rango representable</strong> con los bits disponibles. La ALU lo señaliza con la <strong>bandera de overflow</strong> del registro de estado (junto a carry, signo y cero).
+    </div>
+    <div class="formula amber-f">sin signo · n bits: <strong>0 … 2ⁿ−1</strong> &nbsp;·&nbsp; con signo (Ca2): <strong>−2ⁿ⁻¹ … 2ⁿ⁻¹−1</strong></div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Overflow · sobreflujo</h4>
+        <div class="vs-row">el resultado es <strong>más grande</strong> que el máximo representable</div>
+        <div class="vs-row">entero sin signo (n bits): pasa de 2ⁿ−1</div>
+        <div class="vs-row">IEEE 754: exponente supera FE<sub>16</sub> → ±∞</div>
+        <div class="vs-row">ej. 8 bits: 200 + 100 = 300 &gt; 255</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>Underflow · bajoflujo</h4>
+        <div class="vs-row">el resultado es <strong>demasiado chico</strong> para representarse (muy cerca de 0)</div>
+        <div class="vs-row">IEEE 754: exponente por debajo de 01<sub>16</sub> → desnormalizados o ±0</div>
+        <div class="vs-row">se pierde precisión cerca del cero</div>
+        <div class="vs-row">propio del punto flotante</div>
+      </div>
+    </div>
+    <div class="note danger">🚨 El profe lo enuncia como tema directo: "<strong>cuándo el resultado cae fuera de rango</strong> / el número es demasiado chico para representarse — se tienen que saber". Conecta con la bandera de overflow de la ALU (U5).</div>
+  </div>
+</div>
+
+<!-- ============ 09 ============ -->
+<div class="section-label" id="s09">09 — Códigos: ASCII · BCD · Paridad · Unicode <span class="tier key">apunte §2 · la última parte que el profe toma</span></div>
+
+<div class="cmatrix-wrap">
+  <div class="cmatrix" style="grid-template-columns:140px repeat(4,1fr)">
+    <div class="cm-corner">código</div>
+    <div class="cm-head">ASCII<span class="sub">+ extendido</span></div>
+    <div class="cm-head">BCD Natural</div>
+    <div class="cm-head">Paridad</div>
+    <div class="cm-head">Unicode<span class="sub">UTF-8</span></div>
+
+    <div class="cm-rl">tamaño</div>
+    <div>7 bits (+1 → 1 byte)</div>
+    <div>4 bits por dígito</div>
+    <div>+1 bit sobre el código</div>
+    <div>1 a 4 bytes</div>
+
+    <div class="cm-rl">qué codifica</div>
+    <div>caracteres alfanuméricos</div>
+    <div>dígitos decimales 0–9</div>
+    <div>control de error</div>
+    <div>todo carácter del mundo</div>
+
+    <div class="cm-rl">alcance</div>
+    <div>128 (256 extendido)</div>
+    <div>10 por nibble</div>
+    <div>cualquier código</div>
+    <div>≈ 150 000 caracteres</div>
+
+    <div class="cm-rl">detecta error</div>
+    <div class="no">no</div>
+    <div class="no">no</div>
+    <div class="ok">sí · hasta 1 bit</div>
+    <div class="no">no</div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-top:1rem">
+  <div class="card cyan">
+    <div class="card-title">🔤 ASCII y Unicode <span class="flag info">ⓘ apunte §2.1 / §2.5 → entra</span></div>
+    <div class="proplist pl-cyan">
+      <div><b style="color:#fff">ASCII:</b> 7 bits = 128 combinaciones (00<sub>16</sub>–7F<sub>16</sub>). Primeros 32 = control (NUL, EOT, ACK, LF, CR, ESC), no gráficos. +1 cero a la izquierda → 1 byte.</div>
+      <div><b style="color:#fff">ASCII Ext.:</b> 256 combinaciones (2⁸) = 1 byte; agrega acentos y caracteres de otros idiomas.</div>
+      <div><b style="color:#fff">Unicode:</b> Consorcio Unicode · un número único por carácter, sin importar la plataforma. v15.1 ≈ 150 000 caracteres, 161 scripts, +1,1 millón de símbolos posibles.</div>
+      <div><b style="color:#fff">UTF-8:</b> el más usado · 1 a 4 bytes por carácter; los primeros 128 coinciden 1:1 con ASCII → todo texto ASCII es UTF-8 válido (retrocompatible).</div>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🅿️ Paridad <span class="flag info">ⓘ apunte §2.4 · también E/S (U11)</span></div>
+    <div class="op-rule">
+      Paridad <strong>par</strong> = cantidad par de unos; <strong>impar</strong> = cantidad impar. Un <strong>bit de paridad</strong> agregado fuerza la paridad deseada del código.
+    </div>
+    <div class="proplist pl-amber">
+      <div>01001011<sub>2</sub> → 4 unos → <span style="color:#4ade80">par</span></div>
+      <div>00001101<sub>2</sub> → 3 unos → <span style="color:#fbbf24">impar</span> · +bit P=1 → par</div>
+    </div>
+    <div class="note danger">🚨 Detecta errores de <strong>hasta 1 bit</strong>. Si cambian 2 bits a la vez, la paridad se conserva y el error pasa desapercibido. Costo ≈ 25% de overhead (de 4 a 5 bits).</div>
+    <div class="insight">💡 El profe la mencionó como tema "infiltrado" de E/S (U11), pero <strong>está en el apunte de esta unidad (§2.4)</strong> → para el final, sabela.</div>
+  </div>
+</div>
+
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🔟 BCD Natural — y por qué NO es un binario <span class="flag info">ⓘ apunte §2.2–2.3 · "casi siempre entra"</span></div>
+    <div class="op-rule">
+      <strong>BCD Natural:</strong> cada dígito decimal (0–9) se reemplaza por su binario de <strong>4 bits</strong>, por separado. Las combinaciones <strong>1010–1111</strong> (10 a 15) <strong>no existen</strong> en BCD. Ej.: 208<sub>10</sub> = <span style="color:#06b6d4">0010 0000 1000</span><sub>BCD</sub> · inverso: 0111 1001 0110<sub>BCD</sub> = 7·9·6 = <strong>796<sub>10</sub></strong>.
+    </div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Binario sin signo</h4>
+        <div class="vs-row">la cadena entera es <strong>un solo</strong> número</div>
+        <div class="vs-row">0111 1001 0110<sub>2</sub> = <strong>1942<sub>10</sub></strong></div>
+        <div class="vs-row">pesos 2¹¹…2⁰ sobre los 12 bits</div>
+        <div class="vs-row">usa las 16 combinaciones por nibble</div>
+      </div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side">
+        <h4>BCD Natural</h4>
+        <div class="vs-row">cada <strong>nibble</strong> es un dígito decimal</div>
+        <div class="vs-row">0111·1001·0110 = 7·9·6 = <strong>796<sub>10</sub></strong></div>
+        <div class="vs-row">solo dígitos 0–9 por nibble</div>
+        <div class="vs-row">1010–1111 prohibidos</div>
+      </div>
+    </div>
+    <div class="note danger">🚨 La <strong>misma cadena</strong> de bits da <strong>1942</strong> (binario) o <strong>796</strong> (BCD): "no es lo mismo, casi siempre entra". Aclará siempre en qué código estás leyendo.</div>
+  </div>
+</div>
+
+<!-- ============ 10 ============ -->
+<div class="section-label" id="s10">10 — Unidades de medida <span class="tier core">apunte §3 · entra · base de memorias (U4/U6)</span></div>
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">💾 Escala de almacenamiento</div>
+    <div class="units">
+      <div class="u-sym">bit</div><div class="u-nm">0 ó 1</div><div class="u-eq">unidad mínima</div>
+      <div class="u-sym">nibble</div><div class="u-nm">4 bits</div><div class="u-eq">= 1 dígito hexa</div>
+      <div class="u-sym">byte</div><div class="u-nm">8 bits</div><div class="u-eq">= 1 carácter ASCII</div>
+      <div class="u-sym">KB</div><div class="u-nm">kilobyte</div><div class="u-eq">1000 bytes</div>
+      <div class="u-sym">MB</div><div class="u-nm">megabyte</div><div class="u-eq">1000 KB</div>
+      <div class="u-sym">GB</div><div class="u-nm">gigabyte</div><div class="u-eq">1000 MB</div>
+      <div class="u-sym">TB</div><div class="u-nm">terabyte</div><div class="u-eq">1000 GB</div>
+      <div class="u-sym">PB…ZB</div><div class="u-nm">peta…zetta</div><div class="u-eq">× 1000 cada uno</div>
+    </div>
+    <div class="insight">💡 de la clase · "kilo es 1000, siempre voy de 1000 en 1000" (de a 3 ceros). Hoy 1 MB = 1000 KB (potencias de 10); antes 1024 — esa diferencia explica por qué un disco "de 1 TB" muestra ~900 GB.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⏱️ Frecuencia · tiempo · palabra</div>
+    <div class="proplist pl-amber">
+      <div><b style="color:#fff">Frecuencia:</b> Hz → KHz → MHz → GHz (PCs actuales 1–6 GHz)</div>
+      <div><b style="color:#fff">Tiempo:</b> ms (10⁻³) → µs (10⁻⁶) → ns (10⁻⁹ s)</div>
+      <div><b style="color:#fff">Word:</b> tamaño del registro de instrucción (8/16/32/64 bits)</div>
+      <div><b style="color:#fff">DWord:</b> doble palabra</div>
+    </div>
+    <div class="note ok">✓ Mayúscula = bytes (GB) · minúscula = bits (Gb). Importa al leer velocidades de red.</div>
+  </div>
+
+</div>
+
+<!-- ============ 11 ============ -->
+<div class="section-label" id="s11">11 — Auto-test (recuperación activa) <span class="tier key">⚡ lo que más cae</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🧠 Tapá la respuesta y respondé</div>
+    <details class="recall">
+      <summary>¿Aplicás complemento a 2 para pasar un negativo a IEEE 754?</summary>
+      <div class="recall-a"><strong>No.</strong> En punto flotante el signo es solo el bit b₃₁ = 1; el Ca2 es otro formato. Mezclarlos es el error que corrige el profe.</div>
+    </details>
+    <details class="recall">
+      <summary>¿Cuánto vale el sesgo del exponente en IEEE 754 simple y cómo se aplica?</summary>
+      <div class="recall-a"><strong>127</strong> (= 2⁸⁻¹ − 1), siempre, sin importar hacia dónde se corre la coma. Se suma al exponente real para que el almacenado sea positivo.</div>
+    </details>
+    <details class="recall">
+      <summary>En Ca2, ¿qué paso se olvida la mayoría y qué error produce?</summary>
+      <div class="recall-a">Agregar el <strong>bit de signo</strong> (un 0 adelante) <strong>antes</strong> de invertir. Si se olvida, da positivo cuando se pedía un negativo.</div>
+    </details>
+    <details class="recall">
+      <summary>¿Por qué la mantisa de IEEE 754 "gana" un bit de precisión?</summary>
+      <div class="recall-a">Tras normalizar a 1,xxxx × 2ᵉ, el "1," siempre es 1 → es <strong>implícito</strong>, no se guarda. Los 23 bits son solo la fracción (24 efectivos).</div>
+    </details>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">📝 Respuestas modelo (cálculos núcleo)</div>
+    <div class="exam-q">
+      <div class="q">Pasar −199 a complemento a 2 (mostrando los pasos).</div>
+      <div class="a">199 = 11000111<sub>2</sub> → agregar bit de signo: 011000111 → invertir (Ca1): 100111000 → +1: <strong>100111001</strong>.</div>
+    </div>
+    <div class="exam-q">
+      <div class="q">Pasar 193 a binario y a hexadecimal.</div>
+      <div class="a">193 = 11000001<sub>2</sub> → 1100·0001 → <strong>C1<sub>16</sub></strong>.</div>
+    </div>
+    <div class="exam-q">
+      <div class="q">Pasar −19,3 a IEEE 754 simple.</div>
+      <div class="a">Normalizar 1,00110100…×2⁴ · signo 1 · exp 10000011 · mantisa 23b → <strong>≈ C19A6666<sub>16</sub></strong>. <strong>Sin</strong> Ca2.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 12 ============ -->
+<div class="section-label" id="s12">12 — Claves para el examen</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">💡 Tips de clase — claves para el examen</div>
+    <div class="step">
+      <div class="s"><b>1.</b> Los <b>3 ejercicios de cálculo</b> (IEEE 754, Ca2, cambio de base) son los más mecánicos y de mayor probabilidad: "son muy fáciles". Tenelos sí o sí.</div>
+      <div class="s"><b>2.</b> En IEEE 754 negativo, el signo es <b>solo el bit b₃₁</b>. NO uses complemento a 2 — es mezclar formatos.</div>
+      <div class="s"><b>3.</b> El sesgo <b>siempre es 127</b>. Truco: sumá 3 + 128 en vez de 4 + 127.</div>
+      <div class="s"><b>4.</b> En Ca2, primero el positivo + bit de signo 0, <b>recién después</b> invertís y sumás 1. No te olvides el bit de signo.</div>
+      <div class="s"><b>5.</b> Si te dan un negativo en Ca2 y no lo invertís, el profe "no lo deja pasar".</div>
+      <div class="s"><b>6.</b> Cambio de base = "regalito de carnaval". Bien en binario, mal a hexa → medio punto. No falles algo tan mecánico.</div>
+      <div class="s"><b>7.</b> <b>Explicá el procedimiento paso a paso.</b> En matemática es estricto: un dígito o una coma fuera de lugar cambia el resultado.</div>
+      <div class="s"><b>8.</b> 🟢 <b>Overflow / underflow:</b> "se tienen que saber". Overflow = el resultado cae <b>fuera de rango</b> (supera el máximo); underflow = es <b>demasiado chico</b> para representarse (cerca de 0).</div>
+      <div class="s"><b>9.</b> <b>Rango</b> sin signo (n bits) = 0 … 2ⁿ−1 · con signo (Ca2) = −2ⁿ⁻¹ … 2ⁿ⁻¹−1.</div>
+      <div class="s"><b>10.</b> No confundas un <b>binario sin signo</b> con un <b>BCD</b> — "no es lo mismo, casi siempre entra".</div>
+      <div class="s"><b>11.</b> 📚 <b>Para el FINAL entra TODO el apunte.</b> El profe avisa que pregunta de "la última parte, que es la que nadie estudia" → repasá <b>códigos</b> (ASCII, BCD, paridad, Unicode) y <b>unidades de medida</b>: ahora SÍ pueden caer.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Números Reales y Códigos · Arquitectura de Computadores · Universidad de Palermo</p>
+  <p class="out">Repaso para el FINAL · entra todo el apunte (incluidos códigos y unidades de medida). No desarrollados / fuera del apunte de esta unidad: código Gray, Hamming (solo mención en E/S), BCD exceso-3 y los formatos IEEE 754 doble/extendido (solo se nombran).</p>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#arquitectura-de-computadores" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>
