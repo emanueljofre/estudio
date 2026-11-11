@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Números Complejos (forma polar) — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  header { text-align: center; margin-bottom: 3rem; }
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    border-radius: 2px;
+    padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(1.7rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    margin: 1.2rem auto 0; border-radius: 2px;
+  }
+
+  .grid { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 2.5rem auto 1rem;
+    display: flex; align-items: center; gap: 0.8rem;
+    max-width: 1400px;
+    scroll-margin-top: 1rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem;
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border);
+    border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  .formula {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    color: #fff;
+    text-align: center;
+    padding: 0.7rem 0.5rem;
+    margin: 0.5rem 0 0.7rem;
+    background: rgba(124,58,237,0.10);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 5px;
+    line-height: 1.6;
+  }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.3); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.3); }
+  .formula.green-f { background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.3); }
+
+  .ex {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    padding: 0.4rem 0.6rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 4px;
+    line-height: 1.55;
+  }
+  .ex b { color: #fff; }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    padding: 0.12rem 0.4rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .tag.warn { color: var(--accent3); background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); }
+  .tag.out  { color: #f87171;       background: rgba(239,68,68,0.10);  border: 1px solid rgba(239,68,68,0.3); }
+
+  .note {
+    font-family: var(--mono);
+    font-size: 0.67rem;
+    line-height: 1.55;
+    margin-top: 0.6rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 4px;
+  }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.22); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.07);  border: 1px solid rgba(239,68,68,0.22); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.22); }
+  .note.info   { color: var(--accent2); background: rgba(6,182,212,0.07);  border: 1px solid rgba(6,182,212,0.22); }
+
+  .proplist {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: grid;
+    gap: 0.35rem;
+  }
+  .proplist div {
+    padding: 0.35rem 0.55rem;
+    border-radius: 4px;
+  }
+  .proplist strong { color: #fff; }
+  .pl-purple div, .proplist.pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div, .proplist.pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div, .proplist.pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div, .proplist.pl-green  div { background: rgba(16,185,129,0.06); }
+
+  .step {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: grid;
+    gap: 0.4rem;
+  }
+  .step .s {
+    padding: 0.4rem 0.6rem;
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+  }
+  .step .s b { color: #fff; }
+
+  .insight {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--text);
+    background: rgba(245,158,11,0.08);
+    border-left: 2px solid var(--accent3);
+    padding: 0.45rem 0.65rem;
+    margin: 0.6rem 0 0.2rem;
+    border-radius: 0 4px 4px 0;
+    line-height: 1.5;
+  }
+  .insight strong { color: #fff; }
+  .insight::before { content: '💡 '; }
+
+  .recall {
+    font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0;
+    border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden;
+  }
+  .recall summary {
+    cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2);
+    background: rgba(124,58,237,0.06); list-style: none;
+    display: flex; align-items: center; gap: 0.5rem; user-select: none;
+  }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before {
+    content: '▸'; font-size: 0.7rem; color: var(--accent);
+    transition: transform 0.15s; flex-shrink: 0;
+  }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a {
+    padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5;
+    border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04);
+  }
+  .recall-a strong { color: #fff; }
+
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.73rem; }
+  th, td { border: 1px solid var(--border); padding: 0.4rem 0.5rem; text-align: center; }
+  th { color: var(--accent2); background: rgba(6,182,212,0.06); font-size: 0.66rem; letter-spacing: 0.05em; }
+  td { color: var(--muted); }
+  td b { color: #fff; }
+  .pos { color: var(--accent4); font-weight: 700; }
+  .neg { color: #f87171; font-weight: 700; }
+
+  /* svg frame for diagrams */
+  .svg-frame {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* ─── TOC scroll-spy + progress ─── */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .toc-rail {
+    position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90;
+    display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem;
+  }
+  .toc-rail a {
+    display: flex; align-items: center; gap: 0.55rem; text-decoration: none;
+    font-family: var(--mono); font-size: 0.55rem; color: var(--muted);
+    padding: 0.12rem 0.25rem; border-radius: 3px;
+  }
+  .toc-rail a .dot {
+    width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border);
+    flex-shrink: 0; transition: all 0.2s;
+  }
+  .toc-rail a .lbl {
+    opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap;
+  }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot {
+    background: var(--accent2); border-color: var(--accent2);
+    box-shadow: 0 0 8px var(--accent2);
+  }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    max-width: 1400px;
+    margin-left: auto; margin-right: auto;
+  }
+
+  /* ─── @media print ─── */
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1, .stat-num { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .recall { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="toc-rail" aria-label="Tabla de contenidos">
+  <a href="#seccion-01"><span class="dot"></span><span class="lbl">01 · Repaso y vector</span></a>
+  <a href="#seccion-02"><span class="dot"></span><span class="lbl">02 · Módulo</span></a>
+  <a href="#seccion-03"><span class="dot"></span><span class="lbl">03 · Argumento</span></a>
+  <a href="#seccion-04"><span class="dot"></span><span class="lbl">04 · Tres formas + ejemplos</span></a>
+  <a href="#seccion-05"><span class="dot"></span><span class="lbl">05 · Propiedades arg + radianes</span></a>
+  <a href="#seccion-06"><span class="dot"></span><span class="lbl">06 · Operaciones polar/trig</span></a>
+  <a href="#seccion-07"><span class="dot"></span><span class="lbl">07 · Radicación (raíces)</span></a>
+  <a href="#seccion-08"><span class="dot"></span><span class="lbl">08 · Forma exponencial</span></a>
+  <a href="#seccion-09"><span class="dot"></span><span class="lbl">09 · Otros ejercicios</span></a>
+  <a href="#seccion-10"><span class="dot"></span><span class="lbl">10 · Claves para el final</span></a>
+</nav>
+
+<header>
+  <div class="badge">Álgebra · Unidad 08 — Forma polar</div>
+  <h1>Complejos en forma polar</h1>
+  <p class="subtitle">módulo · argumento · trigonométrica · exponencial · De Moivre</p>
+  <div class="divider"></div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 1: REPASO
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-01">01 — Repaso: el complejo como vector</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">🔢 Forma binómica (recordatorio)</div>
+    <div class="op-rule">
+      Forma estudiada en la <strong>Unidad 07</strong>: parte real + parte imaginaria.
+    </div>
+    <div class="formula">z = a + b i</div>
+    <div class="op-rule">
+      <strong>a = Re(z)</strong> · <strong>b = Im(z)</strong> · <strong>i² = −1</strong>
+    </div>
+    <div class="note ok">Para suma y resta conviene quedarse en binómica — polar no tiene fórmula directa.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">📐 Como vector en el plano</div>
+    <div class="op-rule">
+      Todo complejo se representa como un <strong>vector</strong> desde el origen hasta el punto (a, b).
+    </div>
+    <div class="proplist pl-cyan">
+      <div>Eje horizontal → parte <strong>real</strong></div>
+      <div>Eje vertical → parte <strong>imaginaria</strong></div>
+      <div>El vector tiene <strong>longitud</strong> (módulo) y <strong>ángulo</strong> (argumento).</div>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🎯 La idea de la forma polar</div>
+    <div class="op-rule">
+      En vez de describir el vector por sus coordenadas (a; b), lo describimos por su <strong>tamaño</strong> y <strong>dirección</strong>.
+    </div>
+    <div class="proplist pl-amber">
+      <div>Hacen falta solo <strong>2 datos</strong>:</div>
+      <div>• el <strong>módulo</strong> ρ (longitud)</div>
+      <div>• el <strong>argumento</strong> θ (ángulo)</div>
+    </div>
+    <div class="insight">Pasar a polar es una herramienta para que <strong>producto, cociente y potencia</strong> sean fáciles. Para suma/resta sigue ganando binómica.</div>
+  </div>
+
+</div>
+
+<div class="card cyan" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">📊 Diagrama — módulo y argumento</div>
+  <div style="display:grid;grid-template-columns:minmax(250px,360px) 1fr;gap:1.4rem;align-items:center;">
+    <div class="svg-frame">
+      <svg viewBox="0 0 330 250" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <defs>
+          <marker id="axHead" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 Z" fill="#94a3b8"/>
+          </marker>
+          <marker id="vecHead" markerWidth="9" markerHeight="9" refX="6.5" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 Z" fill="#7c3aed"/>
+          </marker>
+        </defs>
+        <line x1="22" y1="185" x2="312" y2="185" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#axHead)"/>
+        <line x1="60" y1="225" x2="60" y2="22" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#axHead)"/>
+        <text x="294" y="203" fill="#94a3b8" font-size="12" font-family="monospace">Re</text>
+        <text x="38" y="22" fill="#94a3b8" font-size="12" font-family="monospace">Im</text>
+        <line x1="215" y1="78" x2="215" y2="185" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="215" y1="78" x2="60" y2="78" stroke="#475569" stroke-width="1" stroke-dasharray="3 3"/>
+        <line x1="60" y1="185" x2="215" y2="78" stroke="#7c3aed" stroke-width="2.6" marker-end="url(#vecHead)"/>
+        <path d="M96,185 A36,36 0 0 0 89.6,164.6" stroke="#f59e0b" stroke-width="2.3" fill="none"/>
+        <circle cx="215" cy="78" r="3" fill="#7c3aed"/>
+        <text x="222" y="75" fill="#e2e8f0" font-size="11.5" font-family="monospace">z = a + bi</text>
+        <text x="126" y="118" fill="#a78bfa" font-size="14" font-family="monospace" font-weight="700">ρ</text>
+        <text x="104" y="175" fill="#f59e0b" font-size="12.5" font-family="monospace" font-weight="700">θ</text>
+        <text x="208" y="203" fill="#e2e8f0" font-size="11.5" font-family="monospace">a</text>
+        <text x="42" y="82" fill="#e2e8f0" font-size="11.5" font-family="monospace">b</text>
+      </svg>
+    </div>
+    <div>
+      <div class="op-rule">
+        El complejo <strong>z = a + bi</strong> es a la vez el punto (a, b) y el vector que va del origen hasta ese punto.
+      </div>
+      <div class="proplist pl-cyan">
+        <div>El <strong>módulo ρ = |z|</strong> es la longitud del vector.</div>
+        <div>El <strong>argumento θ</strong> es el ángulo desde el +Re antihorario.</div>
+        <div>Las proyecciones <strong>a</strong> y <strong>b</strong> forman un triángulo rectángulo con el vector — de ahí salen todas las fórmulas (Pitágoras → módulo; tangente → argumento).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 2: MÓDULO
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-02">02 — Módulo de un complejo</div>
+
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">📏 Definición</div>
+    <div class="op-rule">
+      Longitud del vector que representa a z. Es un real ≥ 0.
+    </div>
+    <div class="formula">|z| = ρ = √(a² + b²)</div>
+    <div class="ex">
+      <b>Ej 1:</b> z = 3 − 2i &nbsp;⟹&nbsp; |z| = √(9 + 4) = <b>√13</b><br>
+      <b>Ej 2:</b> z = 3 + 4i &nbsp;⟹&nbsp; |z| = √(9 + 16) = <b>5</b> (terna pitagórica)<br>
+      <b>Ej 3:</b> z = −2 + 2i &nbsp;⟹&nbsp; |z| = √(4 + 4) = √8 = <b>2√2</b>
+    </div>
+    <div class="note warn">Se denota |z| o con ρ ("ro"). Ambas significan módulo. Conviene dejarlo como <strong>raíz</strong> (√13, √8) y no en decimal.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">📌 Propiedades del módulo</div>
+    <div class="proplist pl-cyan">
+      <div><strong>z · z̄</strong> = |z|² &nbsp;(complejo por su conjugado)</div>
+      <div>|z|² = (Re z)² + (Im z)²</div>
+      <div><strong>|z₁ · z₂|</strong> = |z₁| · |z₂|</div>
+      <div><strong>|z₁ / z₂|</strong> = |z₁| / |z₂|</div>
+      <div><strong>|zⁿ|</strong> = |z|ⁿ</div>
+      <div><strong>|z₁| &lt; |z₂|</strong> ⟹ z₁ está "más cerca" del origen que z₂</div>
+      <div><strong>Re(z) ≤ |Re(z)| ≤ |z|</strong> &nbsp;y&nbsp; <strong>Im(z) ≤ |z|</strong> &nbsp;(el módulo acota a las componentes)</div>
+      <div>|z₁ + z₂| ≤ |z₁| + |z₂| &nbsp;(desigualdad triangular)</div>
+      <div>|z₁ − z₂| = √((x₁−x₂)² + (y₁−y₂)²) &nbsp;(distancia)</div>
+    </div>
+    <div class="note info">Las 9 propiedades figuran numeradas en el apunte oficial. Las de acotación/orden (las 3 del medio) rara vez se calculan, pero pueden caer en un ítem teórico de "¿cuál es verdadera?".</div>
+    <div class="insight">
+      <strong>Truco:</strong> el módulo de un producto/cociente se calcula sin operar. Ej. ejercicio 1 de la guía: |(3+4i)(1+i)/(3−4i)| = (5·√2)/5 = <strong>√2</strong>. No hace falta hacer la cuenta binómica.
+    </div>
+    <div class="note danger">|z − z₀| = r describe una <strong>circunferencia</strong> de centro z₀ y radio r.</div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 3: ARGUMENTO
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-03">03 — Argumento (el ángulo) — la parte más delicada</div>
+
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🧭 Definición</div>
+    <div class="op-rule">
+      Ángulo entre el <strong>semieje +Re</strong> y el vector, medido en <strong>sentido antihorario</strong>.
+    </div>
+    <div class="formula">tg θ = b / a &nbsp;→&nbsp; θ = arctg(b / a)</div>
+    <div class="op-rule">
+      Sale del triángulo rectángulo: tangente = opuesto/adyacente = imaginario/real.
+    </div>
+    <div class="note danger">
+      ⚠️ La calculadora <strong>NO</strong> distingue el cuadrante: arctg(1) y arctg(−1) pueden dar el mismo ángulo de referencia. <strong>Primero graficar y ubicar el cuadrante</strong>, después corregir.
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🔧 Corrección por cuadrante — procedimiento</div>
+    <div class="step">
+      <div class="s"><b>Paso 1:</b> graficar el vector (a, b) y ver en qué cuadrante cae.</div>
+      <div class="s"><b>Paso 2:</b> calcular el ángulo de referencia α = |arctg(b/a)|.</div>
+      <div class="s"><b>Paso 3:</b> corregir según el cuadrante (tabla abajo).</div>
+    </div>
+    <div class="proplist pl-amber" style="margin-top:0.5rem;">
+      <div><strong style="color:var(--accent3);">Cuadrante I</strong> (a>0, b>0): θ = α</div>
+      <div><strong style="color:var(--accent3);">Cuadrante II</strong> (a<0, b>0): θ = 180° − α</div>
+      <div><strong style="color:var(--accent3);">Cuadrante III</strong> (a<0, b<0): θ = 180° + α</div>
+      <div><strong style="color:var(--accent3);">Cuadrante IV</strong> (a>0, b<0): θ = 360° − α</div>
+    </div>
+    <div class="note ok">Sobre los ejes es directo: +Re → 0° · +Im → 90° · −Re → 180° · −Im → 270°.</div>
+  </div>
+
+</div>
+
+<!-- Diagrama: corrección del ángulo por cuadrante -->
+<div class="card amber" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">🧭 El mismo α de referencia, cuatro argumentos distintos</div>
+  <div class="op-rule">
+    En los cuatro casos la calculadora puede dar el mismo <strong style="color:var(--accent2);">ángulo de referencia α</strong> (cian, pegado al eje real). El <strong style="color:var(--accent3);">argumento real θ</strong> (ámbar, desde +Re antihorario) depende del cuadrante:
+  </div>
+  <div class="grid grid-4" style="gap:0.9rem;">
+
+    <div class="svg-frame" style="flex-direction:column;text-align:center;">
+      <svg viewBox="0 0 190 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <rect x="95" y="24" width="71" height="71" fill="rgba(245,158,11,0.07)"/>
+        <line x1="22" y1="95" x2="166" y2="95" stroke="#64748b" stroke-width="1.3"/>
+        <line x1="95" y1="168" x2="95" y2="26" stroke="#64748b" stroke-width="1.3"/>
+        <polygon points="168,95 159,90.5 159,99.5" fill="#64748b"/>
+        <polygon points="95,24 90.5,33 99.5,33" fill="#64748b"/>
+        <text x="148" y="109" fill="#64748b" font-size="9" font-family="monospace">Re</text>
+        <text x="80" y="36" fill="#64748b" font-size="9" font-family="monospace">Im</text>
+        <line x1="95" y1="95" x2="138.8" y2="51.2" stroke="#7c3aed" stroke-width="2.5"/>
+        <circle cx="138.8" cy="51.2" r="3.4" fill="#7c3aed"/>
+        <path d="M125,95 A30,30 0 0 0 116.2,73.8" stroke="#f59e0b" stroke-width="2.6" fill="none"/>
+        <text x="122" y="88" fill="#f59e0b" font-size="11" font-family="monospace" font-weight="700">θ</text>
+      </svg>
+      <div style="font-family:var(--mono);font-size:0.66rem;color:#fff;margin-top:0.2rem;">Cuadrante I · a>0, b>0</div>
+      <div style="font-family:var(--mono);font-size:0.7rem;color:var(--accent3);font-weight:700;">θ = α</div>
+    </div>
+
+    <div class="svg-frame" style="flex-direction:column;text-align:center;">
+      <svg viewBox="0 0 190 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <rect x="24" y="24" width="71" height="71" fill="rgba(245,158,11,0.07)"/>
+        <line x1="22" y1="95" x2="166" y2="95" stroke="#64748b" stroke-width="1.3"/>
+        <line x1="95" y1="168" x2="95" y2="26" stroke="#64748b" stroke-width="1.3"/>
+        <polygon points="168,95 159,90.5 159,99.5" fill="#64748b"/>
+        <polygon points="95,24 90.5,33 99.5,33" fill="#64748b"/>
+        <text x="148" y="109" fill="#64748b" font-size="9" font-family="monospace">Re</text>
+        <text x="80" y="36" fill="#64748b" font-size="9" font-family="monospace">Im</text>
+        <line x1="95" y1="95" x2="51.2" y2="51.2" stroke="#7c3aed" stroke-width="2.5"/>
+        <circle cx="51.2" cy="51.2" r="3.4" fill="#7c3aed"/>
+        <path d="M125,95 A30,30 0 0 0 73.8,73.8" stroke="#f59e0b" stroke-width="2.6" fill="none"/>
+        <path d="M77,95 A18,18 0 0 1 82.3,82.3" stroke="#06b6d4" stroke-width="2.4" fill="none"/>
+        <text x="71" y="69" fill="#f59e0b" font-size="11" font-family="monospace" font-weight="700">θ</text>
+        <text x="52" y="91" fill="#06b6d4" font-size="10" font-family="monospace" font-weight="700">α</text>
+      </svg>
+      <div style="font-family:var(--mono);font-size:0.66rem;color:#fff;margin-top:0.2rem;">Cuadrante II · a<0, b>0</div>
+      <div style="font-family:var(--mono);font-size:0.7rem;color:var(--accent3);font-weight:700;">θ = 180° − α</div>
+    </div>
+
+    <div class="svg-frame" style="flex-direction:column;text-align:center;">
+      <svg viewBox="0 0 190 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <rect x="24" y="95" width="71" height="71" fill="rgba(245,158,11,0.07)"/>
+        <line x1="22" y1="95" x2="166" y2="95" stroke="#64748b" stroke-width="1.3"/>
+        <line x1="95" y1="168" x2="95" y2="26" stroke="#64748b" stroke-width="1.3"/>
+        <polygon points="168,95 159,90.5 159,99.5" fill="#64748b"/>
+        <polygon points="95,24 90.5,33 99.5,33" fill="#64748b"/>
+        <text x="148" y="109" fill="#64748b" font-size="9" font-family="monospace">Re</text>
+        <text x="80" y="36" fill="#64748b" font-size="9" font-family="monospace">Im</text>
+        <line x1="95" y1="95" x2="51.2" y2="138.8" stroke="#7c3aed" stroke-width="2.5"/>
+        <circle cx="51.2" cy="138.8" r="3.4" fill="#7c3aed"/>
+        <path d="M125,95 A30,30 0 1 0 73.8,116.2" stroke="#f59e0b" stroke-width="2.6" fill="none"/>
+        <path d="M77,95 A18,18 0 0 0 82.3,107.7" stroke="#06b6d4" stroke-width="2.4" fill="none"/>
+        <text x="66" y="70" fill="#f59e0b" font-size="11" font-family="monospace" font-weight="700">θ</text>
+        <text x="50" y="119" fill="#06b6d4" font-size="10" font-family="monospace" font-weight="700">α</text>
+      </svg>
+      <div style="font-family:var(--mono);font-size:0.66rem;color:#fff;margin-top:0.2rem;">Cuadrante III · a<0, b<0</div>
+      <div style="font-family:var(--mono);font-size:0.7rem;color:var(--accent3);font-weight:700;">θ = 180° + α</div>
+    </div>
+
+    <div class="svg-frame" style="flex-direction:column;text-align:center;">
+      <svg viewBox="0 0 190 190" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <rect x="95" y="95" width="71" height="71" fill="rgba(245,158,11,0.07)"/>
+        <line x1="22" y1="95" x2="166" y2="95" stroke="#64748b" stroke-width="1.3"/>
+        <line x1="95" y1="168" x2="95" y2="26" stroke="#64748b" stroke-width="1.3"/>
+        <polygon points="168,95 159,90.5 159,99.5" fill="#64748b"/>
+        <polygon points="95,24 90.5,33 99.5,33" fill="#64748b"/>
+        <text x="148" y="89" fill="#64748b" font-size="9" font-family="monospace">Re</text>
+        <text x="80" y="36" fill="#64748b" font-size="9" font-family="monospace">Im</text>
+        <line x1="95" y1="95" x2="138.8" y2="138.8" stroke="#7c3aed" stroke-width="2.5"/>
+        <circle cx="138.8" cy="138.8" r="3.4" fill="#7c3aed"/>
+        <path d="M125,95 A30,30 0 1 0 116.2,116.2" stroke="#f59e0b" stroke-width="2.6" fill="none"/>
+        <path d="M113,95 A18,18 0 0 1 107.7,107.7" stroke="#06b6d4" stroke-width="2.4" fill="none"/>
+        <text x="56" y="120" fill="#f59e0b" font-size="11" font-family="monospace" font-weight="700">θ</text>
+        <text x="121" y="121" fill="#06b6d4" font-size="10" font-family="monospace" font-weight="700">α</text>
+      </svg>
+      <div style="font-family:var(--mono);font-size:0.66rem;color:#fff;margin-top:0.2rem;">Cuadrante IV · a>0, b<0</div>
+      <div style="font-family:var(--mono);font-size:0.7rem;color:var(--accent3);font-weight:700;">θ = 360° − α</div>
+    </div>
+
+  </div>
+  <div class="note warn">α = |arctg(b/a)| es siempre el ángulo agudo contra el eje real. θ es el arco completo desde +Re antihorario.</div>
+</div>
+
+<div class="grid grid-2" style="margin-top:1.2rem;">
+
+  <div class="card cyan">
+    <div class="card-title">🌀 Signos de seno y coseno por cuadrante</div>
+    <div class="op-rule">
+      Sirven para verificar el ángulo al hacer el camino inverso (polar → binómica): si cos da negativo y a salió positivo, el cuadrante está mal.
+    </div>
+    <table>
+      <tr><th>Cuadrante</th><th>cos (a)</th><th>sen (b)</th></tr>
+      <tr><td>I</td><td class="pos">+</td><td class="pos">+</td></tr>
+      <tr><td>II</td><td class="neg">−</td><td class="pos">+</td></tr>
+      <tr><td>III</td><td class="neg">−</td><td class="neg">−</td></tr>
+      <tr><td>IV</td><td class="pos">+</td><td class="neg">−</td></tr>
+    </table>
+    <div class="op-rule" style="margin-top:0.6rem;">
+      <strong>Camino inverso (polar → binómica):</strong> &nbsp; a = ρ·cos θ &nbsp;·&nbsp; b = ρ·sen θ
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">🔁 Multivalencia del argumento</div>
+    <div class="op-rule">
+      El argumento <strong>no es único</strong>: sumar una vuelta completa (2π) da el mismo vector.
+    </div>
+    <div class="formula green-f">arg(z) = θ + 2kπ &nbsp;(k ∈ ℤ)</div>
+    <div class="op-rule">
+      El <strong>argumento principal</strong> es el que se toma en [0, 2π) — el que vas a escribir en el examen.
+    </div>
+    <div class="insight">
+      <strong>Igualdad en forma polar:</strong> dos complejos (ρ; θ) y (ρ'; θ') son iguales ⟺ <strong>ρ = ρ'</strong> y <strong>θ = θ' + 2kπ</strong>. La igualdad de módulos sola no alcanza; los ángulos deben coincidir <em>módulo 2π</em>.
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 4: LAS TRES FORMAS + EJEMPLOS POR CUADRANTE
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-04">04 — Las tres formas + ejemplos por cuadrante</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">① Forma polar</div>
+    <div class="op-rule">Módulo y argumento separados por punto y coma.</div>
+    <div class="formula">z = (ρ ; θ)</div>
+    <div class="op-rule">ρ = |z|, θ = argumento (en radianes).</div>
+    <div class="note info">📖 Notación: la cátedra usa <strong>(ρ ; θ)</strong> en radianes. La bibliografía (García) usa <strong>grados</strong> y subíndice <strong>m<sub>α</sub></strong> (ej. 4<sub>225°</sub> = (4 ; 5π/4)). Misma info — pero los exámenes van en radianes y forma trigonométrica.</div>
+    <div class="note ok" style="margin-bottom:0.5rem;"><strong>Ejemplo:</strong> z = √3 + i</div>
+    <div class="step">
+      <div class="s">ρ = √((√3)² + 1²) = √4 = <b>2</b></div>
+      <div class="s">θ = arctg(1/√3) = <b>π/6</b></div>
+      <div class="s">⟹ z = <b>(2 ; π/6)</b></div>
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">② Forma trigonométrica</div>
+    <div class="op-rule">Surge de a = ρ·cosθ, b = ρ·senθ aplicadas a z = a + bi.</div>
+    <div class="formula cyan-f">z = |z| · (cos θ + i·sen θ)</div>
+    <div class="op-rule">Misma información que la polar, "desarrollada".</div>
+    <div class="note ok" style="margin-bottom:0.5rem;"><strong>Ejemplo:</strong> mismo z = √3 + i</div>
+    <div class="step">
+      <div class="s">ρ = 2, &nbsp; θ = π/6</div>
+      <div class="s">z = ρ·(cos θ + i·sen θ)</div>
+      <div class="s">⟹ z = <b>2·(cos π/6 + i·sen π/6)</b></div>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">③ Forma exponencial</div>
+    <div class="op-rule">Usa la fórmula de Euler: e<sup>iθ</sup> = cos θ + i·sen θ.</div>
+    <div class="formula amber-f">z = ρ · e<sup>iθ</sup></div>
+    <div class="op-rule">Equivalente a la trigonométrica — más compacta.</div>
+    <div class="note ok" style="margin-bottom:0.5rem;"><strong>Ejemplo:</strong> mismo z = √3 + i</div>
+    <div class="step">
+      <div class="s">ρ = 2, &nbsp; θ = π/6</div>
+      <div class="s">z = ρ·e<sup>iθ</sup></div>
+      <div class="s">⟹ z = <b>2·e<sup>iπ/6</sup></b></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="card green" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">▦ Ejemplos numéricos por cuadrante — pasaje binómica → polar</div>
+  <div class="op-rule">El mismo método (módulo + cuadrante + corrección de α) en los cuatro casos típicos de la guía.</div>
+
+  <div class="grid grid-2" style="margin-top:0.8rem;">
+
+    <div class="card purple" style="padding:1rem;">
+      <div class="card-title" style="font-size:0.65rem;">Cuadrante I — z = √3 + i</div>
+      <div class="step">
+        <div class="s">|z| = √(3 + 1) = <b>2</b></div>
+        <div class="s">a, b > 0 → <b>cuadrante I</b>, θ = α</div>
+        <div class="s">α = arctg(1/√3) = 30° = <b>π/6</b></div>
+        <div class="s"><b>Polar:</b> (2 ; π/6) &nbsp;·&nbsp; <b>Trig:</b> 2·(cos π/6 + i·sen π/6)</div>
+      </div>
+    </div>
+
+    <div class="card cyan" style="padding:1rem;">
+      <div class="card-title" style="font-size:0.65rem;">Cuadrante II — z = −2 + 2i</div>
+      <div class="step">
+        <div class="s">|z| = √(4 + 4) = √8 = <b>2√2</b></div>
+        <div class="s">a < 0, b > 0 → <b>cuadrante II</b>, θ = 180° − α</div>
+        <div class="s">α = |arctg(2/−2)| = 45°, θ = 135° = <b>3π/4</b></div>
+        <div class="s"><b>Polar:</b> (2√2 ; 3π/4) &nbsp;·&nbsp; <b>Trig:</b> 2√2·(cos 3π/4 + i·sen 3π/4)</div>
+      </div>
+    </div>
+
+    <div class="card amber" style="padding:1rem;">
+      <div class="card-title" style="font-size:0.65rem;">Cuadrante III — z = −1 − i</div>
+      <div class="step">
+        <div class="s">|z| = √(1 + 1) = <b>√2</b></div>
+        <div class="s">a, b < 0 → <b>cuadrante III</b>, θ = 180° + α</div>
+        <div class="s">α = |arctg(−1/−1)| = 45°, θ = 225° = <b>5π/4</b></div>
+        <div class="s"><b>Polar:</b> (√2 ; 5π/4)</div>
+      </div>
+    </div>
+
+    <div class="card green" style="padding:1rem;">
+      <div class="card-title" style="font-size:0.65rem;">Cuadrante IV — z = 2 − 2√3·i</div>
+      <div class="step">
+        <div class="s">|z| = √(4 + 12) = <b>4</b></div>
+        <div class="s">a > 0, b < 0 → <b>cuadrante IV</b>, θ = 360° − α</div>
+        <div class="s">α = |arctg(−2√3/2)| = |arctg(−√3)| = 60°, θ = 300° = <b>5π/3</b></div>
+        <div class="s"><b>Polar:</b> (4 ; 5π/3) &nbsp;·&nbsp; <b>Trig:</b> 4·(cos 5π/3 + i·sen 5π/3) &nbsp;<i>— mismo |z| y |α| que un III, pero a > 0 ⟹ IV.</i></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card red" style="padding:1rem;margin-top:0.8rem;">
+    <div class="card-title" style="font-size:0.65rem;">Sobre el eje — z = −3i</div>
+    <div class="step">
+      <div class="s">|z| = 3 (parte real cero, solo imaginaria)</div>
+      <div class="s">−Im → θ = <b>270° = 3π/2</b> (directo, sin corrección)</div>
+      <div class="s"><b>Polar:</b> (3 ; 3π/2) &nbsp;·&nbsp; <b>Trig:</b> 3·(cos 3π/2 + i·sen 3π/2)</div>
+    </div>
+  </div>
+
+  <details class="recall">
+    <summary>💡 Si z está en cuadrante II y |z| = 5, α = 30°, ¿cuál es la forma polar?</summary>
+    <div class="recall-a">θ = 180° − 30° = 150° = <strong>5π/6</strong>. Polar: <strong>(5 ; 5π/6)</strong>. Verificación: cos(5π/6) < 0 ✓ y sen(5π/6) > 0 ✓ → cuadrante II.</div>
+  </details>
+</div>
+
+<div class="card cyan" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">↩ Camino inverso — polar → binómica</div>
+  <div class="op-rule">Aplicar a = ρ·cos θ y b = ρ·sen θ. El signo del cos y sen indica si estás en el cuadrante correcto.</div>
+  <div class="step">
+    <div class="s"><b>Ej:</b> dado (√8 ; 3π/4), recuperar z.</div>
+    <div class="s">a = √8 · cos(3π/4) = √8 · (−√2/2) = −√(16)/2 = <b>−2</b></div>
+    <div class="s">b = √8 · sen(3π/4) = √8 · (√2/2) = +√(16)/2 = <b>+2</b></div>
+    <div class="s">⟹ z = <b>−2 + 2i</b>. (cos<0, sen>0 → cuadrante II ✓)</div>
+  </div>
+  <div class="insight">Si los signos del cos/sen no coinciden con el cuadrante esperado, hay un error en θ — volvé a verificar la corrección.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 5: PROPIEDADES + RADIANES NOTABLES
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-05">05 — Propiedades del argumento + grados↔radianes</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">＋ Argumento del producto</div>
+    <div class="op-rule">Al multiplicar, los ángulos <strong>se suman</strong>.</div>
+    <div class="formula">arg(z₁ · z₂) = arg(z₁) + arg(z₂)</div>
+    <div class="op-rule">Combinado con |z₁·z₂| = |z₁|·|z₂| → regla completa de multiplicación polar.</div>
+    <div class="note ok" style="margin-bottom:0.5rem;"><strong>Ejemplo:</strong> z₁ = (2 ; π/6), z₂ = (3 ; π/4)</div>
+    <div class="step">
+      <div class="s">|z₁·z₂| = 2 · 3 = <b>6</b></div>
+      <div class="s">arg = π/6 + π/4 = 2π/12 + 3π/12 = <b>5π/12</b></div>
+      <div class="s">⟹ z₁·z₂ = <b>(6 ; 5π/12)</b></div>
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">− Argumento del cociente</div>
+    <div class="op-rule">Al dividir, los ángulos <strong>se restan</strong>.</div>
+    <div class="formula cyan-f">arg(z₁ / z₂) = arg(z₁) − arg(z₂)</div>
+    <div class="op-rule">Combinado con |z₁/z₂| = |z₁|/|z₂|.</div>
+    <div class="note ok" style="margin-bottom:0.5rem;"><strong>Ejemplo:</strong> mismos z₁ = (2 ; π/6), z₂ = (3 ; π/4)</div>
+    <div class="step">
+      <div class="s">|z₁/z₂| = 2 / 3 = <b>2/3</b></div>
+      <div class="s">arg = π/6 − π/4 = 2π/12 − 3π/12 = <b>−π/12</b></div>
+      <div class="s">⟹ z₁/z₂ = <b>(2/3 ; −π/12)</b></div>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">↔ Conjugado y opuesto en polar</div>
+    <div class="proplist pl-amber">
+      <div><strong>Conjugado:</strong> z̄ = (ρ ; −θ) = (ρ ; 2π−θ)</div>
+      <div><strong>Opuesto:</strong> −z = (ρ ; θ + π)</div>
+      <div><strong>Inverso:</strong> z⁻¹ = (1/ρ ; −θ) &nbsp;(con z ≠ 0)</div>
+    </div>
+    <div class="note ok">El conjugado refleja respecto del +Re; el opuesto rota 180°.</div>
+    <div class="note ok" style="margin-bottom:0.5rem;"><strong>Ejemplo:</strong> z = (2 ; π/6)</div>
+    <div class="step">
+      <div class="s">z̄ = (ρ ; −θ) = <b>(2 ; −π/6)</b></div>
+      <div class="s">−z = (ρ ; θ+π) = (2 ; π/6+π) = <b>(2 ; 7π/6)</b></div>
+      <div class="s">z⁻¹ = (1/ρ ; −θ) = <b>(1/2 ; −π/6)</b></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="grid grid-2" style="margin-top:1.2rem;">
+
+  <div class="card green">
+    <div class="card-title">📐 Grados ↔ radianes</div>
+    <div class="op-rule">
+      En polar los argumentos van en <strong>radianes</strong> (fracción de π), no grados.
+    </div>
+    <div class="formula green-f">θ<sub>rad</sub> = (θ<sub>grados</sub> / 180) · π</div>
+    <div class="op-rule"><strong>Convertir como fracción</strong>, no en decimal: 45/180 = 1/4 → π/4.</div>
+    <table style="margin-top:0.5rem;">
+      <tr><th>Grados</th><th>Radianes</th><th>Grados</th><th>Radianes</th></tr>
+      <tr><td>30°</td><td><b>π/6</b></td><td>180°</td><td><b>π</b></td></tr>
+      <tr><td>45°</td><td><b>π/4</b></td><td>225°</td><td><b>5π/4</b></td></tr>
+      <tr><td>60°</td><td><b>π/3</b></td><td>240°</td><td><b>4π/3</b></td></tr>
+      <tr><td>90°</td><td><b>π/2</b></td><td>270°</td><td><b>3π/2</b></td></tr>
+      <tr><td>120°</td><td><b>2π/3</b></td><td>300°</td><td><b>5π/3</b></td></tr>
+      <tr><td>135°</td><td><b>3π/4</b></td><td>360°</td><td><b>2π</b></td></tr>
+    </table>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">📱 Modo de la calculadora</div>
+    <div class="proplist pl-cyan">
+      <div><strong>DEG</strong> (sexagesimal): es el modo a usar siempre.</div>
+      <div><strong>RAD</strong> (radianes): calculadoras nuevas devuelven directo π/4, π/3, etc. — no hace falta dividir entre 180.</div>
+      <div><strong>GRA</strong> (centesimal): da resultados malos, <strong>evitar</strong>.</div>
+    </div>
+    <div class="op-rule" style="margin-top:0.5rem;">
+      Para arctg(b/a): tecla <strong>Shift + tan</strong>. La calculadora devuelve el ángulo de referencia α; <strong>vos</strong> corregís según cuadrante.
+    </div>
+    <div class="insight">
+      <strong>Tip de la profe:</strong> si te da un ángulo "feo" tipo 26.5°, <strong>redondear a 30°</strong> está aceptado — lo importante es el cuadrante, no la precisión del decimal.
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 6: OPERACIONES POLAR/TRIG
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-06">06 — Operaciones en forma polar / trigonométrica</div>
+
+<div class="note info" style="max-width:1400px;margin:0 auto 1rem;">
+  Con z₁ = ρ₁·(cos θ₁ + i·sen θ₁) &nbsp;y&nbsp; z₂ = ρ₂·(cos θ₂ + i·sen θ₂)
+</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">✕ Multiplicación</div>
+    <div class="op-rule"><strong>Multiplico módulos</strong> y <strong>sumo argumentos</strong>.</div>
+    <div class="formula" style="font-size:0.8rem;">z₁·z₂ = ρ₁·ρ₂ · [cos(θ₁+θ₂) + i·sen(θ₁+θ₂)]</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">÷ División</div>
+    <div class="op-rule"><strong>Divido módulos</strong> y <strong>resto argumentos</strong>.</div>
+    <div class="formula cyan-f" style="font-size:0.8rem;">z₁/z₂ = (ρ₁/ρ₂) · [cos(θ₁−θ₂) + i·sen(θ₁−θ₂)]</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⬆ Potenciación — De Moivre</div>
+    <div class="op-rule"><strong>Elevo el módulo</strong> a la n y <strong>multiplico el argumento</strong> por n.</div>
+    <div class="formula amber-f" style="font-size:0.8rem;">zⁿ = ρⁿ · [cos(n·θ) + i·sen(n·θ)]</div>
+  </div>
+
+</div>
+
+<div class="card cyan" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">📊 Interpretación geométrica de la multiplicación</div>
+  <div style="display:grid;grid-template-columns:minmax(250px,360px) 1fr;gap:1.4rem;align-items:center;">
+    <div class="svg-frame">
+      <svg viewBox="0 0 340 225" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+        <defs>
+          <marker id="axHead2" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto">
+            <path d="M0,0 L7,3.5 L0,7 Z" fill="#94a3b8"/>
+          </marker>
+        </defs>
+        <line x1="22" y1="170" x2="324" y2="170" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#axHead2)"/>
+        <line x1="55" y1="208" x2="55" y2="18" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#axHead2)"/>
+        <text x="306" y="188" fill="#94a3b8" font-size="11" font-family="monospace">Re</text>
+        <text x="36" y="20" fill="#94a3b8" font-size="11" font-family="monospace">Im</text>
+        <line x1="55" y1="170" x2="132.9" y2="138.5" stroke="#06b6d4" stroke-width="2.4"/>
+        <circle cx="132.9" cy="138.5" r="3.2" fill="#06b6d4"/>
+        <line x1="55" y1="170" x2="106.4" y2="116.8" stroke="#a78bfa" stroke-width="2.4"/>
+        <circle cx="106.4" cy="116.8" r="3.2" fill="#a78bfa"/>
+        <line x1="55" y1="170" x2="103.7" y2="49.5" stroke="#f59e0b" stroke-width="2.6"/>
+        <circle cx="103.7" cy="49.5" r="3.4" fill="#f59e0b"/>
+        <path d="M81,170 A26,26 0 0 0 79.1,160.3" stroke="#06b6d4" stroke-width="2.2" fill="none"/>
+        <path d="M95,170 A40,40 0 0 0 82.8,141.2" stroke="#a78bfa" stroke-width="2.2" fill="none"/>
+        <path d="M111,170 A56,56 0 0 0 76,118.1" stroke="#f59e0b" stroke-width="2.4" fill="none"/>
+        <text x="138" y="139" fill="#06b6d4" font-size="11" font-family="monospace" font-weight="700">z₁</text>
+        <text x="112" y="112" fill="#a78bfa" font-size="11" font-family="monospace" font-weight="700">z₂</text>
+        <text x="109" y="46" fill="#f59e0b" font-size="11" font-family="monospace" font-weight="700">z₁·z₂</text>
+      </svg>
+    </div>
+    <div>
+      <div class="op-rule">
+        Multiplicar dos complejos = <strong>rotar y escalar</strong> un vector.
+      </div>
+      <div class="proplist pl-cyan">
+        <div>Los <strong>argumentos se suman</strong> → el vector gira.</div>
+        <div>Los <strong>módulos se multiplican</strong> → el vector cambia de longitud.</div>
+        <div><strong>División:</strong> ángulos se restan, módulos se dividen.</div>
+        <div><strong>Potencia:</strong> ángulo × n, módulo elevado a la n.</div>
+      </div>
+      <div class="note info" style="font-size:0.62rem;">(diagrama esquemático — no a escala)</div>
+    </div>
+  </div>
+</div>
+
+<div class="card green" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">▦ Ejemplo trabajado — De Moivre con n = 4</div>
+  <div class="op-rule">Calcular z⁴ siendo z = −1 + √3·i. En binómica habría que distribuir 4 veces — en polar es trivial.</div>
+  <div class="step">
+    <div class="s"><b>Paso 1 — Módulo:</b> |z| = √(1 + 3) = <b>2</b>.</div>
+    <div class="s"><b>Paso 2 — Cuadrante:</b> a < 0, b > 0 → cuadrante II.</div>
+    <div class="s"><b>Paso 3 — Argumento:</b> α = |arctg(√3/−1)| = 60°. θ = 180° − 60° = 120° = <b>2π/3</b>.</div>
+    <div class="s"><b>Paso 4 — Polar:</b> z = (2 ; 2π/3) = 2·(cos 2π/3 + i·sen 2π/3).</div>
+    <div class="s"><b>Paso 5 — Aplicar De Moivre:</b> z⁴ = 2⁴ · (cos(4·2π/3) + i·sen(4·2π/3)) = 16·(cos 8π/3 + i·sen 8π/3).</div>
+    <div class="s"><b>Paso 6 — Simplificar el ángulo:</b> 8π/3 − 2π = 2π/3. Entonces z⁴ = 16·(cos 2π/3 + i·sen 2π/3).</div>
+    <div class="s"><b>Paso 7 — Evaluar cos y sen (calculadora en DEG):</b> 2π/3 = 120°. Tecleás cos(120°) = <b>−1/2</b> y sen(120°) = <b>√3/2</b> (la calculadora devuelve la fracción exacta y ya trae el signo del cuadrante).</div>
+    <div class="s"><b>Paso 8 — Volver a binómica:</b> z⁴ = 16·(−1/2 + i·√3/2) = <b>−8 + 8√3·i</b>.</div>
+  </div>
+  <div class="insight">Si lo intentás en binómica con (−1 + √3·i)⁴, el desarrollo lleva ~12 líneas con i² = −1 reemplazado cada vez. En polar son 8 pasos limpios.</div>
+
+  <details class="recall">
+    <summary>💡 Si z = (3 ; π/4), ¿cuánto vale z⁸?</summary>
+    <div class="recall-a">|z⁸| = 3⁸ = <strong>6561</strong>. arg(z⁸) = 8·π/4 = 2π ≡ <strong>0</strong>. ⟹ z⁸ = <strong>6561</strong> (real positivo).</div>
+  </details>
+</div>
+
+<div class="card amber" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">💡 ¿Cuándo conviene pasar a polar?</div>
+  <div class="proplist pl-amber">
+    <div>✅ <strong>Potencias</strong> con exponente ≥ 3: De Moivre es mucho más rápido.</div>
+    <div>✅ <strong>Productos y cocientes</strong> de varios complejos: los ángulos se acumulan.</div>
+    <div>✅ Para calcular <strong>solo el módulo</strong> de un producto/cociente: por propiedades, sin operar binómico.</div>
+    <div>❌ <strong>Sumas y restas:</strong> no hay fórmula directa en polar — quedate en binómica.</div>
+    <div>❌ Si las potencias son muy chicas (n = 2): a veces es más rápido distribuir.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 7: RADICACIÓN (RAÍCES N-ÉSIMAS)
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-07">07 — Radicación: raíces n-ésimas de un complejo</div>
+
+<div class="note info" style="max-width:1400px;margin:0 auto 1rem;">
+  <strong>Entra en el final.</strong> En la cursada la profe la salteaba, pero en el oral de repaso del final (2026-06-16) confirmó que <strong>las raíces de complejos sí entran al final — y hasta pueden pedir el gráfico del polígono</strong> que forman. Está en el apunte oficial (teorema, pág. 4-5), en García (pág. 148-150) y es el ejercicio 7 de la guía.
+</div>
+
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">ⁿ√ Definición y fórmula</div>
+    <div class="op-rule">
+      La raíz n-ésima de z es todo complejo w tal que <strong>wⁿ = z</strong>. Un complejo no nulo tiene <strong>exactamente n raíces n-ésimas distintas</strong>.
+    </div>
+    <div class="formula" style="font-size:0.78rem;">wₖ = ⁿ√ρ · [cos((θ + 2kπ)/n) + i·sen((θ + 2kπ)/n)]</div>
+    <div class="op-rule" style="margin-bottom:0.6rem;">con <strong>k = 0, 1, 2, …, n−1</strong> &nbsp;(ρ y θ = módulo y argumento de z).</div>
+    <div class="formula amber-f" style="font-size:0.8rem;">forma exponencial: &nbsp; wₖ = ⁿ√ρ · e<sup>i(θ + 2kπ)/n</sup></div>
+    <div class="proplist pl-purple">
+      <div>Todas las raíces tienen el <strong>mismo módulo</strong> ⁿ√ρ.</div>
+      <div>La primera (k = 0) tiene argumento <strong>θ/n</strong>.</div>
+      <div>Cada raíz siguiente suma <strong>2π/n</strong> (= 360°/n) al ángulo.</div>
+    </div>
+    <div class="note ok">ℹ Fuente: apunte oficial (teorema) y García pág. 148-150.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">⬡ Interpretación geométrica — el polígono regular</div>
+    <div class="op-rule">
+      Las n raíces son los <strong>vértices de un polígono regular de n lados</strong> inscripto en la circunferencia de radio <strong>ⁿ√ρ</strong> (para n ≥ 3), equiespaciados 360°/n.
+    </div>
+    <div class="svg-frame">
+      <svg viewBox="0 0 300 270" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;max-width:290px;">
+        <defs>
+          <marker id="axRad" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#94a3b8"/></marker>
+        </defs>
+        <!-- circunferencia de radio ⁿ√ρ -->
+        <circle cx="140" cy="135" r="95" fill="rgba(124,58,237,0.05)" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+        <!-- ejes -->
+        <line x1="20" y1="135" x2="290" y2="135" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#axRad)"/>
+        <line x1="140" y1="255" x2="140" y2="15" stroke="#94a3b8" stroke-width="1.4" marker-end="url(#axRad)"/>
+        <text x="276" y="151" fill="#94a3b8" font-size="11" font-family="monospace">Re</text>
+        <text x="146" y="24" fill="#94a3b8" font-size="11" font-family="monospace">Im</text>
+        <!-- triángulo (polígono de las 3 raíces) -->
+        <polygon points="235,135 92.5,52.7 92.5,217.3" fill="rgba(124,58,237,0.10)" stroke="#7c3aed" stroke-width="1.6"/>
+        <!-- vectores a cada raíz -->
+        <line x1="140" y1="135" x2="235" y2="135" stroke="#a78bfa" stroke-width="2"/>
+        <line x1="140" y1="135" x2="92.5" y2="52.7" stroke="#a78bfa" stroke-width="2"/>
+        <line x1="140" y1="135" x2="92.5" y2="217.3" stroke="#a78bfa" stroke-width="2"/>
+        <!-- puntos -->
+        <circle cx="235" cy="135" r="3.8" fill="#a78bfa"/>
+        <circle cx="92.5" cy="52.7" r="3.8" fill="#a78bfa"/>
+        <circle cx="92.5" cy="217.3" r="3.8" fill="#a78bfa"/>
+        <!-- etiquetas -->
+        <text x="240" y="128" fill="#c4b5fd" font-size="10" font-family="monospace">w₀ ∠0°</text>
+        <text x="30" y="48" fill="#c4b5fd" font-size="10" font-family="monospace">w₁ ∠120°</text>
+        <text x="30" y="232" fill="#c4b5fd" font-size="10" font-family="monospace">w₂ ∠240°</text>
+      </svg>
+    </div>
+    <div class="op-rule" style="margin-top:0.6rem;margin-bottom:0;">Las 3 raíces cúbicas de la unidad: triángulo equilátero en la circunferencia de radio ³√1 = 1.</div>
+    <div class="insight">💡 Oral del final (2026-06-16): "a veces hasta se les puede pedir un gráfico… el cálculo de raíces en forma polar que les da el polígono". Practicá ubicar los n vértices: mismo módulo ⁿ√ρ, ángulos separados 360°/n.</div>
+  </div>
+
+</div>
+
+<div class="card green" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">▦ Ejemplo trabajado A — raíces cúbicas de la unidad (w³ = 1)</div>
+  <div class="op-rule">Calcular las tres raíces cúbicas de 1. Ejemplo del apunte oficial.</div>
+  <div class="step">
+    <div class="s"><b>Paso 1 — z en polar:</b> z = 1 = (1 ; 0). Módulo ρ = 1, argumento θ = 0.</div>
+    <div class="s"><b>Paso 2 — Módulo de las raíces:</b> ³√ρ = ³√1 = <b>1</b> (las tres caen en la circunferencia unidad).</div>
+    <div class="s"><b>Paso 3 — Argumentos:</b> (0 + 2kπ)/3 para k = 0, 1, 2 → <b>0, 2π/3, 4π/3</b> (0°, 120°, 240°).</div>
+    <div class="s"><b>k = 0:</b> w₀ = 1·(cos 0 + i·sen 0) = <b>1</b></div>
+    <div class="s"><b>k = 1:</b> w₁ = cos 2π/3 + i·sen 2π/3 = <b>−1/2 + (√3/2)i</b></div>
+    <div class="s"><b>k = 2:</b> w₂ = cos 4π/3 + i·sen 4π/3 = <b>−1/2 − (√3/2)i</b></div>
+  </div>
+  <div class="note ok">Las tres raíces forman un <strong>triángulo equilátero</strong> inscripto en la circunferencia de radio 1, separadas 120°.</div>
+</div>
+
+<div class="grid grid-2" style="margin-top:1.2rem;">
+
+  <div class="card amber">
+    <div class="card-title">▦ Ejemplo trabajado B — (1 − i)<sup>1/3</sup> con módulo ≠ 1</div>
+    <div class="op-rule">Ejercicio 7a de la guía: las tres raíces cúbicas de z = 1 − i.</div>
+    <div class="step">
+      <div class="s"><b>Módulo:</b> ρ = √(1² + (−1)²) = <b>√2</b>.</div>
+      <div class="s"><b>Cuadrante:</b> a &gt; 0, b &lt; 0 → IV. α = |arctg(−1/1)| = 45°, θ = 360° − 45° = <b>315°</b> (7π/4).</div>
+      <div class="s"><b>Módulo de las raíces:</b> ³√(√2) = <b>⁶√2</b>.</div>
+      <div class="s"><b>Argumentos:</b> (315° + 360°·k)/3 → k=0: <b>105°</b> · k=1: <b>225°</b> · k=2: <b>345°</b>.</div>
+      <div class="s"><b>Raíces:</b> ⁶√2 ∠105°, &nbsp; ⁶√2 ∠225°, &nbsp; ⁶√2 ∠345° (triángulo de radio ⁶√2, separadas 120°).</div>
+    </div>
+    <div class="note warn">⚠ Pasá z a polar <strong>antes</strong> de sacar raíces: el ángulo de arranque es θ/n, no θ.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">⚙ Receta rápida (para no perderse)</div>
+    <div class="step">
+      <div class="s"><b>1.</b> Pasá z a polar (ρ ; θ).</div>
+      <div class="s"><b>2.</b> Módulo de todas las raíces = <b>ⁿ√ρ</b>.</div>
+      <div class="s"><b>3.</b> Primer ángulo (k=0) = <b>θ/n</b>.</div>
+      <div class="s"><b>4.</b> Sumá <b>360°/n</b> repetidamente hasta tener las n raíces.</div>
+      <div class="s"><b>5.</b> Si piden gráfico: circunferencia de radio ⁿ√ρ + los n vértices equiespaciados.</div>
+    </div>
+    <details class="recall">
+      <summary>💡 ¿Cuáles son las raíces cuartas de 16 y qué figura forman?</summary>
+      <div class="recall-a">ρ = 16, θ = 0. Módulo: ⁴√16 = <strong>2</strong>. Ángulos: (0 + 2kπ)/4 = 0°, 90°, 180°, 270°. Raíces: <strong>2, 2i, −2, −2i</strong> → un <strong>cuadrado</strong> inscripto en la circunferencia de radio 2.</div>
+    </details>
+  </div>
+
+</div>
+
+<div class="card purple" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">▦ Ejemplo trabajado C — raíz de un cociente, con ángulo "feo" (García R.8.3)</div>
+  <div class="op-rule">Calcular <strong>⁴√((1+i)/(1−i))</strong>. Primero se resuelve el cociente en polar, después se sacan las 4 raíces. El ángulo de arranque <strong>no</strong> es notable — justo lo que la profe avisó que puede pasar en el final.</div>
+  <div class="step">
+    <div class="s"><b>Paso 1 — Cociente en polar:</b> 1+i = (√2 ; 45°) y 1−i = (√2 ; 315°). Cociente: módulo √2/√2 = <b>1</b>; argumento 45° − 315° = −270° ≡ <b>90°</b>. ⟹ (1+i)/(1−i) = (1 ; 90°) = i. <i>(Verificación binómica: (1+i)/(1−i) = 2i/2 = i ✓)</i></div>
+    <div class="s"><b>Paso 2 — Módulo de las raíces:</b> ⁴√1 = <b>1</b> (las 4 caen en la circunferencia unidad).</div>
+    <div class="s"><b>Paso 3 — Argumentos:</b> (90° + 360°·k)/4 = 22°30′ + 90°·k → k=0: <b>22°30′</b> · k=1: <b>112°30′</b> · k=2: <b>202°30′</b> · k=3: <b>292°30′</b>.</div>
+    <div class="s"><b>Paso 4 — Las 4 raíces:</b> 1∠22°30′, 1∠112°30′, 1∠202°30′, 1∠292°30′ → un <b>cuadrado</b> inscripto en la circunferencia de radio 1.</div>
+  </div>
+  <div class="note warn">⚠ 22°30′ = 22,5° = <strong>π/8</strong> — no está en la tabla de ángulos notables. Dejalo expresado como π/8 (o 22°30′) y no te asustes: el final puede dar ángulos así. Lo que cuenta es el método y ubicar bien el cuadrante, no que el número sea "lindo".</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 8: FORMA EXPONENCIAL
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-08">08 — Operaciones en forma exponencial</div>
+
+<div class="note info" style="max-width:1400px;margin:0 auto 1rem;">
+  Con u = ρ·e<sup>iθ</sup> &nbsp;y&nbsp; v = σ·e<sup>iβ</sup> &nbsp;— misma lógica que trigonométrica, escritura más compacta.
+</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">✕ Multiplicación</div>
+    <div class="formula">u · v = (ρ·σ) · e<sup>i(θ+β)</sup></div>
+    <div class="op-rule">Módulos se multiplican; argumentos se <strong>suman</strong> en el exponente.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">÷ División</div>
+    <div class="formula cyan-f">u / v = (ρ/σ) · e<sup>i(θ−β)</sup></div>
+    <div class="op-rule">Módulos se dividen; argumentos se <strong>restan</strong>.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⬆ Potencia</div>
+    <div class="formula amber-f">uⁿ = ρⁿ · e<sup>i·n·θ</sup></div>
+    <div class="op-rule">Módulo a la n; argumento <strong>multiplicado</strong> por n.</div>
+  </div>
+
+</div>
+
+<div class="card cyan" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">▦ Ejemplo — operaciones en exponencial</div>
+  <div class="op-rule">u = 6·e<sup>i(π/4)</sup> &nbsp;y&nbsp; v = 3·e<sup>i(π/4)</sup></div>
+  <div class="step">
+    <div class="s"><b>Producto:</b> u·v = (6·3)·e<sup>i(π/4 + π/4)</sup> = 18·e<sup>i(π/2)</sup> = <b>18i</b> (porque e<sup>i·π/2</sup> = cos π/2 + i·sen π/2 = i).</div>
+    <div class="s"><b>Cociente:</b> u/v = (6/3)·e<sup>i(π/4 − π/4)</sup> = 2·e<sup>i·0</sup> = <b>2</b> (porque e<sup>0</sup> = 1).</div>
+    <div class="s"><b>Potencia:</b> u² = 6²·e<sup>i(2·π/4)</sup> = 36·e<sup>i(π/2)</sup> = <b>36i</b>.</div>
+  </div>
+  <div class="insight">La forma exponencial es la <strong>misma información</strong> que la trigonométrica — solo cambia la escritura. e<sup>iπ</sup> + 1 = 0 (identidad de Euler) sale de acá con θ = π.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 9: OTROS TIPOS DE EJERCICIO DEL INTEGRADOR
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-09">09 — Otros tipos de ejercicio del integrador</div>
+
+<div class="note info" style="max-width:1400px;margin:0 auto 1rem;">
+  El final es <strong>integrador</strong> y combina forma binómica y polar. Acá van tipos de ejercicio que aparecen en la guía y en parciales viejos y suelen faltar en un machete de "forma polar" — más lo que queda <strong>fuera</strong> del programa.
+</div>
+
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🔁 Potencias de i (ciclo de 4)</div>
+    <div class="op-rule">
+      Las potencias de la unidad imaginaria se <strong>repiten cada 4</strong>. Aparecen en casi todos los ejercicios de complejos en binómica (cayeron en el 2° parcial).
+    </div>
+    <div class="formula">i⁰ = 1 · i¹ = i · i² = −1 · i³ = −i · (se repite)</div>
+    <div class="op-rule">Para iⁿ con n grande: <strong>dividí n entre 4</strong>; el resto r da iⁿ = i<sup>r</sup>.</div>
+    <div class="ex">
+      <b>i³⁷:</b> 37 = 4·9 + 1 → i³⁷ = i¹ = <b>i</b> &nbsp;(modelo 2° parcial)<br>
+      <b>i³⁰⁷:</b> 307 = 4·76 + 3 → i³⁰⁷ = i³ = <b>−i</b> &nbsp;(García R.8.2)
+    </div>
+    <div class="insight"><strong>Atajo (ej. 3 de la guía):</strong> (1+i)¹⁸ = [(1+i)²]⁹ = (2i)⁹ = 2⁹·i⁹ = 512·i¹ = <strong>512 i</strong> — combinás una potencia chica conocida con el ciclo de i, sin pasar a polar.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">✔ Verificar identidades — Re(z²), Im(z²)</div>
+    <div class="op-rule">Ejercicio 6 de la guía: demostrar que para todo z = a + bi:</div>
+    <div class="formula cyan-f">Re(z²) = (Re z)² − (Im z)²</div>
+    <div class="step">
+      <div class="s">z² = (a + bi)² = a² + 2abi + b²i² = <b>(a² − b²) + 2ab·i</b></div>
+      <div class="s">⟹ Re(z²) = a² − b² &nbsp;·&nbsp; Im(z²) = 2ab</div>
+      <div class="s">(Re z)² − (Im z)² = a² − b² ✓ &nbsp;⟹ queda verificada</div>
+    </div>
+    <div class="note warn">⚠ Errata de la guía: el enunciado escribe "Re(z)²" pero lo que se demuestra es <strong>Re(z²)</strong> (parte real de z²). No son lo mismo: Re(z²) = a²−b² ≠ (Re z)² = a². Bonus: <strong>Im(z²) = 2·Re(z)·Im(z)</strong>.</div>
+  </div>
+
+</div>
+
+<div class="grid grid-2" style="margin-top:1.2rem;">
+
+  <div class="card green">
+    <div class="card-title">🟰 Ecuación compleja con incógnitas reales</div>
+    <div class="op-rule">
+      Con x, y reales desconocidos: <strong>igualar parte real = parte real</strong> y <strong>parte imaginaria = parte imaginaria</strong> → sistema 2×2. La profe avisó que este tipo confundió a varios (oral 2026-06-16).
+    </div>
+    <div class="note ok" style="margin-bottom:0.5rem;"><strong>Ej (García R.8.4):</strong> (1 − y·i) / (1 + 2i) = x + i</div>
+    <div class="step">
+      <div class="s">Multiplico por el conjugado del denominador (1 − 2i): &nbsp; [(1 − 2y) + (−2 − y)i] / 5</div>
+      <div class="s">= (1 − 2y)/5 + [(−2 − y)/5]·i &nbsp;=&nbsp; x + i</div>
+      <div class="s"><b>Re:</b> (1 − 2y)/5 = x &nbsp;·&nbsp; <b>Im:</b> (−2 − y)/5 = 1</div>
+      <div class="s">De Im: −2 − y = 5 → <b>y = −7</b>; reemplazo en Re → <b>x = 3</b></div>
+    </div>
+    <div class="insight">Dos complejos son iguales ⟺ coinciden parte real <strong>Y</strong> parte imaginaria. Una sola ecuación no alcanza (es la versión binómica de la "igualdad polar" de la sección 03).</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🟰ⁿ Ecuaciones zⁿ = w → son radicación</div>
+    <div class="op-rule">
+      Resolver <strong>zⁿ = w</strong> (o xⁿ + c = 0) = calcular las <strong>n raíces n-ésimas de w</strong> (sección 07). Da n soluciones = vértices de un polígono regular. <strong>No te quedes con una sola.</strong>
+    </div>
+    <div class="note ok" style="margin-bottom:0.5rem;"><strong>Ej (García):</strong> x⁶ + 729 = 0 → x⁶ = −729 → x = ⁶√(−729)</div>
+    <div class="step">
+      <div class="s">−729 en polar = (729 ; π). Se grafica para confirmar θ = 180° (no 0°).</div>
+      <div class="s">Módulo de las raíces: ⁶√729 = ⁶√(3⁶) = <b>3</b>.</div>
+      <div class="s">Argumentos: (180° + 360°·k)/6 = 30° + 60°·k → 30°, 90°, 150°, 210°, 270°, 330°.</div>
+      <div class="s">6 raíces de módulo 3 → <b>hexágono regular</b> (Fig. 8.6 de García).</div>
+    </div>
+    <div class="note danger">⚠ Errata de García: el libro imprime "x⁶ + 243 = 0" y afirma ⁶√243 = 3, pero <strong>243 = 3⁵, no 3⁶</strong>. Para que el módulo dé 3 (como en su figura) el término debe ser <strong>729 = 3⁶</strong>. Con 243 real, el módulo sería ⁶√243 = 3<sup>5/6</sup> ≈ 2,5 (los ángulos no cambian).</div>
+  </div>
+
+</div>
+
+<div class="card red" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">🚫 Qué NO entra (fuera del programa de la cátedra)</div>
+  <div class="proplist pl-amber">
+    <div>❌ <strong>Regiones / desigualdades del plano</strong> (|z − z₀| ≤ r, discos, semirrectas por argumento): no aparecen en la guía ni en clase. El único lugar geométrico que sí está (en el apunte) es la <strong>circunferencia</strong> |z − z₀| = r (sección 02).</div>
+    <div>❌ <strong>Logaritmo complejo</strong> y <strong>potencias con exponente complejo</strong>: no son parte de la unidad (García solo los nombra como motivación histórica, no los desarrolla).</div>
+  </div>
+  <div class="note info">Se aclara para que no pierdas tiempo: no figuran en apuntes, guía, transcripciones ni parciales de la cátedra. Si en una fecha cae algo de esto, sería excepcional.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 10: CLAVES PARA EL FINAL
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-10">10 — Claves para el examen final</div>
+
+<div class="card green" style="max-width:1400px;margin:0 auto 1.2rem;">
+  <div class="card-title">
+    📋 Sobre el examen final
+    <span class="tag warn" style="margin-left:auto">integrador</span>
+  </div>
+  <div class="proplist pl-green">
+    <div><strong>Formato:</strong> ~10 temas, 5 ejercicios, 2 horas. Puede tocar complejos en forma binómica, en forma polar o radicación.</div>
+    <div><strong>Múltiple choice CON desarrollo obligatorio:</strong> hay que entregar el desarrollo, no solo marcar la opción (disposición de la facultad).</div>
+    <div><strong>Sin oral</strong> (salvo que surja alguna duda con el desarrollo).</div>
+    <div><strong>Material permitido:</strong> las <strong>tablas de verdad</strong>. Consultada puntualmente, la profe confirmó que el <strong>resumen de fórmulas de complejos del 2° parcial</strong> (módulo, argumento, polar, trigonométrica, De Moivre, radicación, exponencial) también se puede llevar (2026-06-16). <strong>NO</strong> el resumen de <strong>propiedades</strong> (conjuntos/determinantes): esas van de memoria. Igual conviene saber las fórmulas de complejos de memoria.</div>
+  </div>
+  <div class="note ok">ℹ <strong>Qué entra que no estaba en los parciales:</strong> la <strong>radicación de complejos</strong> y las <strong>propiedades</strong> no se tomaron en los parciales, pero <strong>sí entran en el final</strong> (confirmado en el oral de repaso 2026-06-16, ante consulta directa: <em>"¿entra la radicación en el final?" → "Sí, en el final"</em>).</div>
+  <div class="note warn">⚠ <strong>Por fecha (julio tiene 3 fechas):</strong> lo único postergado <em>con certeza</em> es <strong>Relaciones (Unidad 5)</strong> — NO entra en 1ª ni 2ª fecha, sí desde la 3ª. Matiz sobre la radicación: en un grupo la profe comentó que la <em>1ª fecha</em> toma "lo que entró en los parciales", pero a vos te la confirmó para el final sin esa condición. Conclusión: <strong>llevala lista igual</strong>; si rendís 1ª o 2ª fecha y querés certeza absoluta, reconfirmá ese punto puntual.</div>
+</div>
+
+<div class="card red" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">💡 Tips de clase — claves para el final</div>
+  <div class="step">
+    <div class="s"><b>★ Siempre graficar primero.</b> Ubicar el cuadrante a ojo antes de calcular. La calculadora no distingue cuadrantes — sola te lleva al pozo.</div>
+    <div class="s"><b>★ Lo importante es el cuadrante, no el decimal del ángulo.</b> Si arctg te da 26°, redondeá a 30° — la profe lo acepta. Lo que cuenta es que esté en el cuadrante correcto.</div>
+    <div class="s"><b>★ Modo de calculadora: DEG (o RAD).</b> El modo GRA es centesimal y da resultados malos. Calculadoras nuevas en modo RAD devuelven directo π/4, π/3 — no hace falta dividir entre 180.</div>
+    <div class="s"><b>★ El argumento se mide siempre desde +Re antihorario.</b> Nunca expresar ángulos negativos en la respuesta final (sumá 2π si te dio negativo).</div>
+    <div class="s"><b>★ Radianes como fracción, no decimal.</b> Pasar θ/180 y simplificar la fracción: 45/180 = 1/4 → π/4. Memorizá los 12 ángulos notables (π/6, π/4, π/3, π/2, 2π/3, 3π/4, 5π/6, π, 5π/4, 4π/3, 3π/2, 5π/3).</div>
+    <div class="s"><b>★ Simplificar siempre el resultado.</b> En múltiple choice, si no simplificás no encontrás la opción correcta. Ej: 8π/3 − 2π = 2π/3 (no dejar 8π/3 si pide en [0, 2π)).</div>
+    <div class="s"><b>★ Pasar a polar para producto/cociente/potencia. Quedarse en binómica para suma/resta.</b> Cada forma tiene su uso — no es "polar siempre".</div>
+    <div class="s"><b>★ De Moivre = atajo para potencias.</b> (a+bi)ⁿ con n ≥ 3 es siempre más rápido en polar: módulo a la n, ángulo por n.</div>
+    <div class="s"><b>★ Radicación entra en el final.</b> Si piden raíces n-ésimas: módulo ⁿ√ρ para todas y ángulos θ/n, sumando 360°/n (sección 07). Pueden pedirte el gráfico del polígono.</div>
+    <div class="s"><b>★ Los números del final pueden ser "feos".</b> A diferencia del parcial, puede dar fracciones o raíces — no asumas que está mal solo por eso (oral 2026-06-16). La calculadora es para verificar, no para resolver.</div>
+    <div class="s"><b>★ Verificar cos/sen en el camino inverso.</b> Si pasás de polar a binómica y el signo del cos no coincide con el cuadrante esperado, el ángulo está mal.</div>
+    <div class="s"><b>★ Igualdad polar: módulos iguales Y argumentos iguales módulo 2π.</b> No alcanza con que coincidan los módulos.</div>
+    <div class="s"><b>★ Módulo de producto/cociente sin operar.</b> |z₁·z₂| = |z₁|·|z₂|. Ahorra mucho tiempo si solo te piden el módulo.</div>
+    <div class="s"><b>★ Polar no es mecánico.</b> "Hay que pensar en esto, no es reemplazar una formulita" (frase de la profe). Analizá el cuadrante antes de aplicar la fórmula.</div>
+  </div>
+</div>
+
+<footer>
+  <p>Números complejos (forma polar) · Álgebra · Universidad de Palermo</p>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#algebra" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

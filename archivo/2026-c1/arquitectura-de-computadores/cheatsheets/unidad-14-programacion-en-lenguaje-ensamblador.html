@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programación en Lenguaje Ensamblador — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  header { text-align: center; margin-bottom: 2rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px; margin: 1.2rem auto 0; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .section-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--accent);
+    margin: 2.5rem auto 1rem; max-width: 1400px;
+    display: flex; align-items: center; gap: 0.8rem; scroll-margin-top: 1rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-label.is-ctx { color: var(--muted); }
+
+  .grid   { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid.is-ctx { opacity: 0.82; }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem; font-family: var(--mono); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule {
+    font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border); border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  .formula {
+    font-family: var(--mono); font-size: 0.82rem; color: #fff;
+    background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 5px; padding: 0.5rem 0.7rem; text-align: center; margin: 0.5rem 0;
+  }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+  .formula.green-f { background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.25); }
+
+  .proplist {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    display: grid; gap: 0.35rem;
+  }
+  .proplist div { padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div { background: rgba(16,185,129,0.06); }
+
+  .step { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.4rem; }
+  .step .s {
+    padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0;
+  }
+  .step .s b { color: #fff; }
+
+  .note {
+    font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem;
+    padding: 0.35rem 0.55rem; border-radius: 4px;
+  }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.06); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  .flag      { color: #f87171;          font-size: 0.55rem; margin-left: 0.5rem; }
+  .flag.info { color: var(--accent3);   font-size: 0.55rem; margin-left: 0.5rem; }
+
+  .insight {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--accent3);
+    background: rgba(245,158,11,0.06); border-left: 2px solid var(--accent3);
+    border-radius: 0 4px 4px 0; padding: 0.4rem 0.6rem; margin-top: 0.5rem;
+  }
+
+  .matrix {
+    display: inline-grid; gap: 0.15rem 0.55rem; font-family: var(--mono);
+    font-size: 0.8rem; color: var(--text); padding: 0.3rem 0.65rem; position: relative;
+  }
+  .matrix::before, .matrix::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 7px;
+    border: 1.5px solid var(--accent2);
+  }
+  .matrix::before { left: 0; border-right: none; }
+  .matrix::after  { right: 0; border-left: none; }
+  .matrix span { text-align: center; }
+  .matrix .hl { color: var(--accent3); font-weight: 700; }
+  .mwrap { display: flex; justify-content: center; align-items: center; gap: 0.6rem; margin: 0.6rem 0; flex-wrap: wrap; }
+  .mwrap .eq { font-family: var(--mono); color: var(--muted); font-size: 0.95rem; }
+
+  .stat { text-align: center; padding: 0.8rem 0.4rem; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+  .stat-num {
+    font-family: var(--display); font-size: 2rem; font-weight: 800; line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .stat-unit { font-family: var(--mono); font-size: 0.72rem; color: var(--accent2); letter-spacing: 0.08em; }
+  .stat-cap { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); margin-top: 0.1rem; }
+
+  .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+  .vs-side { padding: 0.8rem; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: flex; flex-direction: column; gap: 0.35rem; }
+  .vs-side h4 { font-family: var(--display); font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 0.3rem; }
+  .vs-mid {
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.75rem; font-weight: 700;
+    color: var(--accent3); padding: 0 0.7rem;
+    border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  }
+  .vs-row { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .vs-row:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .versus { grid-template-columns: 1fr; }
+    .vs-mid { border: none; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 0.4rem; text-align: center; }
+  }
+
+  .recall {
+    font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0;
+    border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden;
+  }
+  .recall summary {
+    cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2);
+    background: rgba(124,58,237,0.06); list-style: none;
+    display: flex; align-items: center; gap: 0.5rem; user-select: none;
+  }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before { content: '▸'; font-size: 0.7rem; color: var(--accent); transition: transform 0.15s; flex-shrink: 0; }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a { padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5; border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04); }
+  .recall-a strong { color: #fff; }
+
+  /* Prioridad de examen */
+  .tier {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
+    text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 3px;
+    vertical-align: middle; line-height: 1;
+  }
+  .tier::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .tier.core { color: var(--accent4); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.35); }
+  .tier.core::before { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .tier.key  { color: var(--accent3); background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.4); }
+  .tier.key::before  { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .tier.ctx  { color: var(--muted); background: rgba(148,163,184,0.06); border: 1px solid var(--border); }
+  .tier.ctx::before  { background: var(--muted); }
+
+  .scope {
+    max-width: 1400px; margin: 0 auto 1rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3); border-radius: 6px;
+    padding: 0.8rem 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; align-items: center;
+  }
+  .scope-label {
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--accent3); font-weight: 700;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    border-right: 1px solid var(--border); padding-right: 0.7rem; align-self: stretch;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scope-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spill {
+    font-family: var(--mono); font-size: 0.6rem; padding: 0.22rem 0.55rem;
+    border-radius: 3px; border: 1px solid var(--border); color: var(--muted);
+  }
+  .spill.in  { color: var(--accent4); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
+  .spill.key { color: var(--accent3); border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+  .spill.cut { color: var(--muted); border-style: dashed; text-decoration: line-through; opacity: 0.75; }
+  @media (max-width: 600px) {
+    .scope { grid-template-columns: 1fr; }
+    .scope-label { writing-mode: horizontal-tb; transform: none; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.4rem; }
+  }
+
+  /* bitstrip */
+  .bitstrip { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; margin: 0.8rem 0 0.4rem; }
+  .bitstrip .cell {
+    text-align: center; padding: 0.55rem 0.2rem 0.45rem;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 5px; font-family: var(--mono);
+  }
+  .bitstrip .cell .dg { font-size: 1.4rem; font-weight: 700; color: #fff; line-height: 1; }
+  .bitstrip .cell.on  .dg { color: var(--accent2); }
+  .bitstrip .cell.off .dg { color: #475569; }
+  .bitstrip .cell .pos { font-size: 0.5rem; color: var(--muted); letter-spacing: 0.05em; margin-top: 0.35rem; }
+  .bitstrip .cell .wt  { font-size: 0.55rem; color: var(--accent2); margin-top: 0.15rem; }
+  .bitstrip .cell.msb { border-color: var(--accent3); }
+  .bitstrip .cell.msb .pos { color: var(--accent3); }
+  .bitstrip .cell.msb .wt  { color: var(--accent3); }
+  .bitstrip .cell.lsb { border-color: var(--accent2); }
+  .bitstrip .cell.lsb .pos { color: var(--accent2); }
+  .strip-legend { font-family: var(--mono); font-size: 0.55rem; color: var(--muted); display: flex; justify-content: space-between; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* worked */
+  .worked { font-family: var(--mono); font-size: 0.74rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-left: 2px solid var(--accent3); border-radius: 0 6px 6px 0; padding: 0.7rem 0.9rem; margin: 0.6rem 0; }
+  .worked .wr { display: grid; grid-template-columns: 130px 1fr; gap: 0.7rem; align-items: baseline; padding: 0.18rem 0; }
+  .worked .wl { font-size: 0.62rem; letter-spacing: 0.06em; color: #fff; font-weight: 700; }
+  .worked .wb { color: var(--text); letter-spacing: 0.06em; }
+  .worked .op  { color: var(--accent2); }
+  .worked .cmt { color: var(--muted); }
+  .worked .wr.total { border-top: 1px solid var(--border); margin-top: 0.2rem; padding-top: 0.35rem; }
+
+  /* cmatrix */
+  .cmatrix-wrap { overflow-x: auto; max-width: 1400px; margin: 0.5rem auto; }
+  .cmatrix { display: grid; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; font-family: var(--mono); font-size: 0.66rem; min-width: 640px; }
+  .cmatrix > div { padding: 0.5rem 0.6rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .cmatrix .cm-corner, .cmatrix .cm-rl { background: rgba(255,255,255,0.03); color: var(--muted); font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.06em; display: flex; align-items: center; }
+  .cmatrix .cm-head { font-family: var(--display); font-weight: 700; color: #fff; font-size: 0.8rem; text-align: center; position: relative; display: block; }
+  .cmatrix .cm-head .sub { display: block; font-family: var(--mono); font-size: 0.5rem; color: var(--muted); margin-top: 0.2rem; letter-spacing: 0.04em; }
+  .cmatrix .cm-head.is-key { color: var(--accent3); }
+  .cmatrix .cm-head.is-key::after { content: '★'; position: absolute; top: 0.35rem; right: 0.5rem; color: var(--accent3); font-size: 0.6rem; }
+  .cmatrix .cm-key { background: rgba(245,158,11,0.05); }
+  .cmatrix .ok { color: var(--accent4); font-weight: 700; }
+  .cmatrix .no { color: #f87171; font-weight: 700; }
+
+  /* exam-q */
+  .exam-q { position: relative; margin: 0.6rem 0; padding: 0.7rem 0.9rem 0.7rem 2.7rem; background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.3); border-left: 2px solid var(--red); border-radius: 0 6px 6px 0; font-family: var(--mono); font-size: 0.7rem; }
+  .exam-q::before { content: 'Q'; position: absolute; left: 0.65rem; top: 0.7rem; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: var(--red); color: #fff; font-family: var(--display); font-weight: 800; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; }
+  .exam-q .q { color: #fff; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.4; }
+  .exam-q .a { color: var(--muted); line-height: 1.55; }
+  .exam-q .a strong { color: var(--text); }
+  .exam-q .a code { color: var(--accent2); background: rgba(6,182,212,0.10); padding: 0.05rem 0.3rem; border-radius: 3px; }
+
+  /* tablas */
+  .tbl { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.72rem; }
+  .tbl th { padding: .4rem .6rem; text-align: left; background: rgba(255,255,255,.05); border-bottom: 1px solid var(--border); color: var(--muted); font-weight: 700; }
+  .tbl td { padding: .4rem .6rem; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+  .tbl td b, .tbl td strong { color: #fff; }
+  .tbl td code { color: var(--accent2); }
+
+  /* nav */
+  .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .toc-rail { position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem; }
+  .toc-rail a { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; font-family: var(--mono); font-size: 0.55rem; color: var(--muted); padding: 0.12rem 0.25rem; border-radius: 3px; }
+  .toc-rail a .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; transition: all 0.2s; }
+  .toc-rail a .lbl { opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap; }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  footer { text-align: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; color: var(--muted); max-width: 1400px; margin-left: auto; margin-right: auto; }
+  footer .out { color: var(--muted); margin-top: 0.5rem; font-size: 0.6rem; }
+  footer .out s { opacity: 0.7; }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1, .stat-num { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .scope, .cmatrix, .worked, .exam-q, .recall, .stat, .bitstrip { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<nav class="toc-rail" id="toc" aria-label="Secciones">
+  <a href="#s01"><span class="dot"></span><span class="lbl">01 · El 8086 y el Assembler</span></a>
+  <a href="#s02"><span class="dot"></span><span class="lbl">02 · Comandos del DEBUG ★</span></a>
+  <a href="#s03"><span class="dot"></span><span class="lbl">03 · Registros AX/H/L ★</span></a>
+  <a href="#s04"><span class="dot"></span><span class="lbl">04 · MOV/ADD/INC ★</span></a>
+  <a href="#s05"><span class="dot"></span><span class="lbl">05 · Direccionamiento ★</span></a>
+  <a href="#s06"><span class="dot"></span><span class="lbl">06 · Flags en DEBUG</span></a>
+  <a href="#s07"><span class="dot"></span><span class="lbl">07 · Segmentación (no entra)</span></a>
+  <a href="#s08"><span class="dot"></span><span class="lbl">08 · Claves del examen</span></a>
+</nav>
+
+<header>
+  <div class="badge">Arquitectura de Computadores · Unidad 14 — Programación en Lenguaje Ensamblador</div>
+  <h1>Programación en Lenguaje Ensamblador</h1>
+  <p class="subtitle">DOS DEBUG · MOV · ADD · INC · modos de direccionamiento · registros del 8086</p>
+  <div class="divider"></div>
+</header>
+
+<!-- Scope contract: lo que el profe dijo que entra / no entra (clase 2026-06-01) -->
+<div class="scope">
+  <div class="scope-label">Scope · 2º parcial</div>
+  <div class="scope-pills">
+    <span class="spill key">★ comandos R / D / U / E / A del DEBUG</span>
+    <span class="spill key">★ escribir MOV / ADD / INC (destino, origen)</span>
+    <span class="spill key">★ 3 modos de direccionamiento</span>
+    <span class="spill in">registros AX/BX/CX/DX y H / L</span>
+    <span class="spill in">modificar el IP (r IP)</span>
+    <span class="spill in">leer los flags en DEBUG</span>
+    <span class="spill cut">segmentación segmento:offset</span>
+    <span class="spill cut">instalación DOSBox / TASM</span>
+    <span class="spill cut">buses · nuevas tecnologías</span>
+  </div>
+</div>
+
+<!-- Aviso para el FINAL (oral 2026-06-15) -->
+<div class="note warn" style="max-width:1400px;margin:0 auto 1.2rem;font-size:0.72rem;padding:0.6rem 0.9rem">
+  ⚠️ <strong>Para el FINAL:</strong> el profe confirmó (oral 2026-06-15) que <strong>ensamblador NO entra en el final</strong>. Sí entra la <strong>parte numérica</strong> (sistemas de numeración, hexadecimal, conversiones — Unidades 02 y 03). Este machete es para el 2º parcial; para el final podés saltearlo.
+</div>
+
+<!-- ============ 01 ============ -->
+<div class="section-label" id="s01">01 — El 8086/8088 y el lenguaje ensamblador <span class="tier core">core · base</span></div>
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">🧩 Qué es</div>
+    <div class="op-name">Lenguaje ensamblador (Assembler)</div>
+    <div class="op-notation">mnemónico ↔ código de máquina</div>
+    <div class="op-rule">
+      Lenguaje <strong>simbólico del lenguaje de máquina</strong>: a cada código binario que define Intel se le asigna un <strong>mnemónico</strong> (símbolo legible). Se programa en <strong>bajo nivel</strong> porque escribir binario a mano sería interminable. El <em>ensamblador</em> traduce el mnemónico al opcode.
+    </div>
+    <div class="formula cyan-f">MOV AX, 34B0 &nbsp;→&nbsp; B8 B0 34</div>
+    <div class="insight">💡 de la clase · El profe lo llama <strong>"the bug" / "debut"</strong>; en el apunte es <strong>DOS DEBUG</strong>, la herramienta para codificar en Assembler.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">⚔️ 8086 vs 8088</div>
+    <div class="op-rule">El procesador de estudio: Intel <strong>8086/8088</strong> (fines de los '70, primeros x86, <strong>16 bits</strong>). Misma arquitectura interna; cambia el ancho del bus de datos externo.</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>8086</h4>
+        <div class="vs-row">bus de datos 16 bits</div>
+        <div class="vs-row">lee 2 bytes por acceso</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>8088</h4>
+        <div class="vs-row">bus de datos 8 bits</div>
+        <div class="vs-row">más barato (IBM PC)</div>
+      </div>
+    </div>
+    <div class="note ok">✓ Bus de direcciones de <strong>20 bits</strong> en ambos → 2²⁰ = 1 MB direccionable.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🔁 Little endian</div>
+    <div class="op-rule">Los datos de más de 1 byte se guardan en memoria con el <strong>byte menos significativo primero</strong>. Por eso al ensamblar <code>MOV AX,1234</code> el inmediato <strong>1234<sub>16</sub></strong> aparece como <strong>34 12</strong>.</div>
+    <div class="proplist pl-amber">
+      <div>valor &nbsp;=&nbsp; 12 34 (lógico)</div>
+      <div>memoria =&nbsp; 34 12 (físico)</div>
+    </div>
+    <div class="note warn">⚠️ Tipos de dato del 8086: ASCII, BCD, enteros con/sin signo de 8 y 16 bits. <strong>NO hay punto flotante</strong> en estos procesadores.</div>
+  </div>
+
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">📊 El 8086 en números</div>
+    <div class="grid grid-4" style="margin-top:0.3rem">
+      <div class="stat"><div class="stat-num">16</div><div class="stat-unit">bits</div><div class="stat-cap">tamaño de palabra</div></div>
+      <div class="stat"><div class="stat-num">20</div><div class="stat-unit">bits dir.</div><div class="stat-cap">→ 1 MB de memoria</div></div>
+      <div class="stat"><div class="stat-num">14</div><div class="stat-unit">registros</div><div class="stat-cap">internos del CPU</div></div>
+      <div class="stat"><div class="stat-num">89</div><div class="stat-unit">instr.</div><div class="stat-cap">set de instrucciones</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 02 ============ -->
+<div class="section-label" id="s02">02 — Comandos del DOS DEBUG <span class="tier key">★ el núcleo del parcial</span></div>
+<div class="grid">
+
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">⌨️ Los comandos que el profe toma</div>
+    <div class="op-rule">
+      El DEBUG codifica en Assembler, edita registros y memoria, y ejecuta el programa. <strong>Todos los valores son hexadecimales</strong> (1 a 4 dígitos) y cada comando se confirma con <strong>Enter</strong>.
+      <span class="flag">⚡ "me interesa que aprendan los comandos… eso va a ser las preguntas de Assembler" (clase 2026-06-01)</span>
+    </div>
+    <table class="tbl">
+      <thead>
+        <tr><th style="width:60px">Cmd</th><th>Qué hace</th><th style="width:34%">Sintaxis / ejemplo</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><b>R</b><br><span style="font-size:.55rem">Register</span></td><td>Ver/modificar <strong>registros</strong>. La 3ª línea muestra a dónde apunta CS:IP, la instrucción en binario y en mnemónico.</td><td><code>r</code> (ver todo) · <code>r AX</code> (modificar) · <code>r IP</code> (mover el puntero de instrucción)</td></tr>
+        <tr><td><b>D</b><br><span style="font-size:.55rem">Dump</span></td><td>Ver la memoria <strong>como DATOS</strong> (hex + ASCII). Sin rango: 128 bytes desde DS:0100.</td><td><code>d</code> · <code>d 200 20F</code></td></tr>
+        <tr><td><b>U</b><br><span style="font-size:.55rem">Unassemble</span></td><td>Ver la memoria <strong>como INSTRUCCIONES</strong> (mnemónico + binario). Sin rango: 20<sub>16</sub> bytes.</td><td><code>u</code> · <code>u 0100 L 12</code></td></tr>
+        <tr><td><b>E</b><br><span style="font-size:.55rem">Edit</span></td><td><strong>Editar</strong> el contenido de la memoria, byte por byte. Barra espaciadora pasa al siguiente; Enter termina.</td><td><code>e 204</code> luego <code>45</code></td></tr>
+        <tr><td><b>A</b><br><span style="font-size:.55rem">Assemble</span></td><td><strong>Empezar a programar</strong>: ensambla los mnemónicos en memoria. Sin dirección arranca en CS:0100.</td><td><code>a</code> · <code>a 100</code></td></tr>
+        <tr><td><b>P</b><br><span style="font-size:.55rem">Proceed</span></td><td>Corre <strong>paso a paso SIN entrar</strong> en subrutinas (CALL/INT como caja negra).</td><td><code>p</code> · <code>p =100 5</code></td></tr>
+        <tr><td><b>G</b><br><span style="font-size:.55rem">Go</span></td><td>Corre <strong>hasta el final</strong> (o un punto de ruptura). Frena en <code>INT 20</code> y restablece IP=0100.</td><td><code>g</code> · <code>g =100</code></td></tr>
+      </tbody>
+    </table>
+    <div class="insight">💡 de la clase · Para correr el programa "hay 3 maneras, pero las que vamos a usar son <strong>2: P y G</strong>". El comando T (Trace) queda de referencia.</div>
+  </div>
+
+  <div class="grid grid-2" style="padding:0;gap:1.2rem">
+    <div class="card cyan">
+      <div class="card-title">▶️ Cómo empezar a programar</div>
+      <div class="op-rule">Secuencia exacta que mostró el profe en pantalla. <strong>Primero se fija el IP</strong>, después se ensambla.</div>
+      <div class="step">
+        <div class="s"><b>1.</b> <code>r IP</code> → escribís <b>0100</b> &nbsp;(fija el contador de programa donde arranca)</div>
+        <div class="s"><b>2.</b> <code>a 0100</code> → empezás a escribir las instrucciones</div>
+        <div class="s"><b>3.</b> tipeás el código (MOV, ADD, INC…), Enter en cada línea; Enter vacío vuelve al <b>-</b></div>
+        <div class="s"><b>4.</b> <code>u 0100</code> para verlo como instrucciones · <code>d 0100</code> como datos</div>
+        <div class="s"><b>5.</b> <code>p</code> (paso a paso) o <code>g</code> (de corrido) para ejecutar</div>
+      </div>
+      <div class="insight">💡 de la clase · "¿cómo modifico el IP? <strong>R porque es un registro, espacio, IP</strong>." — lo preguntó como consigna de examen.</div>
+    </div>
+
+    <div class="card red">
+      <div class="card-title">📊 Preguntas del profe (verbatim 2026-06-01)</div>
+      <div class="exam-q">
+        <div class="q">¿Con qué comando veo los registros? ¿Y la memoria como datos?</div>
+        <div class="a"><strong>R</strong> para registros · <strong>D</strong> (Dump) para ver la memoria como datos.</div>
+      </div>
+      <div class="exam-q">
+        <div class="q">¿Cómo edito la posición de memoria 300?</div>
+        <div class="a"><code>E 300</code> &nbsp;→ aparece el valor actual con un punto; escribís el nuevo y Enter.</div>
+      </div>
+      <div class="exam-q">
+        <div class="q">¿Cómo veo la memoria como instrucciones? ¿Cómo empiezo a programar?</div>
+        <div class="a">Como instrucciones: <strong>U</strong> (Unassemble). Para programar: <strong>A</strong> (Assemble).</div>
+      </div>
+      <details class="recall">
+        <summary>💡 Autotest · ¿qué diferencia hay entre D y U sobre la misma zona de memoria?</summary>
+        <div class="recall-a"><strong>D</strong> la interpreta como <strong>datos</strong> (bytes hex + ASCII); <strong>U</strong> la interpreta como <strong>instrucciones</strong> (las desensambla a mnemónico). Misma memoria, dos lecturas.</div>
+      </details>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 03 ============ -->
+<div class="section-label" id="s03">03 — Registros AX/BX/CX/DX y la partición H/L <span class="tier key">★ entra</span></div>
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">🗂️ Propósito general</div>
+    <div class="op-name">AX · BX · CX · DX</div>
+    <div class="op-notation">Acumulador · Base · Count · Data</div>
+    <div class="op-rule">Los 4 registros que usa el programador. Cada uno mide <strong>16 bits = 2 bytes = 4 hexas</strong>. Terminan en <strong>X</strong> cuando se usan completos.</div>
+    <div class="mwrap">
+      <span class="eq">AX =</span>
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr)">
+        <span class="hl">AH</span><span>AL</span>
+      </div>
+      <span class="eq">8 + 8 bits</span>
+    </div>
+    <div class="proplist pl-purple" style="margin-top:.4rem">
+      <div>parte <strong style="color:#fbbf24">alta</strong> = <strong>H</strong> (High) → AH · BH · CH · DH</div>
+      <div>parte <strong style="color:#06b6d4">baja</strong> = <strong>L</strong> (Low) → AL · BL · CL · DL</div>
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧬 Anatomía · la parte baja AL</div>
+    <div class="op-rule">Ejemplo: AX = <strong>1234<sub>16</sub></strong> → AH = 12<sub>16</sub>, AL = 34<sub>16</sub>. La parte baja <strong>AL = 34<sub>16</sub> = 00110100<sub>2</sub></strong> son 8 bits independientes.</div>
+    <div class="strip-legend"><span>MSB</span><span>AL = 34<sub>16</sub></span><span>LSB</span></div>
+    <div class="bitstrip">
+      <div class="cell msb off"><div class="dg">0</div><div class="pos">b7</div><div class="wt">128</div></div>
+      <div class="cell off"><div class="dg">0</div><div class="pos">b6</div><div class="wt">64</div></div>
+      <div class="cell on"><div class="dg">1</div><div class="pos">b5</div><div class="wt">32</div></div>
+      <div class="cell on"><div class="dg">1</div><div class="pos">b4</div><div class="wt">16</div></div>
+      <div class="cell off"><div class="dg">0</div><div class="pos">b3</div><div class="wt">8</div></div>
+      <div class="cell on"><div class="dg">1</div><div class="pos">b2</div><div class="wt">4</div></div>
+      <div class="cell off"><div class="dg">0</div><div class="pos">b1</div><div class="wt">2</div></div>
+      <div class="cell lsb off"><div class="dg">0</div><div class="pos">b0</div><div class="wt">1</div></div>
+    </div>
+    <div class="formula cyan-f">32 + 16 + 4 = 52<sub>10</sub> = 34<sub>16</sub> ✓</div>
+    <details class="recall">
+      <summary>💡 Autotest · si escribo <code>MOV AL, 8</code> en vez de <code>MOV AX, 8</code>, ¿qué cambia?</summary>
+      <div class="recall-a">AL es la <strong>parte baja (8 bits)</strong> de AX: toma solo <strong>2 hexas</strong>, no 4. La letra final (X/H/L) define el tamaño del operando.</div>
+    </details>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🧮 Los 14 registros del 8086</div>
+    <div class="proplist pl-amber">
+      <div><strong>4 generales</strong> · AX BX CX DX</div>
+      <div><strong>2 índices</strong> · SI (Source) · DI (Destination)</div>
+      <div><strong>3 punteros</strong> · SP (Stack) · BP (Base) · IP (Instruction)</div>
+      <div><strong>4 segmentos</strong> · CS · DS · ES · SS</div>
+      <div><strong>1 de banderas</strong> · Flags</div>
+    </div>
+    <div class="op-rule" style="margin-top:.7rem">El <strong>contador de programa</strong> lo forman <strong>CS (segmento de código) + IP (instruction pointer)</strong>; juntos apuntan a la próxima instrucción.</div>
+    <div class="insight">💡 de la clase · "Lo que más vamos a mirar es el contenido de los registros, el puntero de instrucción y los flags."</div>
+  </div>
+
+</div>
+
+<!-- ============ 04 ============ -->
+<div class="section-label" id="s04">04 — Instrucciones MOV / ADD / INC <span class="tier key">★ escribir la instrucción exacta</span></div>
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">📝 Las 3 que entran</div>
+    <div class="op-notation">MNEMÓNICO destino, origen</div>
+    <div class="proplist pl-purple">
+      <div><strong>MOV</strong> = copiar / cargar &nbsp;→&nbsp; <span style="color:#06b6d4">MOV AX, 1234</span></div>
+      <div><strong>ADD</strong> = sumar &nbsp;→&nbsp; <span style="color:#06b6d4">ADD AX, CX</span></div>
+      <div><strong>INC</strong> = incrementar (+1) &nbsp;→&nbsp; <span style="color:#06b6d4">INC AX</span></div>
+    </div>
+    <div class="insight">💡 de la clase · "Les voy a tomar <strong>MOV</strong> que es copiar, <strong>ADD</strong> que es sumar, <strong>INC</strong> que es incrementar… <strong>con esas me alcanza</strong>."</div>
+    <div class="note warn">⚠️ <strong>SUB</strong> (restar, ej. <code>SUB BL, 7</code>) usa la misma mecánica que ADD; el profe la nombró pero solo se comprometió a estas 3. Solo apareció en el ejercicio suma/resta con AH que <strong>excluyó</strong> del parcial.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">➡️ La regla destino ← origen</div>
+    <div class="op-rule">El resultado queda en el <strong>destino</strong> (lo primero). <strong>Lo que está después de la coma es el ORIGEN.</strong></div>
+    <svg viewBox="0 0 420 130" width="100%" style="max-width:420px;display:block;margin:0.6rem auto">
+      <rect x="30" y="20" width="150" height="44" rx="5" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="105" y="40" font-family="JetBrains Mono,monospace" font-size="12" fill="#a78bfa" text-anchor="middle">destino</text>
+      <text x="105" y="56" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#94a3b8" text-anchor="middle">recibe / acumula</text>
+      <rect x="240" y="20" width="150" height="44" rx="5" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="315" y="40" font-family="JetBrains Mono,monospace" font-size="12" fill="#06b6d4" text-anchor="middle">origen</text>
+      <text x="315" y="56" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#94a3b8" text-anchor="middle">después de la coma</text>
+      <defs><marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#f59e0b"/></marker></defs>
+      <line x1="238" y1="42" x2="184" y2="42" stroke="#f59e0b" stroke-width="2" marker-end="url(#ar)"/>
+      <text x="210" y="100" font-family="JetBrains Mono,monospace" font-size="11" fill="#fff" text-anchor="middle">ADD <tspan fill="#a78bfa">AX</tspan>, <tspan fill="#06b6d4">CX</tspan></text>
+      <text x="210" y="116" font-family="JetBrains Mono,monospace" font-size="8.5" fill="#94a3b8" text-anchor="middle">AX = AX + CX</text>
+    </svg>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">📐 Forma exacta</div>
+    <div class="proplist pl-amber">
+      <div>MOV AX, 1234 → AX = 1234 (16 bits)</div>
+      <div>MOV AL, 8 &nbsp;&nbsp;→ carga 8 en parte baja (8 bits)</div>
+      <div>ADD AX, CX → AX = AX + CX</div>
+      <div>INC AX &nbsp;&nbsp;&nbsp;&nbsp;→ AX = AX + 1 (implícito)</div>
+    </div>
+    <div class="note danger">🚨 Tamaño según la letra: con <strong>X</strong> trabaja 16 bits (4 hexas); con <strong>H</strong> o <strong>L</strong> trabaja 8 bits (2 hexas). "Cuando pongo BL no me va a tomar 4 números, me va a tomar 2."</div>
+  </div>
+
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">🧷 Programa ejemplo del apunte · mnemónico → opcode</div>
+    <div class="op-rule">El profe mostró las <strong>primeras 4 líneas</strong> (hasta <code>INC AX</code>); el resto completa un programa DOS típico para ver cómo cada mnemónico se traduce a su código de máquina en hexa.</div>
+    <div class="worked">
+      <div class="wr"><span class="wl">MOV AX,1234</span><span class="wb"><span class="op">B8 34 12</span> &nbsp;<span class="cmt">; inmediato, little endian (1234→34 12)</span></span></div>
+      <div class="wr"><span class="wl">MOV CX,098F</span><span class="wb"><span class="op">B9 8F 09</span> &nbsp;<span class="cmt">; carga 098F en CX</span></span></div>
+      <div class="wr"><span class="wl">ADD AX,CX</span><span class="wb"><span class="op">01 C8</span> &nbsp;<span class="cmt">; AX = AX + CX</span></span></div>
+      <div class="wr"><span class="wl">INC AX</span><span class="wb"><span class="op">40</span> &nbsp;<span class="cmt">; 1 byte (direccionamiento implícito)</span></span></div>
+      <div class="wr"><span class="wl">CMP AX,0</span><span class="wb"><span class="op">3D 00 00</span> &nbsp;<span class="cmt">; compara, prende/apaga flags</span></span></div>
+      <div class="wr"><span class="wl">JZ 130</span><span class="wb"><span class="op">74 22</span> &nbsp;<span class="cmt">; salta si ZF=1 (resultado cero)</span></span></div>
+      <div class="wr"><span class="wl">MOV AX,4C00</span><span class="wb"><span class="op">B8 00 4C</span> &nbsp;<span class="cmt">; función "terminar"</span></span></div>
+      <div class="wr total"><span class="wl">INT 21</span><span class="wb"><span class="op">CD 21</span> &nbsp;<span class="cmt">; llama al SO → fin del programa</span></span></div>
+    </div>
+    <div class="note warn">⚠️ <strong>CMP / JZ / MOV AX,4C00 / INT 21</strong> son <strong>contexto, no testeables</strong> — el ejemplo del profe terminaba en <code>INC AX</code>. Para el parcial solo tenés que saber escribir <strong>MOV / ADD / INC</strong>.</div>
+  </div>
+
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">📊 Cómo pregunta las instrucciones (verbatim 2026-06-01)</div>
+    <div class="grid grid-3" style="padding:0;gap:0.9rem">
+      <div class="exam-q">
+        <div class="q">Sumá al registro BX el 1234.</div>
+        <div class="a"><code>ADD BX, 1234</code></div>
+      </div>
+      <div class="exam-q">
+        <div class="q">Cargá en la parte baja de CX el operando 3.</div>
+        <div class="a">cargar = MOV · parte baja = L · inmediato → sin corchetes &nbsp;<code>MOV CL, 3</code></div>
+      </div>
+      <div class="exam-q">
+        <div class="q">Direccionamiento inmediato: sumá 8 a la parte baja de BX.</div>
+        <div class="a"><code>ADD BL, 8</code></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 05 ============ -->
+<div class="section-label" id="s05">05 — Modos de direccionamiento <span class="tier key">★ "mencióneme 3 modos"</span></div>
+<div class="grid">
+
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">🎯 Cómo la instrucción indica dónde está el operando</div>
+    <div class="op-rule">El profe pide <strong>nombrar 3 modos</strong> y aplicarlos. La diferencia que más confunde: <strong>corchetes = memoria (directo)</strong> vs <strong>sin corchetes = valor literal (inmediato)</strong>.</div>
+    <div class="cmatrix-wrap">
+      <div class="cmatrix" style="grid-template-columns:130px repeat(4,1fr)">
+        <div class="cm-corner">modo →</div>
+        <div class="cm-head">Implícito</div>
+        <div class="cm-head">Inmediato</div>
+        <div class="cm-head is-key">Directo</div>
+        <div class="cm-head">Indirecto a reg.</div>
+
+        <div class="cm-rl">qué es</div>
+        <div>el operando ya está en la propia instrucción (solo opcode)</div>
+        <div>el operando es un <strong style="color:#fff">valor literal</strong> que viene a continuación</div>
+        <div class="cm-key">el operando está en una <strong style="color:#fff">dirección de memoria</strong></div>
+        <div>un registro contiene la dirección del operando</div>
+
+        <div class="cm-rl">ejemplo</div>
+        <div><span class="ok">INC AX</span></div>
+        <div><span class="ok">ADD AX, 3</span></div>
+        <div class="cm-key"><span class="ok">MOV AX, [1100]</span></div>
+        <div><span class="ok">MOV CX, [BX]</span></div>
+
+        <div class="cm-rl">notación</div>
+        <div>sin operando explícito</div>
+        <div>número <strong style="color:#fff">sin</strong> corchetes</div>
+        <div class="cm-key"><strong style="color:#f59e0b">[ ]</strong> = dirección de memoria</div>
+        <div>[ ] alrededor de un registro</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="padding:0;gap:1.2rem">
+    <div class="card red">
+      <div class="card-title">🚨 La trampa de los corchetes</div>
+      <div class="note danger">🚨 <strong>[ ] = directo</strong> (lo que está EN esa dirección) · <strong>sin [ ] = inmediato</strong> (el valor tal cual). "No le estoy poniendo el B310 al CX, sino lo que está EN la dirección B310."</div>
+      <div class="exam-q">
+        <div class="q">Escribí una instrucción que sume en AX lo que está en la posición de memoria 1100.</div>
+        <div class="a"><code>ADD AX, [1100]</code> &nbsp;— ADD porque suma, AX destino, corchetes porque es dirección (directo).</div>
+      </div>
+      <details class="recall">
+        <summary>💡 Autotest · ¿qué diferencia hay entre <code>MOV AX, 5</code> y <code>MOV AX, [5]</code>?</summary>
+        <div class="recall-a"><code>MOV AX, 5</code> es <strong>inmediato</strong>: carga el valor 5. <code>MOV AX, [5]</code> es <strong>directo</strong>: carga lo que está EN la dirección de memoria 5. Los corchetes lo cambian todo.</div>
+      </details>
+    </div>
+
+    <div class="card cyan">
+      <div class="card-title">🧭 Lo que pide el profe</div>
+      <div class="op-rule">No hay que describir los modos complejos. Alcanza con reconocer y nombrar los básicos.</div>
+      <div class="proplist pl-cyan">
+        <div><span style="color:#4ade80">✓</span> implícito</div>
+        <div><span style="color:#4ade80">✓</span> inmediato</div>
+        <div><span style="color:#4ade80">✓</span> directo</div>
+        <div><span style="color:#4ade80">✓</span> indirecto / de registro</div>
+        <div><span style="color:#f87171">✗</span> índice · base · desplazamiento (no se piden)</div>
+      </div>
+      <div class="insight">💡 de la clase (2026-05-04) · "Normalmente les pediré: mencióneme 3 modos de direccionamiento. Con que sepan el implícito, el inmediato, el directo, el indirecto y el de registro, ya está. Los complejos no se los voy a pedir."</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ 06 ============ -->
+<div class="section-label" id="s06">06 — Registro de banderas (flags) en DEBUG <span class="tier core">core · saber leerlos</span></div>
+<div class="grid grid-3">
+
+  <div class="card purple" style="grid-column:span 2">
+    <div class="card-title">🚩 Los flags como pares de letras</div>
+    <div class="op-rule">Registro de 16 bits con indicadores de estado. En DEBUG <strong>no se ven como 0/1 sino con pares de letras</strong>. Una línea típica: <code style="color:#06b6d4">NV UP EI PL NZ NA PO NC</code>.</div>
+    <table class="tbl">
+      <thead><tr><th>Bit</th><th>En "1"</th><th>En "0"</th></tr></thead>
+      <tbody>
+        <tr><td><b>CF</b> Carry</td><td>CY · Carry Yes</td><td><b>NC</b> · No Carry</td></tr>
+        <tr><td><b>PF</b> Parity</td><td>PE · Parity Even</td><td><b>PO</b> · Parity Odd</td></tr>
+        <tr><td><b>AF</b> Aux Carry</td><td>AC</td><td><b>NA</b> · No Aux</td></tr>
+        <tr><td><b>ZF</b> Zero</td><td>ZR · Zero</td><td><b>NZ</b> · Non Zero</td></tr>
+        <tr><td><b>SF</b> Sign</td><td>NG · Negative</td><td><b>PL</b> · Plus</td></tr>
+        <tr><td><b>IF</b> Interrupt</td><td>EI · Enabled</td><td>DI · Disabled</td></tr>
+        <tr><td><b>DF</b> Direction</td><td>DN · Down</td><td><b>UP</b> · Up</td></tr>
+        <tr><td><b>OF</b> Overflow</td><td>OV · Overflow</td><td><b>NV</b> · Non Overflow</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">💡 Cómo lo usás</div>
+    <div class="op-rule">Después de un <strong>CMP</strong> o una operación aritmética, los flags dicen qué pasó: si el resultado fue <strong>cero (ZF)</strong>, <strong>negativo (SF)</strong> o hubo <strong>acarreo (CF)</strong>. Los saltos condicionales (JZ, JC…) los leen.</div>
+    <div class="insight">💡 de la clase · "Obviamente tienen que tener <strong>la tablita</strong>, no se la van a acordar de memoria." (el parcial es online → se puede consultar).</div>
+    <div class="note warn">⚠️ El <strong>TF (Trap)</strong> no se accede directamente desde DEBUG.</div>
+  </div>
+
+</div>
+
+<!-- ============ 07 ============ -->
+<div class="section-label is-ctx" id="s07">07 — Direccionamiento segmentado <span class="tier ctx">contexto · NO se toma</span></div>
+<div class="grid grid-2 is-ctx">
+
+  <div class="card cyan">
+    <div class="card-title">🧱 Segmento : Desplazamiento <span class="flag info">ⓘ fuera de alcance del parcial</span></div>
+    <div class="op-rule">El espacio se trata como <strong>Segmento:Offset</strong>, cada uno de 16 bits. La dirección absoluta se calcula corriendo el segmento un dígito hexa (× 16) y sumando el desplazamiento.</div>
+    <div class="formula">dir. absoluta = Segmento × 10<sub>16</sub> + Desplazamiento</div>
+    <div class="worked">
+      <div class="wr"><span class="wl">segmento</span><span class="wb">12B4<sub>16</sub> × 10<sub>16</sub> = <span class="op">12B40<sub>16</sub></span></span></div>
+      <div class="wr"><span class="wl">+ offset</span><span class="wb"><span class="op">12B40<sub>16</sub></span> + 8765<sub>16</sub></span></div>
+      <div class="wr total"><span class="wl">12B4:8765</span><span class="wb"><span class="op" style="color:#fff">= 1B2A5<sub>16</sub></span></span></div>
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🚫 Por qué está acá igual</div>
+    <div class="op-rule">Aparece en el apunte (§4-6) y es útil para entender cómo el 8086 llega a 1 MB con registros de 16 bits, pero el profe lo excluyó del parcial.</div>
+    <div class="note danger">🚫 "No me voy a meter en todo el tema de cómo trabajaban los segmentos… <strong>no les voy a tomar esta parte</strong>." (clase 2026-06-01)</div>
+    <div class="note warn">⚠️ También fuera: <strong>instalación de DOSBox/TASM</strong> (operativo) y el <strong>ejercicio suma/resta con AH</strong> del apunte adicional ("no se los voy a pedir" + tiene un error: dice AH donde va AX).</div>
+  </div>
+
+</div>
+
+<!-- ============ 08 ============ -->
+<div class="section-label" id="s08">08 — Claves para el examen</div>
+<div class="grid" style="max-width:1400px;margin:0 auto">
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">💡 Tips de clase — lo que hay que tener clavado</div>
+    <div class="step">
+      <div class="s"><b>1.</b> El parcial es <strong>online y parecido al anterior</strong>: <strong>2 o 3 preguntas de Assembler</strong> + teoría (unidad de control, procesador, E/S, interrupciones).</div>
+      <div class="s"><b>2.</b> Memorizá los <strong>comandos del DEBUG</strong>: R (registros), D (datos), U (instrucciones), E (editar), A (programar), P/G (ejecutar). Es lo que más pregunta.</div>
+      <div class="s"><b>3.</b> Para programar: <strong>primero <code>r IP</code> → 0100</strong>, después <code>a 0100</code>. Si te piden "empezar a programar", esa es la secuencia.</div>
+      <div class="s"><b>4.</b> Sintaxis <strong>destino, origen</strong>: lo de después de la coma es el origen; el resultado queda en el destino.</div>
+      <div class="s"><b>5.</b> <strong>Corchetes = directo</strong> (dirección de memoria) · <strong>sin corchetes = inmediato</strong> (valor). Es la trampa más probable.</div>
+      <div class="s"><b>6.</b> <strong>X = 16 bits (4 hexas) · H/L = 8 bits (2 hexas)</strong>. Si te piden "parte baja", usá L y solo 2 dígitos.</div>
+      <div class="s"><b>7.</b> Solo entran <strong>MOV, ADD, INC</strong>. Sabé nombrar <strong>3 modos de direccionamiento</strong>.</div>
+      <div class="s"><b>8.</b> Tené a mano la <strong>tablita de flags</strong> (NV UP EI PL NZ NA PO NC) — es online, se puede consultar.</div>
+      <div class="s"><b>9.</b> Escribí la instrucción <strong>exacta</strong>: el profe corrige estricto, un dígito o registro mal cambia el resultado.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Programación en Lenguaje Ensamblador · Arquitectura de Computadores · Universidad de Palermo</p>
+  <p class="out">Fuera de alcance del 2º parcial (clase 2026-06-01): <s>segmentación segmento:offset</s> · <s>instalación DOSBox/TASM</s> · <s>ejercicio suma/resta con AH</s> · <s>buses</s> · <s>nuevas tecnologías</s> &nbsp;— estos entran en el final, no en el parcial.</p>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#arquitectura-de-computadores" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

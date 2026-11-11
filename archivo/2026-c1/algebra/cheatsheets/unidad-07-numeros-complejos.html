@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Números Complejos (forma binómica) — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  header { text-align: center; margin-bottom: 3rem; }
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    border-radius: 2px;
+    padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(1.7rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    margin: 1.2rem auto 0; border-radius: 2px;
+  }
+
+  .grid { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 2.5rem auto 1rem;
+    display: flex; align-items: center; gap: 0.8rem;
+    max-width: 1400px;
+    scroll-margin-top: 1rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem;
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border);
+    border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  .formula {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    color: #fff;
+    text-align: center;
+    padding: 0.7rem 0.5rem;
+    margin: 0.5rem 0 0.7rem;
+    background: rgba(124,58,237,0.10);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 5px;
+    line-height: 1.6;
+  }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.3); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.3); }
+  .formula.green-f { background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.3); }
+
+  .ex {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    padding: 0.4rem 0.6rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 4px;
+    line-height: 1.55;
+  }
+  .ex b { color: #fff; }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.05em;
+    padding: 0.12rem 0.4rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+  }
+  .tag.warn { color: var(--accent3); background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); }
+  .tag.out  { color: #f87171;       background: rgba(239,68,68,0.10);  border: 1px solid rgba(239,68,68,0.3); }
+
+  .note {
+    font-family: var(--mono);
+    font-size: 0.67rem;
+    line-height: 1.55;
+    margin-top: 0.6rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 4px;
+  }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.22); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.07);  border: 1px solid rgba(239,68,68,0.22); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.22); }
+  .note.info   { color: var(--accent2); background: rgba(6,182,212,0.07);  border: 1px solid rgba(6,182,212,0.22); }
+
+  .proplist {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: grid;
+    gap: 0.35rem;
+  }
+  .proplist div {
+    padding: 0.35rem 0.55rem;
+    border-radius: 4px;
+  }
+  .proplist strong { color: #fff; }
+  .pl-purple div, .proplist.pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div, .proplist.pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div, .proplist.pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div, .proplist.pl-green  div { background: rgba(16,185,129,0.06); }
+
+  .step {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: grid;
+    gap: 0.4rem;
+  }
+  .step .s {
+    padding: 0.4rem 0.6rem;
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 4px 4px 0;
+  }
+  .step .s b { color: #fff; }
+
+  .insight {
+    font-family: var(--mono);
+    font-size: 0.66rem;
+    color: var(--text);
+    background: rgba(245,158,11,0.08);
+    border-left: 2px solid var(--accent3);
+    padding: 0.45rem 0.65rem;
+    margin: 0.6rem 0 0.2rem;
+    border-radius: 0 4px 4px 0;
+    line-height: 1.5;
+  }
+  .insight strong { color: #fff; }
+  .insight::before { content: '💡 '; }
+
+  .recall {
+    font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0;
+    border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden;
+  }
+  .recall summary {
+    cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2);
+    background: rgba(124,58,237,0.06); list-style: none;
+    display: flex; align-items: center; gap: 0.5rem; user-select: none;
+  }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before {
+    content: '▸'; font-size: 0.7rem; color: var(--accent);
+    transition: transform 0.15s; flex-shrink: 0;
+  }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a {
+    padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5;
+    border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04);
+  }
+  .recall-a strong { color: #fff; }
+
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.73rem; }
+  th, td { border: 1px solid var(--border); padding: 0.4rem 0.5rem; text-align: center; }
+  th { color: var(--accent2); background: rgba(6,182,212,0.06); font-size: 0.66rem; letter-spacing: 0.05em; }
+  td { color: var(--muted); }
+  td b { color: #fff; }
+
+  /* ─── TOC scroll-spy + barra de progreso ─── */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .toc-rail {
+    position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90;
+    display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem;
+  }
+  .toc-rail a {
+    display: flex; align-items: center; gap: 0.55rem; text-decoration: none;
+    font-family: var(--mono); font-size: 0.55rem; color: var(--muted);
+    padding: 0.12rem 0.25rem; border-radius: 3px;
+  }
+  .toc-rail a .dot {
+    width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border);
+    flex-shrink: 0; transition: all 0.2s;
+  }
+  .toc-rail a .lbl {
+    opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap;
+  }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot {
+    background: var(--accent2); border-color: var(--accent2);
+    box-shadow: 0 0 8px var(--accent2);
+  }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  footer {
+    text-align: center;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    max-width: 1400px;
+    margin-left: auto; margin-right: auto;
+  }
+
+  /* ─── @media print ─── */
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1, .stat-num { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .recall { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<nav class="toc-rail" aria-label="Tabla de contenidos">
+  <a href="#seccion-01"><span class="dot"></span><span class="lbl">01 · Concepto y formas</span></a>
+  <a href="#seccion-02"><span class="dot"></span><span class="lbl">02 · Conjugado y opuesto</span></a>
+  <a href="#seccion-03"><span class="dot"></span><span class="lbl">03 · Plano complejo y módulo</span></a>
+  <a href="#seccion-04"><span class="dot"></span><span class="lbl">04 · Operaciones</span></a>
+  <a href="#seccion-05"><span class="dot"></span><span class="lbl">05 · Propiedades</span></a>
+  <a href="#seccion-06"><span class="dot"></span><span class="lbl">06 · Ejercicios conceptuales</span></a>
+  <a href="#seccion-07"><span class="dot"></span><span class="lbl">07 · Claves para el final</span></a>
+</nav>
+
+<header>
+  <div class="badge">Álgebra · Unidad 07 — Números complejos</div>
+  <h1>Números Complejos</h1>
+  <p class="subtitle">forma binómica · operaciones · conjugado · propiedades</p>
+  <div class="divider"></div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 1: CONCEPTO Y FORMAS
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-01">01 — Concepto y formas de un número complejo</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">💡 ¿Por qué existen?</div>
+    <div class="op-rule">
+      La ecuación <strong>x² + 1 = 0</strong> lleva a <span style="font-family:var(--mono)">x = √(−1)</span>, que <strong>no tiene solución en ℝ</strong>. Se define la unidad imaginaria para extender el campo.
+    </div>
+    <div class="formula">i = √(−1) &nbsp;⟹&nbsp; i² = −1</div>
+    <div class="op-rule">
+      <strong>i</strong> es la unidad imaginaria (notación introducida por Euler). Los complejos amplían a los reales: <span style="font-family:var(--mono)">ℝ ⊂ ℂ</span>.
+    </div>
+    <div class="insight">
+      <strong>Motivador histórico:</strong> resolver x² − 2x + 4 = 0. Δ = 4 − 16 = −12 < 0 → no hay raíces reales. Pero con i: x = (2 ± √−12)/2 = 1 ± √3·i. Aparecen <strong>de a pares conjugados</strong> — siempre que un polinomio con coeficientes reales tenga raíces complejas, vienen apareadas como z y z̄.
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">📐 Forma cartesiana</div>
+    <div class="op-rule">Un complejo es un <strong>par ordenado</strong> de reales.</div>
+    <div class="formula cyan-f">z = (a ; b)</div>
+    <div class="op-rule">
+      <strong>a</strong> = componente real &nbsp;·&nbsp; <strong>b</strong> = componente imaginaria.
+    </div>
+    <div class="op-name" style="margin-top:0.5rem;">Forma binómica</div>
+    <div class="formula cyan-f">z = a + b·i</div>
+    <div class="op-rule">
+      <span style="font-family:var(--mono)">a = Re(z)</span> &nbsp;·&nbsp; <span style="font-family:var(--mono)">b = Im(z)</span>. Es la misma información, escrita de otra manera.
+    </div>
+    <div class="insight">
+      Cuando el ejercicio da un complejo como <strong>par (0; 2)</strong> o <strong>(−1; 0)</strong>, reescribilo primero en binómica: (0; 2) = 0 + 2i = 2i, &nbsp;(−1; 0) = −1 + 0i = −1. La profe lo hace siempre antes de operar.
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🔣 Conjunto ℂ e igualdad</div>
+    <div class="formula amber-f" style="font-size:0.82rem">ℂ = {z / z = a + bi&nbsp;∧&nbsp;a,b ∈ ℝ}</div>
+    <div class="op-name">Igualdad de complejos</div>
+    <div class="op-rule">
+      Dos complejos son iguales <strong>solo si</strong> coinciden ambas componentes:
+    </div>
+    <div class="formula amber-f" style="font-size:0.82rem">a+bi = c+di ⟺ a=c ∧ b=d</div>
+    <div class="note ok">
+      ℹ Toda operación entre complejos da como resultado <strong>siempre 2 términos</strong>: una parte real y una imaginaria. Nunca quedan 3.
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 2: CONJUGADO Y OPUESTO
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-02">02 — Tipos · conjugado · opuesto</div>
+
+<div class="grid grid-3">
+
+  <div class="card green">
+    <div class="card-title">⭐ Casos particulares</div>
+    <div class="op-name">Complejo real</div>
+    <div class="op-rule">Componente imaginaria = 0. &nbsp;Ej: <span style="font-family:var(--mono)">3 + 0i = 3</span></div>
+    <div class="op-name">Imaginario puro</div>
+    <div class="op-rule">Componente real = 0. &nbsp;Ej: <span style="font-family:var(--mono)">0 + 4i = 4i</span></div>
+    <div class="insight">
+      <strong>Identificación rápida:</strong> z = z̄ ⟺ Im(z) = 0 (real puro). &nbsp;z = −z̄ ⟺ Re(z) = 0 (imaginario puro).
+    </div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">↔ Conjugado de z</div>
+    <div class="op-rule">Misma parte real, parte imaginaria <strong>opuesta</strong>.</div>
+    <div class="formula">z = a + bi &nbsp;⟹&nbsp; z&#773; = a − bi</div>
+    <div class="ex"><b>Ej:</b> z = 3 − 8i &nbsp;⟹&nbsp; z&#773; = 3 + 8i</div>
+    <div class="note ok">ℹ Geométricamente, z&#773; es el reflejo de z respecto del eje real.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">∓ Opuesto de z</div>
+    <div class="op-rule">Se cambian de signo <strong>ambas</strong> componentes.</div>
+    <div class="formula cyan-f">z = a + bi &nbsp;⟹&nbsp; −z = −a − bi</div>
+    <div class="ex"><b>Ej:</b> z = 3 − 8i &nbsp;⟹&nbsp; −z = −3 + 8i</div>
+    <div class="note warn">
+      ⚠ No confundir: el <strong>conjugado</strong> cambia solo la parte imaginaria; el <strong>opuesto</strong> cambia las dos.
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 3: PLANO COMPLEJO
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-03">03 — Plano complejo y módulo</div>
+
+<div class="card cyan" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">🗺️ El plano complejo (Argand)</div>
+  <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:1.2rem;align-items:center;">
+    <div>
+      <div class="op-rule">
+        Todo complejo se representa como un <strong>punto</strong> de coordenadas (a; b) o como un <strong>vector</strong> con origen en (0; 0) y extremo en (a; b).
+      </div>
+      <div class="op-rule">
+        <strong style="color:var(--accent2)">Eje horizontal</strong> → eje real (componentes reales).<br>
+        <strong style="color:var(--accent3)">Eje vertical</strong> → eje imaginario (componentes imaginarias).
+      </div>
+      <div class="note ok">ℹ El vector siempre tiene su origen en el (0;0). Sumar dos complejos es sumar dos vectores.</div>
+      <div class="insight">
+        <strong>Las tres reflexiones:</strong> <span style="color:#a78bfa">z</span> es el punto original; su <span style="color:#34d399">conjugado z̄</span> es el reflejo respecto del <strong>eje real</strong> (cambia solo el signo de b); su <span style="color:#f472b6">opuesto −z</span> es el reflejo respecto del <strong>origen</strong> (rotación 180°, cambian ambos signos). Buen ejercicio mental para chequear signos.
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;">
+      <svg viewBox="0 0 280 260" width="260" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="ah-z" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7c3aed"/></marker>
+          <marker id="ah-cj" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#10b981"/></marker>
+          <marker id="ah-op" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#ec4899"/></marker>
+        </defs>
+        <!-- ejes -->
+        <line x1="15" y1="130" x2="265" y2="130" stroke="#2a2a3e" stroke-width="1.5"/>
+        <line x1="130" y1="15" x2="130" y2="245" stroke="#2a2a3e" stroke-width="1.5"/>
+        <text x="252" y="146" fill="#06b6d4" font-family="monospace" font-size="11">Re</text>
+        <text x="136" y="25" fill="#f59e0b" font-family="monospace" font-size="11">Im</text>
+        <!-- guías de reflexión -->
+        <line x1="190" y1="80" x2="190" y2="180" stroke="#3a3a52" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="130" y1="80" x2="190" y2="80" stroke="#3a3a52" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="130" y1="180" x2="190" y2="180" stroke="#3a3a52" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="70" y1="180" x2="70" y2="130" stroke="#3a3a52" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- vector z -->
+        <line x1="130" y1="130" x2="190" y2="80" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#ah-z)"/>
+        <circle cx="190" cy="80" r="3.5" fill="#a78bfa"/>
+        <text x="195" y="76" fill="#a78bfa" font-family="monospace" font-size="10">z=a+bi</text>
+        <!-- conjugado z̄ -->
+        <line x1="130" y1="130" x2="190" y2="180" stroke="#10b981" stroke-width="2.5" marker-end="url(#ah-cj)"/>
+        <circle cx="190" cy="180" r="3.5" fill="#34d399"/>
+        <text x="195" y="190" fill="#34d399" font-family="monospace" font-size="10">z̄=a−bi</text>
+        <!-- opuesto −z -->
+        <line x1="130" y1="130" x2="70" y2="180" stroke="#ec4899" stroke-width="2.5" marker-end="url(#ah-op)"/>
+        <circle cx="70" cy="180" r="3.5" fill="#f472b6"/>
+        <text x="4" y="196" fill="#f472b6" font-family="monospace" font-size="10">−z=−a−bi</text>
+        <!-- a y b -->
+        <text x="155" y="143" fill="#06b6d4" font-family="monospace" font-size="9">a</text>
+        <text x="118" y="82" fill="#f59e0b" font-family="monospace" font-size="9">b</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<div class="card amber" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">📏 Módulo de un complejo — |z|</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:start;">
+    <div>
+      <div class="op-rule">
+        El <strong>módulo</strong> es la <strong>longitud del vector</strong> z: la distancia del origen al afijo (a; b). Se obtiene por <strong>Pitágoras</strong> sobre el triángulo de catetos a y b.
+      </div>
+      <div class="formula amber-f">|z| = √(a² + b²)</div>
+      <div class="ex"><b>Ej:</b> z = 3 − 4i ⟹ |z| = √(3² + (−4)²) = √(9 + 16) = √25 = <b>5</b></div>
+    </div>
+    <div>
+      <div class="proplist pl-amber">
+        <div><strong>|z| ≥ 0</strong> siempre, y |z| = 0 ⟺ z = 0</div>
+        <div><strong>z · z̄ = a² + b² = |z|²</strong> (la base de la división y el inverso)</div>
+        <div><strong>|z| = 1 ⟺ z·z̄ = 1</strong> → afijo sobre la circunferencia unitaria</div>
+        <div><strong>|z| = |z̄| = |−z|</strong> (conjugado y opuesto tienen igual módulo)</div>
+      </div>
+      <div class="note info">ℹ El otro dato del vector — el <strong>argumento</strong> (ángulo) — y la <strong>forma polar</strong> completa están en el cheatsheet de <strong>Unidad 08, secciones 02–04</strong>.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 4: OPERACIONES BINÓMICAS
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-04">04 — Operaciones en forma binómica</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">＋ Suma y resta</div>
+    <div class="op-rule">Se operan <strong>componente con componente</strong>.</div>
+    <div class="formula" style="font-size:0.82rem">(a+bi) ± (c+di) = (a±c) + (b±d)i</div>
+    <div class="ex">
+      <b>Ej:</b> (4−3i) + (2+i) = 6 − 2i<br>
+      (4−3i) − (5+2i) = −1 − 5i
+    </div>
+    <div class="note ok">ℹ La resta se define como sumar el opuesto.</div>
+    <div class="insight">
+      <strong>Truco de signos:</strong> separar siempre con "+", y si después aparece un negativo se deja negativo. Y <strong>usar paréntesis sobrantes</strong> — mejor que sobren a equivocarse en un signo. (Frase repetida en clase 2026-04-28.)
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">✕ Multiplicación</div>
+    <div class="op-rule">
+      Se aplica <strong>propiedad distributiva</strong> y luego se reemplaza <strong>i² = −1</strong>.
+    </div>
+    <div class="formula cyan-f" style="font-size:0.78rem">(a+bi)(c+di) = (ac−bd)+(ad+bc)i</div>
+    <div class="ex">
+      <b>Ej:</b> (2+3i)(1−i) = 2−2i+3i−3i²<br>
+      = 2 + i − 3(−1) = <b>5 + i</b>
+    </div>
+    <div class="note warn">
+      ⚠ Producto por imaginario puro o par <strong>(0;k)</strong>: reescribilo como k·i antes de distribuir. &nbsp;Ej: (0;2)·(3+i) = 2i·(3+i) = 6i + 2i² = −2 + 6i.
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">÷ División — el artificio del conjugado</div>
+    <div class="op-rule">
+      Se multiplica numerador y denominador por el <strong>conjugado del denominador</strong>: el denominador queda real (es multiplicar por 1).
+    </div>
+    <div class="formula amber-f" style="font-size:0.8rem">z₁/z₂ = (z₁·z&#773;₂) / (z₂·z&#773;₂)</div>
+    <div class="insight">
+      <strong>¿Por qué funciona?</strong> Porque z·z̄ = (c+di)(c−di) = c² − (di)² = c² − d²·i² = <strong>c² + d²</strong>. Diferencia de cuadrados — el denominador queda real (y positivo) sin esfuerzo. Es la razón por la que se elige el conjugado y no otro factor.
+    </div>
+  </div>
+
+</div>
+
+<div class="grid grid-2" style="margin-top:1.2rem;">
+
+  <div class="card green">
+    <div class="card-title">▦ Ejemplo trabajado — división con denominador (c+di)</div>
+    <div class="op-rule">Calcular (1 − i) / (2 + 3i). Multiplico arriba y abajo por el conjugado del denominador (2 − 3i).</div>
+    <div class="step">
+      <div class="s"><b>Numerador:</b> (1−i)(2−3i) = 2 − 3i − 2i + 3i² = 2 − 5i + 3(−1) = <b>−1 − 5i</b>.</div>
+      <div class="s"><b>Denominador:</b> (2+3i)(2−3i) = 2² + 3² = 4 + 9 = <b>13</b>. (Diferencia de cuadrados → real.)</div>
+      <div class="s"><b>Resultado:</b> (−1 − 5i)/13 = <b>−1/13 − 5/13·i</b>. Parte real y parte imaginaria — siempre 2 términos.</div>
+    </div>
+    <div class="note ok">ℹ Ejemplo del apunte oficial (pág. 6). Caso típico del ejercicio 5 de la guía (7 de 9 incisos tienen denominador c+di).</div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">⟲ Potencias de i — ciclo de 4</div>
+    <div class="op-rule">Las potencias de <strong>i</strong> se repiten cada 4 valores:</div>
+    <table>
+      <tr><th>i⁰</th><th>i¹</th><th>i²</th><th>i³</th><th>i⁴</th></tr>
+      <tr><td><b>1</b></td><td><b>i</b></td><td><b>−1</b></td><td><b>−i</b></td><td><b>1</b></td></tr>
+    </table>
+    <div class="formula green-f" style="font-size:0.82rem;margin-top:0.7rem">
+      iᵐ = iʳ &nbsp;&nbsp;(r = resto de m ÷ 4)
+    </div>
+    <div class="ex">
+      <b>Ej 1:</b> i²³ → 23 ÷ 4 = 5 resto <b>3</b> ⟹ i²³ = i³ = −i<br>
+      <b>Ej 2:</b> i¹⁸ − i³⁵ = i² − i³ = −1 − (−i) = <b>−1 + i</b><br>
+      <b>Ej 3:</b> i⁴²⁹ + i³²⁹ = i¹ + i¹ = <b>2i</b> (429÷4 resto 1; 329÷4 resto 1)
+    </div>
+    <div class="insight">
+      Para exponentes grandes con varios términos (ej. i¹⁸ − i³⁵), reducí cada potencia con el ciclo y después sumá. La profe resolvió este tipo en vivo (2026-04-28).
+    </div>
+  </div>
+
+</div>
+
+<div class="card amber" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">^ Potenciación binómica — exponentes chicos</div>
+  <div class="op-rule">
+    Para exponentes <strong>chicos</strong> se desarrolla como producto repetido, reemplazando i² = −1 en cada paso. Para exponentes grandes conviene polar (Unidad 08, De Moivre).
+  </div>
+  <div class="ex"><b>Ej:</b> (1+i)² = 1 + 2i + i² = 1 + 2i − 1 = <b>2i</b></div>
+  <div class="ex"><b>Ej:</b> (2−i)³ = (2−i)·(2−i)² = (2−i)·(3−4i) = 6 − 8i − 3i + 4i² = 6 − 11i − 4 = <b>2 − 11i</b></div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 5: PROPIEDADES
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-05">05 — Propiedades de las operaciones</div>
+
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">＋ Suma en ℂ</div>
+    <div class="proplist pl-purple">
+      <div><strong>Cierre:</strong> z₁ + z₂ ∈ ℂ</div>
+      <div><strong>Conmutativa</strong> y <strong>asociativa</strong></div>
+      <div><strong>Neutro:</strong> 0 = 0 + 0i</div>
+      <div><strong>Inverso aditivo:</strong> z + (−z) = 0</div>
+    </div>
+    <div class="note ok">(ℂ, +) es un <strong>grupo conmutativo</strong>.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">✕ Multiplicación en ℂ</div>
+    <div class="proplist pl-cyan">
+      <div><strong>Cierre:</strong> z₁ · z₂ ∈ ℂ</div>
+      <div><strong>Conmutativa</strong> y <strong>asociativa</strong></div>
+      <div><strong>Neutro:</strong> 1 = 1 + 0i</div>
+      <div><strong>Inverso multiplicativo</strong> (z ≠ 0): z⁻¹ = z̄ / (z·z̄)</div>
+      <div><strong>Distributiva</strong> respecto de la suma</div>
+    </div>
+    <div class="note ok">(ℂ, +, ·) es un <strong>cuerpo</strong>.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">↔ Conjugado</div>
+    <div class="proplist pl-amber">
+      <div><strong>z + z&#773;</strong> = 2·Re(z) → real</div>
+      <div><strong>z − z&#773;</strong> = 2·Im(z)·i = 2bi → imaginario puro</div>
+      <div><strong>z · z&#773;</strong> = a² + b² → real (= |z|²)</div>
+      <div><strong>(z̄)̄</strong> = z &nbsp;(involutivo)</div>
+      <div><strong>(z₁ + z₂)̄</strong> = z̄₁ + z̄₂</div>
+      <div><strong>(z₁ · z₂)̄</strong> = z̄₁ · z̄₂</div>
+      <div><strong>(z₁ / z₂)̄</strong> = z̄₁ / z̄₂ &nbsp;(z₂ ≠ 0)</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 6: EJERCICIOS CONCEPTUALES
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-06">06 — Ejercicios conceptuales típicos</div>
+
+<div class="grid grid-2">
+
+  <div class="card cyan">
+    <div class="card-title">⚙ Caracterización de complejos por igualdades</div>
+    <div class="op-rule">Ejercicio 8 de la guía. Plantear cada condición y deducir qué tipo de complejo cumple.</div>
+    <div class="proplist pl-cyan">
+      <div><strong>z = z̄</strong> &nbsp;⟺&nbsp; a+bi = a−bi &nbsp;⟺&nbsp; b = 0 &nbsp;⟹&nbsp; <strong>real puro</strong></div>
+      <div><strong>z = −z̄</strong> &nbsp;⟺&nbsp; a+bi = −a+bi &nbsp;⟺&nbsp; a = 0 &nbsp;⟹&nbsp; <strong>imaginario puro</strong></div>
+      <div><strong>z · z̄ = 1</strong> &nbsp;⟺&nbsp; a² + b² = 1 &nbsp;⟹&nbsp; <strong>módulo 1</strong> (circunferencia unitaria)</div>
+      <div><strong>z + z̄ = 0</strong> &nbsp;⟺&nbsp; 2a = 0 &nbsp;⟹&nbsp; <strong>imaginario puro</strong> (mismo conjunto que z=−z̄)</div>
+    </div>
+    <details class="recall">
+      <summary>💡 Si z + z̄ = 6, ¿qué se puede afirmar sobre z?</summary>
+      <div class="recall-a">Re(z) = 3. La parte imaginaria queda libre — z puede ser 3 + ki para cualquier k ∈ ℝ. (Sirve para deducir tipos a partir de igualdades.)</div>
+    </details>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⚙ Ecuación cuadrática con Δ < 0</div>
+    <div class="op-rule">Cuando el discriminante es negativo, las dos raíces son <strong>complejas conjugadas</strong>. Caso típico de oral.</div>
+    <div class="ex">
+      <b>Ej:</b> x² − 2x + 4 = 0<br>
+      Δ = b² − 4ac = 4 − 16 = <b>−12</b><br>
+      x = (2 ± √−12) / 2 = (2 ± 2√3·i) / 2 = <b>1 ± √3·i</b><br>
+      Las raíces son z = 1 + √3·i &nbsp;y&nbsp; z̄ = 1 − √3·i.
+    </div>
+    <div class="insight">
+      <strong>Patrón clave:</strong> si un polinomio con coeficientes reales tiene una raíz compleja z, su conjugado z̄ <strong>también es raíz</strong>. Por eso aparecen siempre apareadas.
+    </div>
+    <details class="recall">
+      <summary>💡 Si z = 2 + 3i es raíz de un polinomio con coeficientes reales de grado 2, ¿cuál es el polinomio?</summary>
+      <div class="recall-a">Las raíces son z = 2+3i y z̄ = 2−3i. P(x) = (x − (2+3i))(x − (2−3i)) = (x−2)² − (3i)² = (x−2)² + 9 = <strong>x² − 4x + 13</strong>. Verificá: Δ = 16 − 52 = −36 < 0 ✓.</div>
+    </details>
+  </div>
+
+</div>
+
+<div class="card purple" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">⚙ Hallar z a partir de una ecuación — separar parte real e imaginaria</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:start;">
+    <div>
+      <div class="op-rule">
+        Cuando piden <strong>hallar z</strong> que cumple una condición, se escribe <strong>z = x + yi</strong> (x, y reales), se sustituye y se <strong>separa parte real e imaginaria</strong>. Por igualdad de complejos, cada parte da una ecuación → un <strong>sistema de 2 ecuaciones reales</strong>.
+      </div>
+      <div class="step">
+        <div class="s"><b>1.</b> z = x + yi &nbsp;·&nbsp; z̄ = x − yi.</div>
+        <div class="s"><b>2.</b> Sustituir en la condición y agrupar parte real (sin i) y parte imaginaria (con i).</div>
+        <div class="s"><b>3.</b> Igualar Re con Re e Im con Im → sistema. Resolver x e y.</div>
+      </div>
+    </div>
+    <div>
+      <div class="op-rule" style="margin-bottom:0.4rem">Ejemplo: hallar z tal que <strong>z + 2z̄ = 6 − i</strong>.</div>
+      <div class="step">
+        <div class="s">z + 2z̄ = (x+yi) + 2(x−yi) = <b>3x − yi</b></div>
+        <div class="s">Igualo a 6 − i: &nbsp; <b>3x = 6</b> &nbsp;y&nbsp; <b>−y = −1</b></div>
+        <div class="s">⟹ x = 2, &nbsp; y = 1 &nbsp;⟹&nbsp; <b>z = 2 + i</b></div>
+      </div>
+      <div class="insight">
+        Es el tipo del <strong>ejercicio 8 de la guía</strong> y un clásico de parcial/final ("2 ecuaciones que satisfacen a un complejo", oral 2026-06-16). A veces el sistema da <strong>fracciones</strong> — es correcto, no asumas error.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 7: CLAVES PARA EL FINAL
+═══════════════════════════════════════════════════ -->
+<div class="section-label" id="seccion-07">07 — Claves para el examen final</div>
+
+<div class="card green" style="max-width:1400px;margin:0 auto 1.2rem;">
+  <div class="card-title">
+    📋 Sobre el examen final
+    <span class="tag warn" style="margin-left:auto">integrador</span>
+  </div>
+  <div class="proplist pl-green">
+    <div><strong>Formato:</strong> ~10 temas, 5 ejercicios, 2 horas. Puede tocar un ejercicio de complejos en forma binómica, en forma polar o de radicación.</div>
+    <div><strong>Múltiple choice CON desarrollo obligatorio</strong> · sin oral.</div>
+    <div><strong>Material permitido: solo las tablas de verdad.</strong> El resumen de propiedades NO se permite → las propiedades hay que saberlas de memoria (conjugado, estructura de cuerpo, etc.).</div>
+  </div>
+</div>
+
+<div class="card cyan" style="max-width:1400px;margin:0 auto 1.2rem;">
+  <div class="card-title">
+    ⁿ√ Radicación (raíces n-ésimas)
+    <span class="tag warn" style="margin-left:auto">Sí entra · final</span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:start;">
+    <div>
+      <div class="op-rule">
+        Todo complejo z ≠ 0 tiene <strong>exactamente n raíces n-ésimas distintas</strong>. Se calculan en <strong>forma polar</strong>: si z = ρ∠θ, todas tienen el <strong>mismo módulo</strong> y sus argumentos avanzan de a 360°/n.
+      </div>
+      <div class="formula cyan-f" style="font-size:0.8rem">
+        ⁿ√z : módulo = ⁿ√ρ ,&nbsp; arg = (θ + 2kπ)/n<br>con k = 0, 1, …, n−1
+      </div>
+      <div class="note warn">⚠ <strong>No</strong> se exige la derivación teórica de la raíz en forma trigonométrica (la profe la saltea, 2026-05-12); solo la <strong>fórmula y su aplicación</strong> en forma polar, que sí entra al final.</div>
+    </div>
+    <div>
+      <div class="op-rule">
+        Las n raíces son los <strong>vértices de un polígono regular</strong> inscrito en la circunferencia de radio ⁿ√ρ, separados <strong>360°/n</strong>. En el final <strong>pueden pedir el gráfico</strong> del polígono (oral 2026-06-16).
+      </div>
+      <div class="note info">ℹ Cálculo paso a paso y ejemplos trabajados (raíces cúbicas de la unidad, (1−i)<sup>1/3</sup>, diagrama del polígono) → cheatsheet de <strong>Unidad 08, sección 07</strong>.</div>
+    </div>
+  </div>
+</div>
+
+<div class="card red" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">💡 Tips de clase — claves para el final</div>
+  <div class="step">
+    <div class="s"><b>★ El resultado siempre tiene parte real e imaginaria.</b> Nunca 3 términos. Si te queda algo raro, revisá los signos o que hayas reemplazado i² = −1.</div>
+    <div class="s"><b>★ Una fracción "fea" puede ser la respuesta correcta.</b> Al resolver una ecuación igualando parte real e imaginaria, a veces da una fracción que no esperabas — no asumas que está mal solo por eso (oral del final 2026-06-16: "es un ejercicio rápido pero de pensar").</div>
+    <div class="s"><b>★ Cuidado con los signos.</b> "Arrastrar un problemita de signos lleva a hacer todo el ejercicio mal." (Cita textual del 2026-04-28.) Mejor que sobren paréntesis a equivocarse.</div>
+    <div class="s"><b>★ Reemplazá i² = −1 siempre.</b> Al multiplicar o potenciar — es el paso que más se olvida.</div>
+    <div class="s"><b>★ Para dividir: multiplicar arriba y abajo por el conjugado del denominador.</b> Es un "artificio" — multiplicar por 1 disfrazado. Funciona porque z·z̄ = c² + d² queda real.</div>
+    <div class="s"><b>★ Si te dan z como par (a; b), reescribilo en binómica antes de operar.</b> (0; 2) = 2i, &nbsp;(−1; 0) = −1.</div>
+    <div class="s"><b>★ Δ < 0 ⟹ dos raíces complejas conjugadas.</b> El caso de uso más típico de oral. Si el discriminante da negativo, no es "no hay solución" — son complejos.</div>
+    <div class="s"><b>★ Potencias de i: usar el ciclo i, −1, −i, 1.</b> Resto de la división por 4 te lleva a una de las 4 potencias básicas, sin importar lo grande que sea el exponente.</div>
+    <div class="s"><b>★ Para potencias grandes de complejos no triviales, pasar a polar (Unidad 08).</b> De Moivre es mucho más rápido que distribuir 5 veces.</div>
+    <div class="s"><b>★ z = z̄ ⟺ real puro. z = −z̄ ⟺ imaginario puro. z·z̄ = 1 ⟺ módulo 1.</b> Memorizá estas equivalencias — son ejercicio conceptual típico.</div>
+    <div class="s"><b>★ Números: el final puede traer fracciones o raíces.</b> No asumas que está mal solo porque el resultado no es redondo (oral 2026-06-16). Si igual la cuenta se hace gigante, revisá los signos. La calculadora se usa para verificar, no para resolver.</div>
+  </div>
+</div>
+
+<footer>
+  <p>Números complejos (binómica) · Álgebra · Universidad de Palermo</p>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#algebra" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>
