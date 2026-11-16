@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Problemas de Conteo — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+  }
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    border-radius: 2px;
+    padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-family: var(--mono);
+  }
+  .divider {
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    margin: 1.2rem auto 0;
+    border-radius: 2px;
+  }
+
+  /* GRID LAYOUT */
+  .grid {
+    display: grid;
+    gap: 1.2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* SECTION TITLE */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 2.5rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.25rem;
+  }
+  .op-rule {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem;
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border);
+    border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  .formula {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: #fff;
+    background: rgba(124,58,237,0.12);
+    border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 6px;
+    padding: 0.7rem 1rem;
+    margin: 0.6rem 0;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .formula.cyan-bg {
+    background: rgba(6,182,212,0.10);
+    border-color: rgba(6,182,212,0.25);
+  }
+  .formula.amber-bg {
+    background: rgba(245,158,11,0.10);
+    border-color: rgba(245,158,11,0.25);
+  }
+  .formula.green-bg {
+    background: rgba(16,185,129,0.10);
+    border-color: rgba(16,185,129,0.25);
+  }
+
+  .tip {
+    font-family: var(--mono);
+    font-size: 0.67rem;
+    padding: 0.45rem 0.7rem;
+    border-radius: 4px;
+    color: var(--muted);
+    margin-top: 0.6rem;
+  }
+  .tip.warn {
+    background: rgba(239,68,68,0.06);
+    border: 1px solid rgba(239,68,68,0.2);
+  }
+  .tip.info {
+    background: rgba(6,182,212,0.06);
+    border: 1px solid rgba(6,182,212,0.2);
+  }
+  .tip.success {
+    background: rgba(74,222,128,0.06);
+    border: 1px solid rgba(74,222,128,0.2);
+  }
+
+  /* SVG diagrams */
+  .diagram-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0.8rem 0;
+  }
+  .diagram-container svg {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Steps */
+  .step {
+    display: flex;
+    gap: 0.7rem;
+    margin-bottom: 0.7rem;
+    align-items: flex-start;
+  }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(124,58,237,0.15);
+    border-radius: 50%;
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .step-text {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .step-text strong { color: #fff; }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+  th {
+    background: rgba(255,255,255,0.05);
+    color: var(--muted);
+    font-weight: 400;
+    padding: 0.35rem 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 0.3rem 0.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    color: var(--muted);
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 3rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: rgba(148,163,184,0.4);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Álgebra · Unidad 4 · Repaso para el final</div>
+  <h1>Problemas de Conteo</h1>
+  <div class="subtitle">Cardinales, inclusión-exclusión, Venn y Carroll</div>
+  <div class="divider"></div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════
+     ENCUADRE DEL FINAL
+═══════════════════════════════════════════════════ -->
+
+<div class="card amber" style="max-width:1400px;margin:0 auto 1.5rem;">
+  <div class="card-title">🎓 Para el final integrador</div>
+  <div class="grid grid-2" style="gap:0.8rem;">
+    <div class="op-rule" style="margin-bottom:0;">
+      <strong>Conteo entra en el final.</strong> Es uno de los ~10 temas, de los que se eligen <strong>5 ejercicios</strong>. Formato <strong>multiple choice pero con desarrollo / justificación obligatorios</strong> (disposición de la facultad: "que no sea un tatetí"). Duración <strong>2 horas</strong>, sin oral.<br><br>
+      Material permitido: <strong>solo las tablas de verdad</strong>. Las <strong>propiedades se saben de memoria</strong> — no van en el material permitido.
+    </div>
+    <div style="display:grid;gap:0.6rem;align-content:start;">
+      <div class="tip warn" style="margin-top:0;">
+        ⚠️ <strong style="color:#fff;">No entra combinatoria.</strong> En esta materia "conteo" es <span style="color:#fbbf24;">exclusivamente cardinalidad + inclusión-exclusión</span> (Venn / Carroll). No hay permutaciones, variaciones, combinaciones ni factorial.
+      </div>
+      <div class="tip info" style="margin-top:0;">
+        Las <strong style="color:#fff;">propiedades de conjuntos</strong> (De Morgan, distributiva, etc.) sí se evalúan en el final → repasalas en la <strong>Unidad 3</strong>. En conteo aparecen al leer "ninguno", "no A ni B", etc.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 1: CARDINAL Y NOTACIÓN
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label">01 — Cardinal de un conjunto</div>
+
+<div class="grid grid-2">
+  <div class="card purple">
+    <div class="card-title">★ Definición</div>
+    <div class="op-name">Cardinal — #(A)</div>
+    <div class="op-rule">
+      El <strong>cardinal</strong> de un conjunto es la <strong>cantidad de elementos</strong> que contiene.<br>
+      Se nota con <strong>#(A)</strong> o <strong>|A|</strong>.<br><br>
+      Ejemplo: si A = {2, 4, 6, 8} → <strong>#(A) = 4</strong>
+    </div>
+    <div class="tip info">
+      En conteo no trabajamos con los conjuntos en sí, sino con sus <span style="color:var(--accent2)">cardinales</span> (cantidades).
+    </div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">★ Idea central</div>
+    <div class="op-name">Conteo = Conjuntos aplicados</div>
+    <div class="op-rule">
+      Los problemas de conteo usan las <strong>mismas operaciones</strong> que ya conocemos de conjuntos (unión, intersección, diferencia, complemento), pero aplicadas a <strong>situaciones reales</strong>.<br><br>
+      Los conjuntos ya no son de números, sino de <strong>personas, objetos, situaciones</strong>.
+    </div>
+    <div class="tip success">
+      ★ Es el mismo tema de conjuntos, solo que aplicado a problemas. <span style="color:#4ade80;">No hay conceptos nuevos.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 2: CONJUNTOS DISJUNTOS
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label">02 — Conjuntos disjuntos (sin elementos en común)</div>
+
+<div class="card purple" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">Fórmula — conjuntos disjuntos</div>
+
+  <div class="op-rule">
+    Cuando dos o más conjuntos <strong>no comparten elementos</strong> (S ∩ T = ∅), el cardinal de la unión es simplemente la <strong>suma de los cardinales</strong>.
+  </div>
+
+  <div class="formula">
+    Si S ∩ T = ∅ &nbsp;→&nbsp; <span style="color:#a78bfa">#(S ∪ T) = #(S) + #(T)</span>
+  </div>
+
+  <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);margin-top:0.8rem;">
+    Se extiende a más de 2 conjuntos si <strong>ningún par</strong> comparte elementos:
+  </div>
+
+  <div class="formula">
+    #(A ∪ B ∪ C ∪ D) = #(A) + #(B) + #(C) + #(D)
+  </div>
+
+  <!-- Diagrama SVG: 2 conjuntos disjuntos -->
+  <div class="diagram-container">
+    <svg width="320" height="130" viewBox="0 0 320 130">
+      <rect x="5" y="5" width="310" height="120" rx="6" fill="none" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="15" y="20" font-family="JetBrains Mono" font-size="10" fill="#94a3b8">U</text>
+      <ellipse cx="100" cy="70" rx="65" ry="40" fill="rgba(124,58,237,0.15)" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="88" y="74" font-family="Syne" font-size="14" font-weight="800" fill="#a78bfa">S</text>
+      <ellipse cx="230" cy="70" rx="65" ry="40" fill="rgba(6,182,212,0.12)" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="218" y="74" font-family="Syne" font-size="14" font-weight="800" fill="#06b6d4">T</text>
+      <text x="100" y="110" font-family="JetBrains Mono" font-size="9" fill="#94a3b8" text-anchor="middle">S ∩ T = ∅</text>
+    </svg>
+  </div>
+
+  <div class="tip info">
+    <strong>Ejemplo:</strong> 5 libros de APL, 5 de Basic, 5 de Fortran, 5 de Pascal (todos distintos).<br>
+    Total = 5 + 5 + 5 + 5 = <span style="color:var(--accent2)">20 libros</span>.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 3: 2 CONJUNTOS NO DISJUNTOS
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label">03 — Dos conjuntos no disjuntos</div>
+
+<div class="card cyan" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">Fórmula — 2 conjuntos con intersección</div>
+
+  <div class="op-rule">
+    Cuando los conjuntos <strong>comparten elementos</strong>, al sumar los cardinales estamos <strong>contando la intersección dos veces</strong>. Por eso la restamos una vez.
+  </div>
+
+  <div class="formula cyan-bg">
+    <span style="color:var(--accent2)">#(S ∪ T) = #(S) + #(T) − #(S ∩ T)</span>
+  </div>
+
+  <!-- Diagrama SVG: 2 conjuntos con intersección -->
+  <div class="diagram-container">
+    <svg width="320" height="140" viewBox="0 0 320 140">
+      <rect x="5" y="5" width="310" height="130" rx="6" fill="none" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="15" y="20" font-family="JetBrains Mono" font-size="10" fill="#94a3b8">U</text>
+      <!-- S -->
+      <ellipse cx="130" cy="72" rx="70" ry="45" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.5"/>
+      <!-- T -->
+      <ellipse cx="210" cy="72" rx="70" ry="45" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.5"/>
+      <!-- Labels -->
+      <text x="95" y="72" font-family="Syne" font-size="13" font-weight="800" fill="#a78bfa">solo S</text>
+      <text x="155" y="65" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="#f59e0b">S∩T</text>
+      <text x="230" y="72" font-family="Syne" font-size="13" font-weight="800" fill="#06b6d4">solo T</text>
+      <!-- Annotation -->
+      <text x="160" y="130" font-family="JetBrains Mono" font-size="9" fill="#f59e0b" text-anchor="middle">← se cuenta 2 veces → restar 1 vez</text>
+    </svg>
+  </div>
+
+  <div style="font-family:var(--mono);font-size:0.72rem;color:var(--muted);margin-top:0.5rem;padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+    <div style="color:#fff;margin-bottom:0.3rem;">Ejemplo — Alumnos de Análisis I y Sistemas y Métodos</div>
+    <div>Datos: #(A₁) = 30, #(SM) = 35, #(A₁ ∪ SM) = 40</div>
+    <div style="margin-top:0.3rem;">40 = 30 + 35 − #(A₁ ∩ SM) → <span style="color:var(--accent2)">#(A₁ ∩ SM) = 25</span></div>
+    <div style="margin-top:0.2rem;">Solo A₁ = 30 − 25 = <span style="color:#a78bfa">5</span> &nbsp;|&nbsp; Solo SM = 35 − 25 = <span style="color:#a78bfa">10</span></div>
+    <div style="margin-top:0.2rem;">Verificación: 5 + 25 + 10 = <span style="color:#4ade80">40 ✓</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 4: INCLUSIÓN-EXCLUSIÓN (3 CONJUNTOS)
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label">04 — Principio de inclusión-exclusión (3 conjuntos)</div>
+
+<div class="card amber" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">★ Fórmula principal — 3 conjuntos</div>
+
+  <div class="op-rule">
+    Con 3 conjuntos, al sumar cardinales <strong>contamos las intersecciones dobles 2 veces</strong> y la <strong>intersección triple 3 veces</strong>.<br>
+    Al restar las dobles, <strong>borramos la triple de más</strong> → hay que sumarla una vez.
+  </div>
+
+  <div class="formula amber-bg" style="font-size:0.78rem;">
+    <span style="color:var(--accent3)">#(S ∪ T ∪ R) = #(S) + #(T) + #(R)</span><br>
+    <span style="color:var(--accent3);">&nbsp;&nbsp;&nbsp;&nbsp;− #(S∩T) − #(S∩R) − #(T∩R)</span><br>
+    <span style="color:var(--accent3);">&nbsp;&nbsp;&nbsp;&nbsp;+ #(S∩T∩R)</span>
+  </div>
+
+  <!-- Diagrama SVG: 3 conjuntos -->
+  <div class="diagram-container">
+    <svg width="340" height="200" viewBox="0 0 340 200">
+      <rect x="5" y="5" width="330" height="190" rx="6" fill="none" stroke="#2a2a3e" stroke-width="1"/>
+      <text x="15" y="20" font-family="JetBrains Mono" font-size="10" fill="#94a3b8">U</text>
+      <!-- S -->
+      <ellipse cx="140" cy="80" rx="65" ry="45" fill="rgba(124,58,237,0.10)" stroke="#7c3aed" stroke-width="1.2"/>
+      <!-- T -->
+      <ellipse cx="210" cy="80" rx="65" ry="45" fill="rgba(6,182,212,0.08)" stroke="#06b6d4" stroke-width="1.2"/>
+      <!-- R -->
+      <ellipse cx="175" cy="130" rx="65" ry="45" fill="rgba(16,185,129,0.08)" stroke="#10b981" stroke-width="1.2"/>
+      <!-- Labels externas -->
+      <text x="100" y="65" font-family="Syne" font-size="11" font-weight="700" fill="#a78bfa">S</text>
+      <text x="240" y="65" font-family="Syne" font-size="11" font-weight="700" fill="#06b6d4">T</text>
+      <text x="175" y="175" font-family="Syne" font-size="11" font-weight="700" fill="#10b981" text-anchor="middle">R</text>
+      <!-- Centro -->
+      <text x="175" y="100" font-family="JetBrains Mono" font-size="9" font-weight="700" fill="#f59e0b" text-anchor="middle">S∩T∩R</text>
+    </svg>
+  </div>
+
+  <div style="font-family:var(--mono);font-size:0.67rem;color:var(--muted);margin-top:0.6rem;">
+    <span style="color:var(--accent3);font-weight:700;">Regla general (principio de inclusión-exclusión):</span><br>
+    1. <strong style="color:#4ade80">Sumar</strong> los cardinales individuales (1 conjunto)<br>
+    2. <strong style="color:#f87171">Restar</strong> las intersecciones de un número <strong>par</strong> de conjuntos (dobles, cuádruples…)<br>
+    3. <strong style="color:#4ade80">Sumar</strong> las intersecciones de un número <strong>impar</strong> de conjuntos (triples, quíntuples…)
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 5: GENERALIZACIÓN A n CONJUNTOS (4+)
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label">05 — Generalización a n conjuntos (4+) · entra en el final</div>
+
+<div class="card cyan" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">★ Principio general — n conjuntos</div>
+
+  <div class="op-rule">
+    La inclusión-exclusión vale para <strong>cualquier cantidad de conjuntos</strong>: se
+    <strong style="color:#4ade80">suman</strong> las intersecciones de un número <strong>impar</strong> de conjuntos
+    y se <strong style="color:#f87171">restan</strong> las de número <strong>par</strong>.
+    La fórmula tiene <strong>2ⁿ − 1</strong> términos (n = cantidad de conjuntos).
+  </div>
+
+  <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);display:flex;gap:1.2rem;flex-wrap:wrap;margin:0.4rem 0 0.8rem;">
+    <span>n=2 → 2²−1 = <strong style="color:#fff">3</strong> términos</span>
+    <span>n=3 → 2³−1 = <strong style="color:#fff">7</strong> términos</span>
+    <span>n=4 → 2⁴−1 = <strong style="color:#fff">15</strong> términos</span>
+  </div>
+
+  <div class="formula cyan-bg" style="font-size:0.72rem;text-align:left;line-height:1.9;">
+    <span style="color:var(--accent2)">#(A∪B∪C∪D) =</span><br>
+    &nbsp;&nbsp;<span style="color:#4ade80">+ #(A) + #(B) + #(C) + #(D)</span><br>
+    &nbsp;&nbsp;<span style="color:#f87171">− #(A∩B) − #(A∩C) − #(A∩D) − #(B∩C) − #(B∩D) − #(C∩D)</span><br>
+    &nbsp;&nbsp;<span style="color:#4ade80">+ #(A∩B∩C) + #(A∩B∩D) + #(A∩C∩D) + #(B∩C∩D)</span><br>
+    &nbsp;&nbsp;<span style="color:#f87171">− #(A∩B∩C∩D)</span>
+  </div>
+
+  <div class="tip info">
+    En el final puede aparecer un problema de <strong>4 conjuntos</strong> (p. ej. 4 marcas A, B, C, D).
+    Con 4+ conjuntos el diagrama de Venn se vuelve difícil de dibujar → apoyate en la fórmula y en las
+    <strong>condiciones del enunciado</strong> que anulan regiones (ver sección 07).
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 6: MÉTODO DE RESOLUCIÓN PASO A PASO
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label">06 — Método de resolución paso a paso</div>
+
+<div class="grid grid-2">
+  <div class="card green">
+    <div class="card-title">★ Pasos — con fórmula</div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><strong>Identificar datos:</strong> leer el enunciado y anotar todos los cardinales dados (totales, intersecciones dobles, triples, universal).</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><strong>Armar el diagrama de Venn</strong> con los conjuntos involucrados + el rectángulo universal.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><strong>Aplicar la fórmula</strong> de inclusión-exclusión para encontrar la incógnita (generalmente la intersección triple).</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><strong>Completar el diagrama</strong> de adentro hacia afuera: primero la triple, luego las dobles (restando la triple), luego las individuales.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-text"><strong>Verificar:</strong> sumar todas las regiones del diagrama. Debe dar el total del universal.</div>
+    </div>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">⚠️ Completar el diagrama</div>
+
+    <div style="font-family:var(--mono);font-size:0.68rem;color:#fbbf24;padding:0.4rem 0.6rem;background:rgba(245,158,11,0.10);border-left:2px solid var(--accent3);border-radius:0 4px 4px 0;margin-bottom:0.7rem;">
+      ⚡ Error #1 del final · El error más común es <strong style="color:#fff;">olvidarse de restar las intersecciones</strong>. "Siempre restar las intersecciones": |A∪B| = |A| + |B| − |A∩B|. Es el típico tropiezo que después no te olvidás más.
+    </div>
+
+    <div class="op-rule">
+      <strong>La clave:</strong> las intersecciones dobles que da el problema <strong>incluyen la triple</strong>.<br><br>
+      Si #(F∩B) = 150 y #(F∩B∩N) = 90:<br>
+      → Solo F y B (sin N) = 150 − 90 = <strong>60</strong>
+    </div>
+
+    <div style="font-family:var(--mono);font-size:0.72rem;color:var(--muted);padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+      <div style="color:#fff;margin-bottom:0.4rem;">Ejemplo — Club deportivo (1500 socios)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.2rem 1rem;font-size:0.68rem;">
+        <div>#(F) = 600</div><div>#(F∩B) = 150</div>
+        <div>#(B) = 525</div><div>#(B∩N) = 195</div>
+        <div>#(N) = 450</div><div>#(F∩N) = 120</div>
+        <div>#(F∪B∪N) = 1200</div><div style="color:#f59e0b">#(F∩B∩N) = ?</div>
+      </div>
+      <div style="margin-top:0.5rem;padding-top:0.4rem;border-top:1px solid var(--border);">
+        1200 = 600+525+450 − 150−195−120 + X<br>
+        1200 = 1575 − 465 + X = 1110 + X<br>
+        <span style="color:var(--accent3)">X = 90</span>
+      </div>
+      <div style="margin-top:0.4rem;padding-top:0.3rem;border-top:1px solid var(--border);font-size:0.65rem;">
+        Solo F∩B = 150−90 = 60 &nbsp;|&nbsp; Solo B∩N = 195−90 = 105<br>
+        Solo F∩N = 120−90 = 30<br>
+        Solo F = 600−60−90−30 = <span style="color:#a78bfa">420</span><br>
+        Solo B = 525−60−90−105 = <span style="color:#a78bfa">270</span><br>
+        Solo N = 450−105−90−30 = <span style="color:#a78bfa">225</span><br>
+        Ninguno = 1500−1200 = <span style="color:#a78bfa">300</span><br>
+        <span style="color:#4ade80">✓ 420+60+270+90+105+30+225+300 = 1500</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 7: CLAVE "SOLO" vs SIN "SOLO" + CONDICIONES
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label">07 — Lectura del enunciado: "solo", intersecciones y condiciones</div>
+
+<div class="grid grid-2">
+  <div class="card amber">
+    <div class="card-title">⚠️ Juego de palabras clave</div>
+
+    <div style="font-family:var(--mono);font-size:0.75rem;color:var(--muted);display:grid;gap:0.5rem;">
+      <!-- Con SOLO -->
+      <div style="border:1px solid rgba(16,185,129,0.25);border-radius:4px;overflow:hidden;">
+        <div style="background:rgba(16,185,129,0.10);padding:0.3rem 0.7rem;font-size:0.67rem;color:var(--accent4);font-weight:700;">
+          "Solo leyeron Álgebra I" → dato directo
+        </div>
+        <div style="padding:0.3rem 0.7rem;font-size:0.65rem;">
+          <span style="color:#fff">Con "solo":</span> es la región <strong>exclusiva</strong> del conjunto, sin intersecciones.<br>
+          Se ubica <strong>directamente</strong> en la parte no compartida del diagrama.
+        </div>
+      </div>
+
+      <!-- Sin SOLO -->
+      <div style="border:1px solid rgba(239,68,68,0.25);border-radius:4px;overflow:hidden;">
+        <div style="background:rgba(239,68,68,0.10);padding:0.3rem 0.7rem;font-size:0.67rem;color:#f87171;font-weight:700;">
+          "Leyeron Álgebra I y Mate Especial" → intersección COMPLETA
+        </div>
+        <div style="padding:0.3rem 0.7rem;font-size:0.65rem;">
+          <span style="color:#fff">Sin "solo":</span> es <strong>toda la intersección</strong> (incluye la triple).<br>
+          Para obtener "solo esos dos", hay que <strong>restar la triple</strong>.
+        </div>
+      </div>
+
+      <!-- Ejemplo -->
+      <div style="border:1px solid rgba(245,158,11,0.25);border-radius:4px;overflow:hidden;">
+        <div style="background:rgba(245,158,11,0.08);padding:0.3rem 0.7rem;font-size:0.67rem;color:#fbbf24;font-weight:700;">
+          Ejemplo
+        </div>
+        <div style="padding:0.3rem 0.7rem;font-size:0.65rem;">
+          "11 leyeron Mate Especial y Álg. Superior" → <span style="color:#f87171">toda</span> la intersección = 11<br>
+          "7 leyeron los 3 libros" → intersección triple = 7<br>
+          → Solo Mate Esp. y Álg. Sup. = 11 − 7 = <span style="color:var(--accent2)">4</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">★ Dos caminos de resolución</div>
+
+    <div class="op-rule">
+      No hay una receta única. Según los datos del problema:
+    </div>
+
+    <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);display:grid;gap:0.6rem;">
+      <div style="border:1px solid rgba(124,58,237,0.25);border-radius:4px;overflow:hidden;">
+        <div style="background:rgba(124,58,237,0.10);padding:0.3rem 0.7rem;font-size:0.67rem;color:#a78bfa;font-weight:700;">
+          Camino A — Fórmula primero
+        </div>
+        <div style="padding:0.3rem 0.7rem;font-size:0.65rem;">
+          Cuando tenés <strong>todos los cardinales individuales e intersecciones dobles</strong> pero no la triple.<br>
+          → Usás la fórmula de inclusión-exclusión → despejás la incógnita → completás el diagrama.
+        </div>
+      </div>
+
+      <div style="border:1px solid rgba(6,182,212,0.25);border-radius:4px;overflow:hidden;">
+        <div style="background:rgba(6,182,212,0.10);padding:0.3rem 0.7rem;font-size:0.67rem;color:var(--accent2);font-weight:700;">
+          Camino B — Diagrama primero
+        </div>
+        <div style="padding:0.3rem 0.7rem;font-size:0.65rem;">
+          Cuando los datos ya incluyen <strong>regiones "solo"</strong> y la triple.<br>
+          → Ubicás datos directamente en el diagrama → calculás las regiones faltantes restando.
+        </div>
+      </div>
+    </div>
+
+    <div class="tip success">
+      ★ El gráfico <span style="color:#4ade80">siempre ayuda</span>. Aunque resuelvas con fórmula, completar el diagrama de Venn te permite verificar y responder todas las preguntas.
+    </div>
+  </div>
+</div>
+
+<div class="card red" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">⚠️ Leer las condiciones del enunciado</div>
+
+  <div class="op-rule">
+    Muchos enunciados traen <strong>frases que fijan o anulan regiones</strong> antes de calcular.
+    Traducir cada una a una región del diagrama es la clave para no trabarse:
+  </div>
+
+  <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);display:grid;gap:0.5rem;">
+    <div style="padding:0.35rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+      <span style="color:#f87171;font-weight:700;">"ninguno usa los tres"</span> → la intersección triple vale <strong style="color:#fff;">0</strong> (el centro del diagrama queda en 0).
+    </div>
+    <div style="padding:0.35rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+      <span style="color:#f87171;font-weight:700;">"usan celular pero no notebook"</span> → región de Celular que <strong style="color:#fff;">excluye</strong> Notebook (= solo C + C∩T).
+    </div>
+    <div style="padding:0.35rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+      <span style="color:#f87171;font-weight:700;">"si está en otra materia, está en las tres"</span> → no hay "exactamente dos" para ese conjunto: esas regiones de pares valen <strong style="color:#fff;">0</strong>.
+    </div>
+    <div style="padding:0.35rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+      <span style="color:#f87171;font-weight:700;">"los que consumen A no compran B ni D"</span> → todas las intersecciones de A con B y con D valen <strong style="color:#fff;">0</strong> (A queda casi aislado).
+    </div>
+    <div style="padding:0.35rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+      <span style="color:var(--accent2);font-weight:700;">"exactamente dos = 28"</span> → ese dato <strong style="color:#fff;">ya es</strong> la suma de las 3 regiones de pares "solo" (sin el centro).
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 8: "EXACTAMENTE" / "AL MENOS"
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label">08 — Tipos de pregunta: "exactamente" y "al menos" · entra en el final</div>
+
+<div class="grid grid-2">
+  <div class="card amber">
+    <div class="card-title">★ Fórmulas (3 conjuntos)</div>
+
+    <div class="op-rule">
+      Estas preguntas <strong>se toman textualmente</strong> en parcial y final ("exactamente dos", "por lo menos dos"). Conviene tenerlas listas:
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table style="min-width:420px;">
+        <tr>
+          <th style="text-align:left;">Pregunta</th>
+          <th>Fórmula</th>
+        </tr>
+        <tr>
+          <td style="text-align:left;color:#a78bfa;">Exactamente uno</td>
+          <td style="color:#fff">solo A + solo B + solo C</td>
+        </tr>
+        <tr>
+          <td style="text-align:left;color:var(--accent2);">Exactamente dos</td>
+          <td style="color:#fff;font-size:0.7rem;">#(A∩B)+#(A∩C)+#(B∩C) − 3·#(A∩B∩C)</td>
+        </tr>
+        <tr>
+          <td style="text-align:left;color:var(--accent3);">Exactamente tres</td>
+          <td style="color:#fff">#(A∩B∩C)</td>
+        </tr>
+        <tr>
+          <td style="text-align:left;color:#4ade80;">Al menos uno</td>
+          <td style="color:#fff">#(A∪B∪C)</td>
+        </tr>
+        <tr>
+          <td style="text-align:left;color:#4ade80;">Al menos dos</td>
+          <td style="color:#fff;font-size:0.7rem;">#(A∩B)+#(A∩C)+#(B∩C) − 2·#(A∩B∩C)</td>
+        </tr>
+        <tr>
+          <td style="text-align:left;color:#f87171;">Ninguno</td>
+          <td style="color:#fff">#(U) − #(A∪B∪C)</td>
+        </tr>
+        <tr>
+          <td style="text-align:left;color:#f87171;">No A ni B (compl. unión)</td>
+          <td style="color:#fff">#(U) − #(A∪B)</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="tip info">
+      Truco: <strong style="color:#fff;">"al menos dos" = "exactamente dos" + "exactamente tres"</strong>; <strong style="color:#fff;">"al menos uno" = la unión</strong>. La doble cuenta de la triple es lo que cambia el coeficiente (−3 vs −2).
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">✎ Ejemplo de parcial — "exactamente dos"</div>
+
+    <div style="font-family:var(--mono);font-size:0.72rem;color:var(--muted);padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+      <div style="color:#fff;margin-bottom:0.4rem;">100 personas · Celular (C), Tablet (T), Notebook (N)</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.2rem 1rem;font-size:0.68rem;">
+        <div>#(C) = 20</div><div>exactamente dos = 18</div>
+        <div>#(T) = 38</div><div>#(C∩T) = 5</div>
+        <div>#(N) = 41</div><div style="color:#f87171;">ninguno usa los 3 → triple = 0</div>
+        <div style="grid-column:1 / -1;">17 usan C pero no N → solo C + #(C∩T) = 17</div>
+      </div>
+      <div style="margin-top:0.5rem;padding-top:0.4rem;border-top:1px solid var(--border);line-height:1.8;">
+        Triple = 0 ⇒ cada par "completo" = par "solo".<br>
+        #(C∩T) = 5 y solo C + #(C∩T) = 17 ⇒ <span style="color:#a78bfa;">solo C = 12</span><br>
+        #(C) = soloC + C∩T + C∩N = 20 ⇒ <span style="color:var(--accent2);">a) #(C∩N) = 3</span><br>
+        exactamente dos = C∩T + C∩N + T∩N = 18 ⇒ T∩N = 10<br>
+        #(T) = soloT + C∩T + T∩N = 38 ⇒ <span style="color:var(--accent2);">b) solo Tablet = 23</span>
+      </div>
+    </div>
+
+    <div class="tip success">
+      ★ Traducí cada frase a una región del diagrama de 7 zonas. El que resuelve por regiones no se equivoca.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 9: DIAGRAMAS DE CARROLL
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label">09 — Diagrama de Carroll (tabla)</div>
+
+<div class="card purple" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">Método alternativo — propiedades complementarias</div>
+
+  <div class="op-rule">
+    Cuando el problema involucra <strong>propiedades complementarias</strong> (ej: "escribe a máquina" / "no escribe a máquina"), es muy útil organizar los datos en una <strong>tabla de Carroll</strong>.
+  </div>
+
+  <div style="overflow-x:auto;margin:0.8rem 0;">
+    <table style="min-width:400px;">
+      <tr>
+        <th></th>
+        <th style="color:#a78bfa">B</th>
+        <th style="color:#f87171">B̄</th>
+        <th style="color:var(--accent3)">Totales</th>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:#06b6d4;font-weight:700;">A</td>
+        <td>#(A∩B)</td>
+        <td>#(A∩B̄)</td>
+        <td style="color:#fff">#(A)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:#f87171;font-weight:700;">Ā</td>
+        <td>#(Ā∩B)</td>
+        <td>#(Ā∩B̄)</td>
+        <td style="color:#fff">#(Ā)</td>
+      </tr>
+      <tr style="background:rgba(255,255,255,0.03);">
+        <td style="text-align:left;color:var(--accent3);font-weight:700;">Totales</td>
+        <td style="color:#fff">#(B)</td>
+        <td style="color:#fff">#(B̄)</td>
+        <td style="color:var(--accent3);font-weight:700">#(U)</td>
+      </tr>
+    </table>
+  </div>
+
+  <div style="font-family:var(--mono);font-size:0.72rem;color:var(--muted);padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;margin-top:0.5rem;">
+    <div style="color:#fff;margin-bottom:0.3rem;">Ejemplo — Empresa (216 empleados)</div>
+    <div style="font-size:0.68rem;">
+      A = escribe a máquina &nbsp;|&nbsp; B = trabaja en Cómputos
+    </div>
+    <div style="overflow-x:auto;margin-top:0.4rem;">
+      <table style="min-width:350px;font-size:0.7rem;">
+        <tr>
+          <th></th>
+          <th>Esc. máquina</th>
+          <th>No esc.</th>
+          <th>Total</th>
+        </tr>
+        <tr>
+          <td style="text-align:left;font-weight:700;color:#06b6d4">Cómputos</td>
+          <td style="color:#fff;font-weight:700">87</td>
+          <td>37</td>
+          <td style="color:#fff">124</td>
+        </tr>
+        <tr>
+          <td style="text-align:left;font-weight:700;color:#f87171">No Cómp.</td>
+          <td>72</td>
+          <td>20</td>
+          <td style="color:#fff">92</td>
+        </tr>
+        <tr style="background:rgba(255,255,255,0.03);">
+          <td style="text-align:left;font-weight:700;color:var(--accent3)">Total</td>
+          <td style="color:#fff">159</td>
+          <td>57</td>
+          <td style="color:var(--accent3);font-weight:700">216</td>
+        </tr>
+      </table>
+    </div>
+    <div style="margin-top:0.3rem;font-size:0.65rem;">
+      Se completa con sumas y restas. Los datos en <strong style="color:#fff">negrita</strong> son los que da el problema; el resto se calcula.
+    </div>
+  </div>
+
+  <div class="tip info">
+    Útil cuando hay exactamente <strong>2 propiedades</strong> y sus complementarias. Para 3+ propiedades → diagrama de Venn.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 10: VERIFICACIÓN Y TIPS
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label">10 — Verificación y tips para el final</div>
+
+<div class="grid grid-2">
+  <div class="card green">
+    <div class="card-title">✓ Verificación obligatoria</div>
+
+    <div class="op-rule">
+      <strong>Siempre verificar</strong> que la suma de TODAS las regiones del diagrama de Venn dé el cardinal del <strong>universal</strong>.
+    </div>
+
+    <div class="formula green-bg" style="font-size:0.75rem;">
+      Solo A + Solo B + Solo C<br>
+      + Solo A∩B + Solo B∩C + Solo A∩C<br>
+      + A∩B∩C + Ninguno<br>
+      = <span style="color:var(--accent4)">#(Universal)</span>
+    </div>
+
+    <div class="tip warn">
+      ⚠️ Si no da el total → hay un error de cálculo. Revisá las restas.
+    </div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">★ Tips del final</div>
+
+    <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);display:grid;gap:0.5rem;">
+      <div style="padding:0.35rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+        <span style="color:#fbbf24">1.</span> <strong style="color:#fff">Siempre hacer el gráfico</strong> — el diagrama de Venn ayuda a ver la operación y a verificar.
+      </div>
+      <div style="padding:0.35rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+        <span style="color:#fbbf24">2.</span> <strong style="color:#fff">Leer con atención</strong> — la diferencia entre "solo X" y "X" cambia completamente el dato.
+      </div>
+      <div style="padding:0.35rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+        <span style="color:#fbbf24">3.</span> <strong style="color:#fff">Completar de adentro hacia afuera</strong> — primero la triple, después las dobles, después las individuales.
+      </div>
+      <div style="padding:0.35rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+        <span style="color:#fbbf24">4.</span> <strong style="color:#fff">Los "que no practican ninguno"</strong> quedan fuera de los conjuntos pero dentro del universal: #(U) − #(unión).
+      </div>
+      <div style="padding:0.35rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+        <span style="color:#fbbf24">5.</span> <strong style="color:#fff">Es multiple choice pero hay que justificar</strong> — en el final tenés que entregar el desarrollo y fundamentar cada respuesta (disposición de la facultad); no alcanza con marcar la opción.
+      </div>
+      <div style="padding:0.35rem 0.7rem;background:rgba(255,255,255,0.03);border-radius:4px;">
+        <span style="color:#fbbf24">6.</span> <strong style="color:#fff">Se puede adjuntar desarrollo</strong> aunque no lo pida — siempre es mejor que sobre a que falte.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     SECCIÓN 11: QUICK REFERENCE
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label">11 — Quick reference — todas las fórmulas</div>
+
+<div class="card purple" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">Resumen de fórmulas</div>
+
+  <div style="overflow-x:auto;">
+    <table style="min-width:550px;">
+      <tr>
+        <th style="text-align:left;">Caso</th>
+        <th>Fórmula</th>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:#a78bfa;">2 conj. disjuntos</td>
+        <td style="color:#fff">#(S∪T) = #(S) + #(T)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:var(--accent2);">2 conj. no disjuntos</td>
+        <td style="color:#fff">#(S∪T) = #(S) + #(T) − #(S∩T)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:var(--accent3);">3 conj. no disjuntos</td>
+        <td style="color:#fff;font-size:0.7rem;">#(S∪T∪R) = #(S)+#(T)+#(R) − #(S∩T)−#(S∩R)−#(T∩R) + #(S∩T∩R)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:var(--accent4);">Complemento</td>
+        <td style="color:#fff">#(Ā) = #(U) − #(A)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:#f87171;">Solo A (de 3 conj.)</td>
+        <td style="color:#fff;font-size:0.7rem;">#(A) − #(solo A∩B) − #(solo A∩C) − #(A∩B∩C)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:#f87171;">Solo A∩B (de 3 conj.)</td>
+        <td style="color:#fff">#(A∩B) − #(A∩B∩C)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:var(--muted);">Ninguno</td>
+        <td style="color:#fff">#(U) − #(S∪T∪R)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:#a78bfa;">Exactamente uno</td>
+        <td style="color:#fff">solo A + solo B + solo C</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:var(--accent2);">Exactamente dos</td>
+        <td style="color:#fff;font-size:0.7rem;">#(A∩B)+#(A∩C)+#(B∩C) − 3·#(A∩B∩C)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:#4ade80;">Al menos dos</td>
+        <td style="color:#fff;font-size:0.7rem;">#(A∩B)+#(A∩C)+#(B∩C) − 2·#(A∩B∩C)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:#4ade80;">Al menos uno</td>
+        <td style="color:#fff">#(A∪B∪C)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:#f87171;">No A ni B (compl. unión)</td>
+        <td style="color:#fff">#(U) − #(A∪B)</td>
+      </tr>
+      <tr>
+        <td style="text-align:left;color:var(--accent3);">n conjuntos</td>
+        <td style="color:#fff;font-size:0.7rem;">impar → sumar · par → restar · (2ⁿ−1) términos</td>
+      </tr>
+    </table>
+  </div>
+
+  <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:0.9rem;font-family:var(--mono);font-size:0.68rem;color:var(--muted);">
+    <span>Disjuntos → sumar</span>
+    <span>No disjuntos → sumar − restar</span>
+    <span>Triple → se borra de más al restar dobles</span>
+    <span>Al menos dos = exactamente dos + triple</span>
+    <span>Verificar → sumar todas las regiones = U</span>
+  </div>
+</div>
+
+<footer>
+  <p>Problemas de Conteo · Álgebra · Universidad de Palermo · Repaso para el final</p>
+</footer>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#algebra" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

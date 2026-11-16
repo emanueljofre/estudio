@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memoria Caché y Memoria Virtual — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  header { text-align: center; margin-bottom: 2rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 3.3rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px; margin: 1.2rem auto 0; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .section-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--accent);
+    margin: 2.5rem auto 1rem; max-width: 1400px;
+    display: flex; align-items: center; gap: 0.8rem; scroll-margin-top: 1rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-label.is-ctx { color: var(--muted); }
+
+  .grid   { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid.is-ctx { opacity: 0.82; }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem; font-family: var(--mono); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule {
+    font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border); border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  .formula {
+    font-family: var(--mono); font-size: 0.82rem; color: #fff;
+    background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 5px; padding: 0.5rem 0.7rem; text-align: center; margin: 0.5rem 0;
+  }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+  .formula.green-f { background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.25); }
+
+  .proplist {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    display: grid; gap: 0.35rem;
+  }
+  .proplist div { padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div { background: rgba(16,185,129,0.06); }
+
+  .step { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.4rem; }
+  .step .s {
+    padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0;
+  }
+  .step .s b { color: #fff; }
+  .step.amber-s .s { border-left-color: var(--accent3); }
+  .step.cyan-s .s  { border-left-color: var(--accent2); }
+  .step.green-s .s { border-left-color: var(--accent4); }
+  .step.red-s .s   { border-left-color: var(--red); }
+
+  .note {
+    font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem;
+    padding: 0.35rem 0.55rem; border-radius: 4px; line-height: 1.45;
+  }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.06); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  .flag      { color: #f87171;        font-size: 0.55rem; margin-left: 0.5rem; font-family: var(--mono); letter-spacing: 0.05em; }
+  .flag.info { color: var(--accent3); font-size: 0.55rem; margin-left: 0.5rem; }
+
+  .insight {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--accent3);
+    background: rgba(245,158,11,0.06); border-left: 2px solid var(--accent3);
+    border-radius: 0 4px 4px 0; padding: 0.4rem 0.6rem; margin-top: 0.5rem; line-height: 1.45;
+  }
+
+  .matrix {
+    display: inline-grid; gap: 0.15rem 0.55rem; font-family: var(--mono);
+    font-size: 0.78rem; color: var(--text); padding: 0.3rem 0.65rem; position: relative;
+  }
+  .matrix::before, .matrix::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 7px;
+    border: 1.5px solid var(--accent2);
+  }
+  .matrix::before { left: 0; border-right: none; }
+  .matrix::after  { right: 0; border-left: none; }
+  .matrix span { text-align: left; }
+  .matrix .hl { color: var(--accent3); font-weight: 700; }
+  .mwrap { display: flex; justify-content: center; align-items: center; gap: 0.6rem; margin: 0.6rem 0; flex-wrap: wrap; }
+
+  .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+  .vs-side {
+    padding: 0.8rem; font-family: var(--mono); font-size: 0.72rem;
+    color: var(--muted); display: flex; flex-direction: column; gap: 0.35rem;
+  }
+  .vs-side h4 {
+    font-family: var(--display); font-size: 0.8rem; font-weight: 700;
+    color: #fff; margin-bottom: 0.3rem;
+  }
+  .vs-mid {
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.75rem; font-weight: 700;
+    color: var(--accent3); padding: 0 0.7rem;
+    border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  }
+  .vs-row { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .vs-row:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .versus { grid-template-columns: 1fr; }
+    .vs-mid {
+      border: none; border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border); padding: 0.4rem; text-align: center;
+    }
+  }
+
+  .stat { text-align: center; padding: 0.8rem 0.4rem; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; }
+  .stat-num {
+    font-family: var(--display); font-size: 2rem; font-weight: 800; line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .stat-unit { font-family: var(--mono); font-size: 0.72rem; color: var(--accent2); letter-spacing: 0.08em; }
+  .stat-cap { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); margin-top: 0.1rem; }
+
+  .recall {
+    font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0;
+    border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden;
+  }
+  .recall summary {
+    cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2);
+    background: rgba(124,58,237,0.06); list-style: none;
+    display: flex; align-items: center; gap: 0.5rem; user-select: none;
+  }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before {
+    content: '▸'; font-size: 0.7rem; color: var(--accent);
+    transition: transform 0.15s; flex-shrink: 0;
+  }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a {
+    padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5;
+    border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04);
+  }
+  .recall-a strong { color: #fff; }
+
+  table.cheat { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.72rem; }
+  table.cheat th {
+    padding: .4rem .6rem; text-align: left; background: rgba(255,255,255,.05);
+    border-bottom: 1px solid var(--border); color: var(--muted);
+  }
+  table.cheat td { padding: .4rem .6rem; border-bottom: 1px solid var(--border); color: var(--muted); }
+  table.cheat td.k { color: #fff; }
+
+  /* ===== v0.6 ===== */
+  .tier {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
+    text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 3px;
+    vertical-align: middle; line-height: 1;
+  }
+  .tier::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .tier.core { color: var(--accent4); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.35); }
+  .tier.core::before { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .tier.key  { color: var(--accent3); background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.4); }
+  .tier.key::before  { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .tier.ctx  { color: var(--muted); background: rgba(148,163,184,0.06); border: 1px solid var(--border); }
+  .tier.ctx::before  { background: var(--muted); }
+
+  .scope {
+    max-width: 1400px; margin: 0 auto 1rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3); border-radius: 6px;
+    padding: 0.8rem 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; align-items: center;
+  }
+  .scope-label {
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--accent3); font-weight: 700;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    border-right: 1px solid var(--border); padding-right: 0.7rem; align-self: stretch;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scope-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spill {
+    font-family: var(--mono); font-size: 0.6rem; padding: 0.22rem 0.55rem;
+    border-radius: 3px; border: 1px solid var(--border); color: var(--muted);
+  }
+  .spill.in  { color: var(--accent4); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
+  .spill.key { color: var(--accent3); border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+  .spill.cut { color: var(--muted); border-style: dashed; text-decoration: line-through; opacity: 0.75; }
+  @media (max-width: 600px) {
+    .scope { grid-template-columns: 1fr; }
+    .scope-label { writing-mode: horizontal-tb; transform: none; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.4rem; }
+  }
+
+  .worked {
+    font-family: var(--mono); font-size: 0.74rem;
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    border-left: 2px solid var(--accent3); border-radius: 0 6px 6px 0;
+    padding: 0.7rem 0.9rem; margin: 0.6rem 0;
+  }
+  .worked .wr { display: grid; grid-template-columns: 130px 1fr; gap: 0.7rem; align-items: baseline; padding: 0.18rem 0; }
+  .worked .wl { font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .worked .wb { color: var(--text); letter-spacing: 0.04em; }
+  .worked .hi  { color: var(--accent3); font-weight: 700; }
+  .worked .hc  { color: var(--accent2); }
+  .worked .res { color: #fff; font-weight: 700; }
+  .worked .wr.total { border-top: 1px solid var(--border); margin-top: 0.2rem; padding-top: 0.35rem; }
+
+  .cmatrix-wrap { overflow-x: auto; max-width: 1400px; margin: 0.5rem auto; }
+  .cmatrix {
+    display: grid; border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+    font-family: var(--mono); font-size: 0.66rem; min-width: 560px;
+  }
+  .cmatrix > div {
+    padding: 0.5rem 0.6rem; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  }
+  .cmatrix .cm-corner, .cmatrix .cm-rl {
+    background: rgba(255,255,255,0.03); color: var(--muted);
+    font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.06em;
+    display: flex; align-items: center;
+  }
+  .cmatrix .cm-head {
+    font-family: var(--display); font-weight: 700; color: #fff; font-size: 0.78rem;
+    text-align: center; position: relative; display: block;
+  }
+  .cmatrix .cm-head .sub { display: block; font-family: var(--mono); font-size: 0.5rem; color: var(--muted); margin-top: 0.2rem; letter-spacing: 0.04em; }
+  .cmatrix .cm-head.is-key { color: var(--accent3); }
+  .cmatrix .cm-head.is-key::after { content: '★'; position: absolute; top: 0.35rem; right: 0.5rem; color: var(--accent3); font-size: 0.6rem; }
+  .cmatrix .is-dim { opacity: 0.5; }
+  .cmatrix .cm-key { background: rgba(245,158,11,0.05); }
+  .cmatrix .ok { color: var(--accent4); font-weight: 700; }
+  .cmatrix .no { color: #f87171; font-weight: 700; }
+  .cmatrix .mid { color: var(--accent3); }
+
+  .exam-q {
+    position: relative; margin: 0.6rem 0; padding: 0.7rem 0.9rem 0.7rem 2.7rem;
+    background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.3);
+    border-left: 2px solid var(--red); border-radius: 0 6px 6px 0;
+    font-family: var(--mono); font-size: 0.7rem;
+  }
+  .exam-q::before {
+    content: 'Q'; position: absolute; left: 0.65rem; top: 0.7rem;
+    width: 1.35rem; height: 1.35rem; border-radius: 50%;
+    background: var(--red); color: #fff; font-family: var(--display); font-weight: 800;
+    display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+  }
+  .exam-q .q { color: #fff; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.4; }
+  .exam-q .a { color: var(--muted); line-height: 1.55; }
+  .exam-q .a strong { color: var(--text); }
+
+  /* TOC + progress */
+  .progress { position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+  .toc-rail { position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90; display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem; }
+  .toc-rail a { display: flex; align-items: center; gap: 0.55rem; text-decoration: none; font-family: var(--mono); font-size: 0.55rem; color: var(--muted); padding: 0.12rem 0.25rem; border-radius: 3px; }
+  .toc-rail a .dot { width: 8px; height: 8px; border-radius: 50%; border: 1px solid var(--border); flex-shrink: 0; transition: all 0.2s; }
+  .toc-rail a .lbl { opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap; }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  footer {
+    text-align: center; margin-top: 3rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.65rem; color: var(--muted);
+  }
+  footer .out { color: #64748b; font-size: 0.6rem; margin-top: 0.4rem; }
+
+  .svg-wrap { display: block; margin: 0.6rem auto; }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1, .stat-num { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .scope, .cmatrix, .worked, .exam-q, .recall, .stat, .versus { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<nav class="toc-rail" id="toc" aria-label="Secciones">
+  <a href="#s01"><span class="dot"></span><span class="lbl">01 · Qué es el caché</span></a>
+  <a href="#s02"><span class="dot"></span><span class="lbl">02 · Localidad ★</span></a>
+  <a href="#s03"><span class="dot"></span><span class="lbl">03 · Bloque/línea/palabra ★</span></a>
+  <a href="#s04"><span class="dot"></span><span class="lbl">04 · Correspondencia ★</span></a>
+  <a href="#s05"><span class="dot"></span><span class="lbl">05 · Mapeo directo</span></a>
+  <a href="#s06"><span class="dot"></span><span class="lbl">06 · Asociativa ★</span></a>
+  <a href="#s07"><span class="dot"></span><span class="lbl">07 · Escritura y desalojo</span></a>
+  <a href="#s08"><span class="dot"></span><span class="lbl">08 · L1/L2/L3</span></a>
+  <a href="#s09"><span class="dot"></span><span class="lbl">09 · Memoria virtual ★</span></a>
+  <a href="#s10"><span class="dot"></span><span class="lbl">10 · Traducción + TLB</span></a>
+  <a href="#s11"><span class="dot"></span><span class="lbl">11 · Swapping ★</span></a>
+  <a href="#s12"><span class="dot"></span><span class="lbl">12 · Coherencia / MESI</span></a>
+  <a href="#s13"><span class="dot"></span><span class="lbl">13 · Claves final</span></a>
+</nav>
+
+<header>
+  <div class="badge">Arquitectura de Computadores · Unidad 07 — Caché y Memoria Virtual</div>
+  <h1>Memoria Caché y Memoria Virtual</h1>
+  <p class="subtitle">localidad · correspondencia · escritura · memoria virtual · swapping · coherencia</p>
+  <div class="divider"></div>
+</header>
+
+<div class="scope">
+  <div class="scope-label">Scope · final</div>
+  <div class="scope-pills">
+    <span class="spill key">★ localidad temporal y espacial</span>
+    <span class="spill key">★ bloque / línea / palabra</span>
+    <span class="spill key">★ funciones de correspondencia (cuál aprovecha mejor)</span>
+    <span class="spill key">★ asociativa: ventajas y desventajas</span>
+    <span class="spill key">★ swapping (el CPU solo lee de MP)</span>
+    <span class="spill in">mapeo directo · escritura write-through/back · desalojo</span>
+    <span class="spill in">MV + MMU · paginación y traducción · TLB · niveles L1/L2/L3</span>
+    <span class="spill in">set de trabajo · hit/miss · coherencia / MESI (4 estados)</span>
+    <span class="spill">memorias DDR/HBM → Unidad 06 · pipeline/DMA/PCIe → Unidad 08</span>
+  </div>
+</div>
+
+<!-- ============ 01 ============ -->
+<div class="section-label" id="s01">01 — Qué es el caché <span class="tier core">core</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">⚡ Definición</div>
+    <div class="op-name">Memoria caché</div>
+    <div class="op-notation">SRAM · intermediaria CPU ↔ MP</div>
+    <div class="op-rule">
+      Memoria pequeña, de acceso muy rápido y costosa que trabaja como <strong>intermediaria entre el CPU y la memoria principal</strong>. Reduce el cuello de botella: la MP no puede suministrar datos/instrucciones al ritmo que el CPU los necesita.
+    </div>
+    <svg class="svg-wrap" viewBox="0 0 380 90" width="100%" style="max-width:400px" font-family="JetBrains Mono,monospace">
+      <rect x="10" y="30" width="80" height="36" rx="4" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="50" y="52" font-size="11" fill="#a78bfa" text-anchor="middle">CPU</text>
+      <rect x="150" y="30" width="80" height="36" rx="4" fill="rgba(6,182,212,0.18)" stroke="#06b6d4"/>
+      <text x="190" y="48" font-size="10" fill="#06b6d4" text-anchor="middle">Caché</text>
+      <text x="190" y="60" font-size="7.5" fill="#94a3b8" text-anchor="middle">SRAM · ~1 ns</text>
+      <rect x="290" y="30" width="80" height="36" rx="4" fill="rgba(16,185,129,0.14)" stroke="#10b981"/>
+      <text x="330" y="48" font-size="10" fill="#10b981" text-anchor="middle">MP (RAM)</text>
+      <text x="330" y="60" font-size="7.5" fill="#94a3b8" text-anchor="middle">DRAM · ~100 ns</text>
+      <line x1="90" y1="48" x2="148" y2="48" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="119" y="42" font-size="8" fill="#4ade80" text-anchor="middle">rápido</text>
+      <line x1="230" y1="48" x2="288" y2="48" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="259" y="42" font-size="8" fill="#f87171" text-anchor="middle">lento (100×)</text>
+    </svg>
+    <div class="insight">💡 de la clase · "¿qué me garantiza que los datos estén en caché? Nada" → la respuesta es el <strong>principio de localidad de referencia</strong>, no la suerte. Al pedir una palabra se trae un <strong>bloque entero</strong> a una línea.</div>
+    <div class="note warn">⚡ Magnitudes: L1 ≈ 1 ns · MP ≈ 100 ns (≈100×) · disco ≈ 1000× MP. Al arrancar, el caché está <strong>vacío</strong> (volátil) → el primer acceso a cada bloque es siempre un Miss a MP.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🎯 Set de trabajo (working set)</div>
+    <div class="op-rule">
+      El grupo de datos/código que el CPU usa una y otra vez <strong>en este momento</strong> de ejecución. Si entra mayoritariamente en caché → pocos accesos a MP → el sistema vuela.
+    </div>
+    <div class="op-rule" style="margin-top:.5rem">
+      <strong>Ejemplo del profe:</strong> dos equipos con la misma app; el que diseña el flujo para que el set de trabajo entre en los <strong>96 MB de L3</strong> corre <strong>~5× más rápido</strong>. "Optimizar" un juego = lograr que el set de trabajo entre en caché.
+    </div>
+    <div class="insight">💡 de la clase · concepto clave para programadores y rendimiento — el profe le dio mucho aire.</div>
+  </div>
+
+</div>
+
+<!-- ============ 02 ============ -->
+<div class="section-label" id="s02">02 — Localidad de referencia <span class="tier key">★ alta probabilidad</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="card-title">⚖️ Temporal vs Espacial — el par que el profe siempre confronta</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Localidad temporal</h4>
+        <div class="vs-row">si accedí a una <strong>palabra</strong>, muy probable que vuelva a la <strong>misma</strong></div>
+        <div class="vs-row">se define por <strong>palabra / dirección</strong></div>
+        <div class="vs-row">ej.: un <code>for</code>/<code>while</code> ejecuta la misma instrucción repetidas veces</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>Localidad espacial</h4>
+        <div class="vs-row">muy probable acceder a las <strong>palabras vecinas</strong> del dato pedido</div>
+        <div class="vs-row">esas vecinas están en el <strong>mismo bloque</strong> ya traído</div>
+        <div class="vs-row">ej.: píxeles contiguos de una foto, segundos de un mp3</div>
+      </div>
+    </div>
+    <div class="exam-q">
+      <div class="q">B1 — ¿Por qué la localidad temporal hace que el caché mejore el rendimiento? Dar un ejemplo.</div>
+      <div class="a">Cuando el CPU accede a una <strong>palabra/dirección</strong>, es muy probable que acceda <strong>a la misma</strong> una y otra vez; como ya quedó cacheada, los accesos siguientes son rápidos. <strong>Ejemplo:</strong> un ciclo <code>for</code> accede repetidas veces a la misma instrucción → al estar en caché, corre más rápido.</div>
+    </div>
+    <div class="note danger">🚨 RÚBRICA + TRAMPA: definí la <strong>temporal por palabra</strong> (no por bloque). Confundirla con la espacial es el error que más corrige. Y ojo: "traje un bloque" ≠ "traje los bloques vecinos" — al pedir una palabra se trae <strong>UN</strong> bloque, no bloques adyacentes (2026-05-04).</div>
+    <div class="insight">💡 caveat · el dato "90% del tiempo / 10% de las instrucciones" quedó en disputa en la corrección (el profe no estaba seguro de si está en el apunte) → no te apoyes en esa cifra exacta.</div>
+  </div>
+
+</div>
+
+<!-- ============ 03 ============ -->
+<div class="section-label" id="s03">03 — Vocabulario: bloque · línea · palabra <span class="tier key">★ trampa nº1</span></div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">🎯 La distinción que más vigila en la corrección</div>
+    <div class="mwrap" style="gap:1rem">
+      <div style="text-align:center"><div style="font-family:var(--mono);color:#10b981;font-weight:700">Memoria principal</div><div style="font-family:var(--mono);font-size:.8rem;color:#fff">se divide en BLOQUES</div></div>
+      <span style="font-family:var(--mono);color:var(--muted)">→ se copian a →</span>
+      <div style="text-align:center"><div style="font-family:var(--mono);color:#06b6d4;font-weight:700">Caché</div><div style="font-family:var(--mono);font-size:.8rem;color:#fff">se divide en LÍNEAS / renglones</div></div>
+      <span style="font-family:var(--mono);color:var(--muted)">— el CPU pide —</span>
+      <div style="text-align:center"><div style="font-family:var(--mono);color:#a78bfa;font-weight:700">Procesador</div><div style="font-family:var(--mono);font-size:.8rem;color:#fff">PALABRAS (van a registros)</div></div>
+    </div>
+    <!-- diagrama: jerarquía palabra · bloque · línea (cómo viajan los datos) -->
+    <svg class="svg-wrap" viewBox="0 0 680 408" width="100%" style="max-width:760px" font-family="JetBrains Mono,monospace">
+      <defs><marker id="a3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1L8,5L0,9" fill="#f59e0b"/></marker></defs>
+      <!-- Procesador -->
+      <text x="40" y="64" font-size="11" fill="#a78bfa" font-weight="700">Procesador</text>
+      <rect x="40" y="76" width="120" height="150" rx="8" fill="none" stroke="#2a2a3e" stroke-dasharray="4 3"/>
+      <rect x="58" y="112" width="84" height="34" rx="6" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="100" y="133" font-size="10" fill="#c4b5fd" text-anchor="middle" font-weight="700">palabra</text>
+      <text x="100" y="170" font-size="8" fill="#94a3b8" text-anchor="middle">la pide la CPU</text>
+      <text x="100" y="186" font-size="8" fill="#94a3b8" text-anchor="middle">va al registro</text>
+      <!-- Caché -->
+      <text x="230" y="64" font-size="11" fill="#06b6d4" font-weight="700">Caché</text>
+      <rect x="230" y="76" width="160" height="150" rx="8" fill="none" stroke="#2a2a3e" stroke-dasharray="4 3"/>
+      <text x="240" y="99" font-size="8" fill="#94a3b8">se divide en líneas</text>
+      <rect x="240" y="108" width="140" height="26" rx="4" fill="rgba(6,182,212,0.05)" stroke="#06b6d4" stroke-opacity="0.4"/>
+      <text x="248" y="124" font-size="8" fill="#7dd3fc">Línea 0</text>
+      <rect x="240" y="142" width="140" height="30" rx="4" fill="rgba(6,182,212,0.05)" stroke="#06b6d4" stroke-opacity="0.55"/>
+      <text x="248" y="161" font-size="8" fill="#7dd3fc">Línea 1</text>
+      <rect x="298" y="147" width="76" height="20" rx="3" fill="rgba(16,185,129,0.16)" stroke="#10b981"/>
+      <text x="336" y="161" font-size="8.5" fill="#6ee7b7" text-anchor="middle">bloque</text>
+      <rect x="240" y="180" width="140" height="26" rx="4" fill="rgba(6,182,212,0.05)" stroke="#06b6d4" stroke-opacity="0.4"/>
+      <text x="248" y="196" font-size="8" fill="#7dd3fc">Línea 2</text>
+      <!-- Memoria principal -->
+      <text x="460" y="64" font-size="11" fill="#10b981" font-weight="700">Memoria principal</text>
+      <rect x="460" y="76" width="160" height="150" rx="8" fill="none" stroke="#2a2a3e" stroke-dasharray="4 3"/>
+      <text x="470" y="99" font-size="8" fill="#94a3b8">dividida en bloques</text>
+      <rect x="470" y="108" width="140" height="20" rx="3" fill="rgba(16,185,129,0.05)" stroke="#3f4a5a"/>
+      <text x="540" y="122" font-size="8" fill="#94a3b8" text-anchor="middle">Bloque 0</text>
+      <rect x="470" y="132" width="140" height="20" rx="3" fill="rgba(16,185,129,0.05)" stroke="#3f4a5a"/>
+      <text x="540" y="146" font-size="8" fill="#94a3b8" text-anchor="middle">Bloque 1</text>
+      <rect x="470" y="156" width="140" height="20" rx="3" fill="rgba(16,185,129,0.18)" stroke="#10b981"/>
+      <text x="540" y="170" font-size="8" fill="#6ee7b7" text-anchor="middle">Bloque k</text>
+      <rect x="470" y="180" width="140" height="20" rx="3" fill="rgba(16,185,129,0.05)" stroke="#3f4a5a"/>
+      <text x="540" y="194" font-size="8" fill="#94a3b8" text-anchor="middle">Bloque n</text>
+      <!-- flechas: los datos viajan MP -> caché -> CPU -->
+      <line x1="458" y1="166" x2="392" y2="160" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#a3)"/>
+      <text x="425" y="150" font-size="8" fill="#f59e0b" text-anchor="middle">1 bloque</text>
+      <line x1="228" y1="129" x2="164" y2="129" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#a3)"/>
+      <text x="196" y="121" font-size="8" fill="#f59e0b" text-anchor="middle">1 palabra</text>
+      <!-- dentro de un bloque -->
+      <text x="40" y="262" font-size="11" fill="#e2e8f0" font-weight="700">Dentro de un bloque</text>
+      <rect x="56" y="272" width="528" height="46" rx="6" fill="rgba(16,185,129,0.08)" stroke="#10b981"/>
+      <rect x="62" y="276" width="61" height="38" rx="3" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="92" y="300" font-size="9" fill="#c4b5fd" text-anchor="middle">0</text>
+      <rect x="127" y="276" width="61" height="38" rx="3" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="157" y="300" font-size="9" fill="#c4b5fd" text-anchor="middle">1</text>
+      <rect x="192" y="276" width="61" height="38" rx="3" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="222" y="300" font-size="9" fill="#c4b5fd" text-anchor="middle">2</text>
+      <rect x="257" y="276" width="61" height="38" rx="3" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="287" y="300" font-size="9" fill="#c4b5fd" text-anchor="middle">3</text>
+      <rect x="322" y="276" width="61" height="38" rx="3" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="352" y="300" font-size="9" fill="#c4b5fd" text-anchor="middle">4</text>
+      <rect x="387" y="276" width="61" height="38" rx="3" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="417" y="300" font-size="9" fill="#c4b5fd" text-anchor="middle">5</text>
+      <rect x="452" y="276" width="61" height="38" rx="3" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="482" y="300" font-size="9" fill="#c4b5fd" text-anchor="middle">6</text>
+      <rect x="517" y="276" width="61" height="38" rx="3" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="547" y="300" font-size="9" fill="#c4b5fd" text-anchor="middle">7</text>
+      <text x="40" y="338" font-size="8" fill="#94a3b8">Cada celda = 1 palabra · un bloque agrupa varias palabras contiguas.</text>
+      <text x="40" y="354" font-size="8" fill="#94a3b8">Ejemplo: 1 bloque de 64 bytes = 8 palabras de 8 bytes.</text>
+      <!-- leyenda -->
+      <rect x="40" y="372" width="13" height="13" rx="3" fill="rgba(124,58,237,0.18)" stroke="#7c3aed"/>
+      <text x="59" y="382" font-size="8" fill="#94a3b8">palabra</text>
+      <rect x="150" y="372" width="13" height="13" rx="3" fill="rgba(16,185,129,0.16)" stroke="#10b981"/>
+      <text x="169" y="382" font-size="8" fill="#94a3b8">bloque</text>
+      <rect x="250" y="372" width="13" height="13" rx="3" fill="rgba(6,182,212,0.06)" stroke="#06b6d4"/>
+      <text x="269" y="382" font-size="8" fill="#94a3b8">línea / renglón</text>
+    </svg>
+    <div class="note danger">🚨 RÚBRICA (2026-04-20 · 05-04 · 05-11): "el procesador ejecuta una <strong>palabra</strong>, el caché tiene <strong>líneas o renglones</strong> donde se almacenan los <strong>bloques</strong>, y el procesador tiene <strong>registros</strong> donde se almacenan las palabras." Usar mal estos términos <strong>baja la nota aunque la idea sea correcta</strong>.</div>
+    <div class="insight">💡 de la clase · "Todo esto es lenguaje, pero es necesario… si no, repetimos como loro." Es la trampa que más controla.</div>
+  </div>
+</div>
+
+<!-- ============ 04 ============ -->
+<div class="section-label" id="s04">04 — Funciones de correspondencia <span class="tier key">★ alta probabilidad</span></div>
+<div class="cmatrix-wrap">
+  <div class="cmatrix" style="grid-template-columns:130px 1fr 1fr 1fr">
+    <div class="cm-corner">Criterio ↓ / Org. →</div>
+    <div class="cm-head">Mapeo directo<span class="sub">1 bloque → 1 línea fija</span></div>
+    <div class="cm-head is-key">Asociativa<span class="sub">cualquier bloque → cualquier línea</span></div>
+    <div class="cm-head">Asociativa × conjuntos<span class="sub">N vías · compromiso</span></div>
+
+    <div class="cm-rl">Velocidad de búsqueda</div>
+    <div><span class="ok">instantánea</span> (sé el renglón)</div>
+    <div class="cm-key"><span class="no">lenta</span> (línea por línea)</div>
+    <div><span class="mid">intermedia</span></div>
+
+    <div class="cm-rl">Aprovechamiento del caché</div>
+    <div><span class="no">malo</span> (renglones libres sin usar)</div>
+    <div class="cm-key"><span class="ok">el mejor</span> ★</div>
+    <div><span class="mid">bueno</span></div>
+
+    <div class="cm-rl">Colisiones</div>
+    <div><span class="no">muchas</span> (se desalojan)</div>
+    <div class="cm-key"><span class="ok">bajas</span></div>
+    <div><span class="mid">pocas</span></div>
+
+    <div class="cm-rl">Circuitería</div>
+    <div><span class="ok">simple</span></div>
+    <div class="cm-key"><span class="no">compleja</span></div>
+    <div><span class="mid">media</span></div>
+  </div>
+</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">📐 Datos del ejemplo del apunte</div>
+    <div class="formula amber-f">m = bits del <strong>bus de direcciones</strong> = 12 (000h–FFFh) → 2¹² = 4096 direcciones · b = 4 palabras/bloque · q = 4096/4 = 1024 bloques · caché de 8 renglones · todo en potencias de 2</div>
+    <div class="insight">💡 TP (2026-04-20) · pregunta típica: "cuáles son las funciones de correspondencia y <strong>cuál aprovecha mejor la capacidad del caché</strong>" → la <strong>asociativa</strong>.</div>
+  </div>
+</div>
+
+<!-- ============ 05 ============ -->
+<div class="section-label" id="s05">05 — Mapeo directo <span class="tier core">core</span></div>
+<div class="grid grid-2">
+
+  <div class="card amber">
+    <div class="card-title">🧮 Cálculo de renglón y etiqueta</div>
+    <div class="op-rule">Un bloque va a un <strong>único</strong> renglón (correspondencia fija). 3 cuentas, ejemplo dirección 35 (b = 4, caché de 8 renglones):</div>
+    <div class="worked">
+      <div class="wr"><span class="wl">1 · bloque</span><span class="wb"><span class="hc">35 ÷ 4</span> = bloque <span class="res">8</span>, resto 3 (offset)</span></div>
+      <div class="wr"><span class="wl">2 · renglón + etiqueta</span><span class="wb"><span class="hc">8 ÷ 8</span> = cociente 1, resto 0 → renglón <span class="res">0</span> (resto), etiqueta <span class="hi">1</span> (cociente)</span></div>
+      <div class="wr total"><span class="wl">resultado</span><span class="wb">bloque 8 → renglón <span class="res">0</span>, etiqueta <span class="hi">1</span></span></div>
+    </div>
+    <div class="op-rule" style="margin-top:.5rem">Columnas del caché: <strong>Validez · Etiqueta</strong> (resuelve cuál de los bloques posibles ocupa el renglón) <strong>· Valor</strong>.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🗂️ Reparto de bloques en renglones</div>
+    <div class="op-rule">Cada renglón recibe los bloques con paso = cantidad de renglones (8):</div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:auto auto">
+        <span class="hl">renglón 0</span><span>← bloques 0, 8, 16, 24…, 1016</span>
+        <span class="hl">renglón 1</span><span>← bloques 1, 9, 17, 25…, 1017</span>
+        <span class="hl">renglón 2</span><span>← bloques 2, 10, 18, 26…, 1018</span>
+        <span class="hl">…</span><span>…</span>
+        <span class="hl">renglón 7</span><span>← bloques 7, 15, 23, 31…, 1023</span>
+      </div>
+    </div>
+    <div class="note warn">⚡ Cada renglón aloja 1024/8 = <strong>128 bloques</strong> posibles → etiquetas <strong>0…127</strong>; la <strong>etiqueta</strong> identifica cuál de esos 128 ocupa el renglón ahora.</div>
+    <div class="note ok">✓ Ventaja: búsqueda <strong>instantánea</strong> (ya sé el renglón) y fácil de implementar.</div>
+    <div class="note danger">🚨 Desventaja: <strong>colisiones</strong> (mp3 en bloque 0 y web en bloque 8, ambos al renglón 0 → se desalojan) y <strong>mal aprovechamiento</strong> (renglones libres que no se pueden usar). "Es mapeo directo, NO lo puedo poner en otro lugar."</div>
+  </div>
+
+</div>
+
+<div style="max-width:1400px;margin:0.2rem auto 0">
+  <div class="exam-q">
+    <div class="q">¿Qué es el mapeo directo? (¡cuidado con cómo lo decís!)</div>
+    <div class="a"><strong>"Cada bloque de memoria está asociado con una única línea (renglón) de caché"</strong> — o "un bloque está conectado directamente por hardware con un renglón de caché". La correspondencia es <strong>fija y unívoca</strong>. ❌ El profe <strong>rechaza</strong> frases vagas tipo "un cacho de memoria se conecta con un pedazo de caché" (oral 2026-06-15) — usá el lenguaje de la materia.</div>
+  </div>
+</div>
+
+<!-- ============ 06 ============ -->
+<div class="section-label" id="s06">06 — Organización asociativa <span class="tier key">★ alta probabilidad</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🔓 Asociativa pura <span class="flag">ya entró P1</span></div>
+    <div class="op-rule"><strong>Cualquier bloque</strong> de la MP puede ubicarse en <strong>cualquier</strong> renglón del caché.</div>
+    <div class="exam-q">
+      <div class="q">B2 — ¿Ventajas y desventajas de la organización asociativa?</div>
+      <div class="a"><strong>Ventajas:</strong> buen <strong>aprovechamiento</strong> del almacenamiento (si una línea está ocupada, el bloque va a otra) y <strong>bajas colisiones</strong>. <strong>Desventajas:</strong> circuitería más avanzada (busca <strong>línea por línea</strong>) → mayor <strong>complejidad</strong> y <strong>lentitud</strong>.</div>
+    </div>
+    <div class="note danger">📊 RÚBRICA (05-11): nombrá las <strong>cuatro</strong> características — complejidad, lentitud, aprovechamiento, bajas colisiones. La frase "cualquier bloque va a cualquier línea" está bien.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧩 Asociativa por conjuntos (N vías)</div>
+    <div class="op-rule">Solución de <strong>compromiso</strong>: la caché se divide en <strong>vías</strong>; los renglones homólogos de todas las vías forman un <strong>conjunto</strong>. El renglón se elige <strong>como en mapeo directo</strong>; en qué <strong>vía</strong> quedó el bloque se busca <strong>como en asociativa</strong>. Intermedia en las 3 dimensiones.</div>
+    <div class="grid grid-2" style="margin-top:.3rem">
+      <div class="stat"><div class="stat-num">8</div><div class="stat-unit">way</div><div class="stat-cap">L1 / L2 (Ryzen)</div></div>
+      <div class="stat"><div class="stat-num">16</div><div class="stat-unit">way</div><div class="stat-cap">L3 (Ryzen)</div></div>
+    </div>
+    <div class="insight">💡 CPU-Z (AMD Ryzen 7 5800X) · "8-way" = un bloque puede ir hasta 8 líneas. Es lo que usan los procesadores reales. Si fuera 1 = mapeo directo; si fuera "cualquiera" = asociativa pura.</div>
+  </div>
+
+</div>
+
+<div class="grid grid-1" style="max-width:1400px;margin:0.2rem auto 0">
+  <div class="card amber" style="grid-column:1/-1">
+    <div class="card-title">🧮 Ejemplo del apunte — la asociativa usa UNA sola cuenta</div>
+    <div class="op-rule">A diferencia del mapeo directo (que necesita una cuenta más), la asociativa solo divide <strong>dirección ÷ b = nº de bloque + offset</strong>; el bloque va a <strong>cualquier renglón libre</strong>. Programa cargado en las direcciones 35–42 (b = 4).</div>
+    <div class="grid grid-2">
+      <div>
+        <div class="worked">
+          <div class="wr"><span class="wl">dir 35</span><span class="wb"><span class="hc">35 ÷ 4</span> = bloque <span class="res">8</span>, resto <span class="hi">3</span> (offset)</span></div>
+          <div class="wr"><span class="wl">buscar</span><span class="wb">¿algún renglón con BLOQUE = 8? caché vacío → <span class="hi">Miss</span></span></div>
+          <div class="wr"><span class="wl">traer</span><span class="wb">copia el bloque 8 entero (ráfaga) a un renglón libre</span></div>
+          <div class="wr total"><span class="wl">a la UCP</span><span class="wb">offset 3 → dato <span class="res">40h</span></span></div>
+        </div>
+        <div class="note ok">✓ Después la dir 37 cae en un bloque ya traído → <strong>Hit</strong>, sin leer MP.</div>
+      </div>
+      <div>
+        <div class="op-rule" style="margin-bottom:.5rem">Columnas (≠ mapeo directo): la asociativa indexa por <strong>BLOQUE</strong>, no por etiqueta.</div>
+        <table class="cheat">
+          <tr><th>Validez</th><th>Bloque</th><th>Valor (4 palabras)</th></tr>
+          <tr><td class="k">1</td><td class="k">008</td><td>hh · hh · hh · 40</td></tr>
+          <tr><td>b</td><td>hhh</td><td>— renglón libre —</td></tr>
+        </table>
+        <div class="note warn">⚠️ <strong>Validez</strong> (1 bit): indica si el bloque fue alterado en caché pero todavía no se sincronizó con MP (es el <strong>dirty bit</strong>).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 07 ============ -->
+<div class="section-label" id="s07">07 — Acceso: hit/miss, escritura y desalojo <span class="tier key">★ políticas</span></div>
+<div class="grid grid-3">
+
+  <div class="card green">
+    <div class="card-title">✓ Hit / Miss</div>
+    <div class="proplist pl-green">
+      <div><strong style="color:#fff">Hit</strong> (acierto): el dato está en caché → rápido</div>
+      <div><strong style="color:#fff">Miss</strong> (fallo): no está → leer bloque de MP y copiarlo</div>
+    </div>
+    <div class="insight">💡 doble tarea de la MMU · al recibir el pedido busca <strong>en caché y en MP al mismo tiempo</strong>; si hay hit, descarta la lectura de MP; si hay miss, ya la había lanzado (ahorra tiempo).</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">✍️ Políticas de escritura</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Escritura directa</h4>
+        <div class="vs-row">escribe en caché <strong>y en MP a la vez</strong></div>
+        <div class="vs-row">siempre sincronizadas</div>
+        <div class="vs-row">usa el bus en cada escritura → lenta</div>
+        <div class="vs-row">sin bit de validación</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>Retrograbado</h4>
+        <div class="vs-row">escribe <strong>solo en caché</strong></div>
+        <div class="vs-row">marca <strong>bit de validación</strong> (dirty bit) = 1</div>
+        <div class="vs-row">escribe a MP recién al <strong>desalojar</strong></div>
+        <div class="vs-row">ahorra usos del bus</div>
+      </div>
+    </div>
+    <div class="note warn">⚠️ Mantienen la <strong>coherencia</strong> MP↔caché. El dirty bit decide si hay que actualizar MP antes de sacar la línea. La escritura directa, más lenta por usar el bus en cada escritura, se mitiga con <strong>DMA</strong>.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🚪 Algoritmos de desalojo</div>
+    <div class="proplist pl-cyan">
+      <div><strong style="color:#fff">FIFO</strong> — saca el primero que entró (más viejo)</div>
+      <div><strong style="color:#fff">LRU</strong> — saca el menos usado recientemente</div>
+      <div><strong style="color:#fff">LFU</strong> — saca el de menor frecuencia de uso</div>
+      <div><strong style="color:#fff">RANDOM</strong> — al azar</div>
+    </div>
+    <div class="note ok">✓ Los más usados: <strong>LRU y FIFO</strong>. Los mismos algoritmos se reutilizan para desalojar <strong>páginas</strong> en memoria virtual.</div>
+  </div>
+
+</div>
+
+<!-- ============ 08 ============ -->
+<div class="section-label" id="s08">08 — Niveles L1 / L2 / L3 <span class="tier core">core</span></div>
+<div class="cmatrix-wrap">
+  <div class="cmatrix" style="grid-template-columns:120px 1fr 1fr 1fr">
+    <div class="cm-corner">↓ / Nivel →</div>
+    <div class="cm-head">L1</div>
+    <div class="cm-head">L2</div>
+    <div class="cm-head">L3</div>
+
+    <div class="cm-rl">Arquitectura</div>
+    <div><strong style="color:#fff">Harvard</strong> (datos + instr. separados)</div>
+    <div><strong style="color:#fff">Von Neumann</strong> (juntos)</div>
+    <div>compartido</div>
+
+    <div class="cm-rl">Latencia</div>
+    <div>~1 ns (4 ciclos)</div>
+    <div>~4 ns (16 ciclos)</div>
+    <div>~20–40 ns</div>
+
+    <div class="cm-rl">Tamaño</div>
+    <div>32–64 KB</div>
+    <div>256 KB–2 MB</div>
+    <div>30–96 MB</div>
+
+    <div class="cm-rl">Alcance</div>
+    <div>por núcleo</div>
+    <div>por núcleo</div>
+    <div><strong style="color:#fff">entre núcleos</strong></div>
+  </div>
+</div>
+<div class="grid grid-2">
+  <div class="card green">
+    <div class="card-title">🧮 Latencia ↔ ciclos (a 4 GHz)</div>
+    <div class="worked">
+      <div class="wr"><span class="wl">1 ciclo</span><span class="wb">1 / 4 GHz = <span class="res">0,25 ns</span></span></div>
+      <div class="wr"><span class="wl">L1 = 1 ns</span><span class="wb">→ <span class="hc">4 ciclos</span></span></div>
+      <div class="wr"><span class="wl">L2 = 4 ns</span><span class="wb">→ <span class="hc">16 ciclos</span></span></div>
+      <div class="wr"><span class="wl">MP ≈ 100× L1</span><span class="wb">disco SATA3 ≈ 1000× MP</span></div>
+    </div>
+  </div>
+  <div class="card cyan">
+    <div class="card-title">💻 Ejemplo real (CPU-Z)</div>
+    <div class="op-rule">AMD Ryzen 7 5800X (8 núcleos): L1-D "8×32 KB", L1-I "8×32 KB", L2 "8×512 KB" (uno por núcleo), <strong>L3 32 MB compartido</strong> (sin ×8).</div>
+    <div class="insight">💡 de la clase · L1 = Harvard, L2 = Von Neumann — el profe lo pregunta como diferencia clave.</div>
+  </div>
+</div>
+
+<!-- ============ 09 ============ -->
+<div class="section-label" id="s09">09 — Memoria virtual + MMU <span class="tier key">★ base de swapping</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🗺️ Memoria virtual</div>
+    <div class="op-rule">
+      Espacio de memoria <strong>mucho mayor</strong> que la MP física. El <strong>sistema operativo</strong> arma un gran <strong>mapa</strong> que incluye memoria física (caché + RAM) y parte del <strong>almacenamiento secundario</strong> (disco/SSD). La <strong>MMU</strong> (por hardware, dentro del CPU) traduce direcciones virtuales → físicas.
+    </div>
+    <div class="proplist pl-purple">
+      <div>✓ cargar programas más grandes que la RAM física</div>
+      <div>✓ varios programas a la vez (cada uno ve todo el espacio)</div>
+      <div>✓ <strong style="color:#fff">protección</strong>: un proceso no accede a la memoria de otro</div>
+    </div>
+    <details class="recall">
+      <summary>¿Qué problema venía a resolver?</summary>
+      <div class="recall-a">Antes no había multiproceso: un programa debía caber <strong>entero y contiguo</strong> en la RAM; si se superaba la memoria física, el programa/máquina <strong>fallaba</strong>; la memoria no usada se <strong>malgastaba</strong>; y un proceso podía <strong>interferir</strong> con el espacio de otro (inestabilidad / vulnerabilidad). La MV —administrada por <strong>software y hardware</strong>— resuelve todo eso.</div>
+    </details>
+    <div class="insight">💡 de la clase · "la memoria física y el caché los puedo tocar; la memoria virtual no, es un mapa." Analogía útil: es como si el CPU le pidiera prestado almacenamiento al disco cuando se queda sin RAM.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">⚙️ Funciones de la MMU (por importancia)</div>
+    <div class="step cyan-s">
+      <div class="s"><b>1.</b> Traducción de direcciones virtuales → físicas <span style="color:#4ade80">(la más importante, usa la TLB)</span></div>
+      <div class="s"><b>2.</b> Protección de memoria (page fault a accesos no autorizados; por direcciones reales —IBM S/360— o virtuales —Itanium, PA-RISC)</div>
+      <div class="s"><b>3.</b> Control de caché (correspondencia L1/L2/L3 ↔ MP + políticas de escritura)</div>
+      <div class="s"><b>4.</b> Arbitraje de buses (anti-colisión en el Data bus)</div>
+      <div class="s"><b>5.</b> Selección de bancos <span style="color:var(--muted)">(concatena registros de address: 16+16→32 bits→4 Gb; modelos antiguos)</span></div>
+    </div>
+    <div class="op-notation" style="margin-top:.5rem">MMU = UGM (Unidad de Gestión de Memoria)</div>
+  </div>
+
+</div>
+
+<!-- ============ 10 ============ -->
+<div class="section-label" id="s10">10 — Traducción de direcciones + TLB <span class="tier core">core</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple" style="grid-column:1/-1">
+    <div class="card-title">🔀 La cadena de traducción</div>
+    <svg class="svg-wrap" viewBox="0 0 460 110" width="100%" style="max-width:480px" font-family="JetBrains Mono,monospace">
+      <rect x="8" y="35" width="120" height="44" rx="4" fill="rgba(124,58,237,0.15)" stroke="#7c3aed"/>
+      <text x="68" y="55" font-size="9.5" fill="#a78bfa" text-anchor="middle">Dir. VIRTUAL</text>
+      <text x="68" y="69" font-size="7.5" fill="#94a3b8" text-anchor="middle">P bits · #pág + despl.</text>
+      <rect x="170" y="35" width="120" height="44" rx="4" fill="rgba(6,182,212,0.15)" stroke="#06b6d4"/>
+      <text x="230" y="55" font-size="9.5" fill="#06b6d4" text-anchor="middle">Dir. FÍSICA</text>
+      <text x="230" y="69" font-size="7.5" fill="#94a3b8" text-anchor="middle">N bits · #frame + despl.</text>
+      <rect x="332" y="35" width="120" height="44" rx="4" fill="rgba(16,185,129,0.13)" stroke="#10b981"/>
+      <text x="392" y="55" font-size="9.5" fill="#10b981" text-anchor="middle">Dir. CACHÉ</text>
+      <text x="392" y="69" font-size="7.5" fill="#94a3b8" text-anchor="middle">R bits · #renglón + despl.</text>
+      <line x1="128" y1="57" x2="168" y2="57" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#a7)"/>
+      <text x="148" y="50" font-size="7.5" fill="#f59e0b" text-anchor="middle">traducción</text>
+      <text x="148" y="92" font-size="7" fill="#94a3b8" text-anchor="middle">MMU + TLB</text>
+      <line x1="290" y1="57" x2="330" y2="57" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#a7)"/>
+      <text x="310" y="50" font-size="7.5" fill="#f59e0b" text-anchor="middle">traducción</text>
+      <text x="310" y="92" font-size="7" fill="#94a3b8" text-anchor="middle">hardware</text>
+      <text x="230" y="20" font-size="8" fill="#94a3b8" text-anchor="middle">P &gt; N &gt; R</text>
+      <defs><marker id="a7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,1L8,5L0,9" fill="#f59e0b"/></marker></defs>
+    </svg>
+    <div class="op-rule">El SO asigna a cada programa un <strong>segmento</strong> (espacio contiguo de MV) que contiene un <strong>número entero de páginas</strong> —se desperdicia parte de la última—. Cada página (típico <strong>4 KB</strong>): lógica ↔ física (<strong>frame</strong>). La <strong>tabla de páginas</strong> (una por proceso) relaciona cada página con su frame. <strong>Page hit</strong>: la página está en MP. <strong>Page fault</strong>: no está → swapping.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🔎 TLB (Translation Lookaside Buffer)</div>
+    <div class="op-rule">Memoria asociativa dentro de la MMU que guarda las últimas <strong>traducciones de páginas</strong>. La MMU busca primero ahí: si la traducción está (page hit) usa el frame ya guardado; si no (page fault) la calcula y la <strong>guarda en la TLB</strong>.</div>
+    <div class="note danger">🚨 TRAMPA: se traduce <strong>página virtual → física</strong>, NO física → virtual. (La autoevaluación online de la materia tenía el error invertido y el profe lo corrigió en clase.)</div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">📑 Tablas y atributos</div>
+    <div class="op-rule">En segmentos paginados, una <strong>tabla de segmentos</strong> (en MP, apuntada por el registro <strong>RBTS</strong>) apunta a tablas de páginas, y cada entrada de éstas a un <strong>marco</strong> de MP. Cada entrada lleva <strong>dirección + atributos</strong>: página modificada o no, permisos de lectura/acceso, longitud del segmento. La última traducción (física → renglón) la hace el <strong>hardware</strong>.</div>
+  </div>
+
+</div>
+
+<!-- ============ 11 ============ -->
+<div class="section-label" id="s11">11 — Swapping <span class="tier key">★ alta probabilidad</span></div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🔄 Intercambio de páginas <span class="flag">ya entró P1</span></div>
+    <div class="exam-q">
+      <div class="q">B7 — ¿Qué es el swapping?</div>
+      <div class="a">Intercambio de páginas al implementar memoria virtual. Cuando el CPU quiere una página que <strong>no está en RAM</strong>, un algoritmo de desalojo (FIFO/LRU/RANDOM) <strong>saca una página de la RAM</strong> y trae la necesaria desde la <strong>memoria secundaria</strong>. Necesario <strong>porque el procesador solo lee de memoria principal, no de secundaria</strong>.</div>
+    </div>
+    <div class="note danger">📊 RÚBRICA (05-11): el punto completo requiere el "<strong>por qué</strong>" (el CPU solo lee de MP). Mencionar que usa los mismos algoritmos de desalojo del caché.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">📈 "Agregar RAM mejora — hasta cierto punto"</div>
+    <div class="op-rule">Más RAM física → menos swapping → menos accesos al disco (1000× más lento) → más rendimiento. <strong>Pero</strong> pasado el punto donde ya casi no hay intercambio de páginas, agregar más RAM <strong>no mejora</strong> significativamente.</div>
+    <div class="proplist pl-amber">
+      <div>Linux: partición <strong>swap</strong> · Windows: <strong>pagefile.sys</strong></div>
+      <div>de 32→64 GB en uso común casi no se nota; sí en edición de video / motores de juego</div>
+    </div>
+    <div class="insight">💡 analogía del profe · "agregar otro container al camión para que vaya más rápido no tiene sentido" — la mejora viene de evitar el disco, no de la RAM en sí.</div>
+  </div>
+
+</div>
+
+<!-- ============ 12 ============ -->
+<div class="section-label is-ctx" id="s12">12 — Coherencia de caché / MESI <span class="tier ctx">contexto · entra al final</span></div>
+<div class="grid grid-2 is-ctx">
+
+  <div class="card cyan">
+    <div class="card-title">🧊 El problema de coherencia</div>
+    <div class="op-rule">En CPUs multinúcleo cada núcleo tiene su propio caché (L1/L2) → varios pueden guardar <strong>copias del mismo bloque</strong>. Si N1 escribe en su copia, las de N2/N3/N4 quedan <strong>desactualizadas</strong>: ese es el problema de coherencia.</div>
+    <div class="note warn">⚠️ Persiste <strong>aun con write-through</strong> (en MP queda el dato nuevo, pero las otras cachés siguen con el viejo). También lo provoca el <strong>DMA/ADM</strong> al escribir en MP mientras el CPU procesa.</div>
+    <div class="op-rule" style="margin-top:.5rem"><strong>Snooping (inspección):</strong> los núcleos monitorean el bus; cuando uno escribe, los demás <strong>invalidan</strong> su copia (la releen de MP al necesitarla) <em>o</em> la <strong>actualizan</strong> con el dato nuevo. Dos estrategias.</div>
+  </div>
+
+  <div class="card purple">
+    <div class="card-title">🚦 MESI (protocolo Illinois) · 2 bits → 4 estados</div>
+    <div class="op-rule">Variante de los protocolos de <strong>invalidación</strong>; además soporta que la caché trabaje con <strong>postescritura</strong> (write-back). Cada bloque del caché lleva uno de 4 estados:</div>
+    <div class="cmatrix-wrap">
+      <div class="cmatrix" style="grid-template-columns:115px 1fr 1.2fr">
+        <div class="cm-corner">Estado</div>
+        <div class="cm-head">¿= MP?</div>
+        <div class="cm-head">¿copias en otras cachés?</div>
+
+        <div class="cm-rl">Modificado</div>
+        <div><span class="no">no</span> · alterado</div>
+        <div>no — válido solo acá</div>
+
+        <div class="cm-rl">Exclusivo</div>
+        <div><span class="ok">sí</span> · copia exacta</div>
+        <div>no</div>
+
+        <div class="cm-rl">Shared</div>
+        <div><span class="ok">sí</span> · copia exacta</div>
+        <div>puede haber</div>
+
+        <div class="cm-rl">Inválido</div>
+        <div class="is-dim">—</div>
+        <div>datos no válidos (otro lo modificó)</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="grid grid-1 is-ctx" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🗂️ Snooping vs Directorio (cuestión de escala)</div>
+    <div class="op-rule">El <strong>snooping</strong> sirve cuando todos los núcleos escuchan un mismo bus. Pero con <strong>cientos de nodos/procesadores</strong> habría que difundir mensajes por la red para invalidar/actualizar → mucho <strong>tráfico y latencia</strong>. Ahí se usa una <strong>tabla centralizada o directorio</strong>: una tabla global (en memoria compartida) que registra qué cachés tienen cada bloque y con qué permiso (solo lectura / lectura-escritura). Hay CPUs que combinan directorio entre nodos + snooping dentro del nodo.</div>
+    <div class="note ok">✓ Para el final: saber qué describe cada estado <strong>M/E/S/I</strong> y cuándo se usa <strong>snooping vs directorio</strong>. NO se exige el diagrama de transiciones ni el circuito interno.</div>
+  </div>
+</div>
+
+<!-- ============ 13 ============ -->
+<div class="section-label" id="s13">13 — Claves para el examen <span class="tier key">★ prioridad</span></div>
+<div class="grid grid-2" style="max-width:1400px;margin:0 auto">
+  <div class="card red">
+    <div class="card-title">✅ Ya entró en P1 · alta chance de reaparecer</div>
+    <div class="step red-s">
+      <div class="s"><b>B1 · Localidad temporal:</b> definir por <b>palabra</b> (no bloque) + ejemplo (ciclo <code>for</code>). No confundir con espacial.</div>
+      <div class="s"><b>B2 · Asociativa:</b> nombrar las <b>4</b> características — aprovechamiento, bajas colisiones (ventajas); complejidad, lentitud (desventajas).</div>
+      <div class="s"><b>B7 · Swapping:</b> intercambio de páginas en MV; el punto lo da el <b>"porque el CPU solo lee de MP"</b>.</div>
+    </div>
+  </div>
+  <div class="card red">
+    <div class="card-title">⚠️ Trampas y rúbrica</div>
+    <div class="step red-s">
+      <div class="s"><b>Vocabulario:</b> MP→bloques, caché→líneas/renglones, CPU→palabras. Mal usados = baja la nota.</div>
+      <div class="s"><b>TLB:</b> traduce virtual→física (NO al revés).</div>
+      <div class="s"><b>Localidad espacial:</b> "un bloque" (no "los bloques vecinos").</div>
+      <div class="s"><b>Vocabulario en castellano y completo</b> ("búsqueda de instrucción", no "fetch"; no siglas sin explicar).</div>
+      <div class="s"><b>Acotar profundidad:</b> de MESI saber los <b>4 estados</b> (no el diagrama de transiciones); del caché, NO el <b>circuito interno</b> bit-a-bit.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Memoria Caché y Memoria Virtual · Arquitectura de Computadores · Universidad de Palermo</p>
+  <p class="out">No se desarrolla (ni en el final): circuito interno del caché (divisor · contador · decodificador · comparador · MUX · buffer 3 estados) · de MESI, las transiciones de estado. Memorias físicas DDR/HBM → Unidad 06 · pipeline/DMA/PCIe → Unidad 08.</p>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#arquitectura-de-computadores" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>
