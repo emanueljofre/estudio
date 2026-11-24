@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>El Computador — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;   /* púrpura — concepto principal */
+    --accent2: #06b6d4;  /* cian — secundario / conexión */
+    --accent3: #f59e0b;  /* ámbar — proceso / advertencia suave */
+    --accent4: #10b981;  /* verde — correcto / propiedades */
+    --red: #ef4444;      /* rojo — peligro / tips de examen */
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  /* Layout */
+  .grid   { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* Header */
+  header { text-align: center; margin-bottom: 3rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px; margin: 1.2rem auto 0; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  /* Section label */
+  .section-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--accent);
+    margin: 2.5rem auto 1rem; max-width: 1400px;
+    display: flex; align-items: center; gap: 0.8rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Card */
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem; font-family: var(--mono); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  /* Componentes internos */
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule {
+    font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border); border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  .formula {
+    font-family: var(--mono); font-size: 0.82rem; color: #fff;
+    background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 5px; padding: 0.5rem 0.7rem; text-align: center; margin: 0.5rem 0;
+  }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+
+  .proplist {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    display: grid; gap: 0.35rem;
+  }
+  .proplist div { padding: 0.35rem 0.55rem; border-radius: 4px; }
+  .pl-purple div { background: rgba(124,58,237,0.06); }
+  .pl-cyan   div { background: rgba(6,182,212,0.06); }
+  .pl-amber  div { background: rgba(245,158,11,0.06); }
+  .pl-green  div { background: rgba(16,185,129,0.06); }
+
+  .step { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); display: grid; gap: 0.4rem; }
+  .step .s {
+    padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0;
+  }
+  .step .s b { color: #fff; }
+
+  .note {
+    font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem;
+    padding: 0.35rem 0.55rem; border-radius: 4px;
+  }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.06); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  .flag      { color: #f87171;          font-size: 0.55rem; margin-left: 0.5rem; }
+  .flag.info { color: var(--accent3);   font-size: 0.55rem; margin-left: 0.5rem; }
+
+  /* Insight — tip del profe integrado */
+  .insight {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--accent3);
+    background: rgba(245,158,11,0.06);
+    border-left: 2px solid var(--accent3);
+    border-radius: 0 4px 4px 0;
+    padding: 0.4rem 0.6rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Matrix / grilla estructural */
+  .matrix {
+    display: inline-grid; gap: 0.15rem 0.55rem; font-family: var(--mono);
+    font-size: 0.8rem; color: var(--text); padding: 0.3rem 0.65rem; position: relative;
+  }
+  .matrix::before, .matrix::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 7px;
+    border: 1.5px solid var(--accent2);
+  }
+  .matrix::before { left: 0; border-right: none; }
+  .matrix::after  { right: 0; border-left: none; }
+  .matrix span { text-align: center; }
+  .matrix .hl { color: var(--accent3); font-weight: 700; }
+  .matrix .z  { color: #475569; }
+
+  .mwrap { display: flex; justify-content: center; align-items: center; gap: 0.6rem; margin: 0.6rem 0; flex-wrap: wrap; }
+  .mwrap .eq { font-family: var(--mono); color: var(--muted); font-size: 0.95rem; }
+
+  /* Timeline */
+  .timeline {
+    display: flex; align-items: flex-start; gap: 0;
+    overflow-x: auto; padding: 1.2rem 0.5rem 0.5rem; position: relative;
+  }
+  .timeline::before {
+    content: ''; position: absolute; left: 0.5rem; right: 0.5rem; top: 1.95rem;
+    height: 2px; background: var(--border);
+  }
+  .tl-item {
+    display: flex; flex-direction: column; align-items: center;
+    min-width: 110px; flex: 1; position: relative;
+  }
+  .tl-year {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--accent2);
+    margin-bottom: 0.4rem; font-weight: 700; letter-spacing: 0.1em;
+  }
+  .tl-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--accent2);
+    position: relative; z-index: 1; flex-shrink: 0;
+  }
+  .tl-label {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text);
+    text-align: center; margin-top: 0.5rem; line-height: 1.3; padding: 0 0.2rem;
+  }
+  .tl-sub {
+    font-family: var(--mono); font-size: 0.55rem; color: var(--muted);
+    text-align: center; margin-top: 0.2rem; line-height: 1.3; padding: 0 0.2rem;
+  }
+  .tl-item.gen0 .tl-dot { background: #a78bfa;         border-color: #a78bfa; }
+  .tl-item.gen1 .tl-dot { background: var(--accent2);  border-color: var(--accent2); }
+  .tl-item.gen2 .tl-dot { background: var(--accent3);  border-color: var(--accent3); }
+  .tl-item.gen3 .tl-dot { background: var(--accent4);  border-color: var(--accent4); }
+
+  /* Versus */
+  .versus {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch;
+  }
+  .vs-side {
+    padding: 0.8rem; font-family: var(--mono); font-size: 0.72rem;
+    color: var(--muted); display: flex; flex-direction: column; gap: 0.35rem;
+  }
+  .vs-side h4 {
+    font-family: var(--display); font-size: 0.8rem; font-weight: 700;
+    color: #fff; margin-bottom: 0.3rem;
+  }
+  .vs-mid {
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.75rem; font-weight: 700;
+    color: var(--accent3); padding: 0 0.7rem;
+    border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  }
+  .vs-row { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .vs-row:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .versus { grid-template-columns: 1fr; }
+    .vs-mid {
+      border: none; border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border); padding: 0.4rem; text-align: center;
+    }
+  }
+
+  /* Recall — auto-test colapsable */
+  .recall {
+    font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0;
+    border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden;
+  }
+  .recall summary {
+    cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2);
+    background: rgba(124,58,237,0.06); list-style: none;
+    display: flex; align-items: center; gap: 0.5rem; user-select: none;
+  }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before {
+    content: '▸'; font-size: 0.7rem; color: var(--accent);
+    transition: transform 0.15s; flex-shrink: 0;
+  }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a {
+    padding: 0.5rem 0.8rem; color: var(--text); line-height: 1.5;
+    border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04);
+  }
+  .recall-a strong { color: #fff; }
+
+  /* Tablas */
+  table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.72rem; }
+  th { padding: .4rem .6rem; text-align: left; background: rgba(255,255,255,.05); border-bottom: 1px solid var(--border); color: var(--muted); }
+  td { padding: .4rem .6rem; border-bottom: 1px solid var(--border); color: var(--muted); }
+  td.k { color: #fff; }
+
+  /* Footer */
+  footer {
+    text-align: center; margin-top: 3rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.65rem; color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Arquitectura de Computadores · Unidad 04 — El Computador · repaso final</div>
+  <h1>El Computador</h1>
+  <p class="subtitle">arquitectura · organización · estructura · función · von neumann · harvard · registros</p>
+  <div class="divider"></div>
+</header>
+
+<!-- ════════════ 01 ════════════ -->
+<div class="section-label">01 — ¿Qué es un computador?</div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🖥️ Definición</div>
+    <div class="op-name">El procesador (CPU)</div>
+    <div class="op-notation">UCP · Unidad Central de Proceso — formal del apunte</div>
+    <div class="op-rule">
+      Un computador es un <strong>dispositivo electrónico</strong> que realiza cálculos u operaciones de un <strong>programa</strong> (secuencia de instrucciones del programador): acepta <strong>datos de entrada</strong>, los <strong>procesa</strong> ejecutando instrucciones y produce <strong>datos de salida</strong>.
+    </div>
+    <div class="op-rule">
+      El componente que recibe los datos, los procesa y obtiene resultados es la <strong>Unidad Central de Proceso (CPU)</strong> o <strong>microprocesador</strong>. Todo programa, en cualquier lenguaje, termina traducido a <strong>ceros y unos</strong> para que el procesador lo ejecute.
+    </div>
+    <div class="insight">💡 de la clase · El profe lo llama indistintamente "el procesador", "CPU" o "microprocesador" — y "el cerebro de las computadoras". En el examen pide siglas <strong>en castellano y completas</strong>, no abreviadas sin explicar.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧭 Los 4 conceptos fundamentales</div>
+    <div class="op-rule" style="margin-bottom:0.6rem">
+      El eje de toda la unidad. Son 4 conceptos que <strong>"suelen prestarse a confusión"</strong> — entender en qué se diferencian es lo que se pregunta.
+    </div>
+    <table>
+      <thead>
+        <tr><th>Concepto</th><th>Qué define</th><th>¿Lo ve el programador?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="k">Arquitectura</td><td>atributos visibles al programador (la ISA)</td><td style="color:#4ade80">SÍ</td></tr>
+        <tr><td class="k">Organización</td><td>unidades operativas y sus interconexiones</td><td style="color:#f87171">NO</td></tr>
+        <tr><td class="k">Estructura</td><td>componentes/módulos y cómo se relacionan</td><td style="color:var(--muted)">—</td></tr>
+        <tr><td class="k">Función</td><td>qué operación realiza cada componente</td><td style="color:var(--muted)">—</td></tr>
+      </tbody>
+    </table>
+    <div class="insight">💡 de la clase · "Nosotros vimos lo que era la arquitectura, lo que era la organización y lo que era la estructura de un computador y de un CPU." Los repasa al arrancar cada clase.</div>
+  </div>
+
+</div>
+
+<!-- ════════════ 02 ════════════ -->
+<div class="section-label">02 — Arquitectura vs Organización</div>
+<div class="grid grid-3">
+
+  <div class="card purple">
+    <div class="card-title">📐 Arquitectura e ISA</div>
+    <div class="op-name">Arquitectura</div>
+    <div class="op-notation">ISA · Instruction Set Architecture</div>
+    <div class="op-rule">
+      Todos los atributos del ordenador <strong>visibles al programador</strong>, con impacto directo en la ejecución de los programas. Se resumen en la <strong>ISA</strong> (set de instrucciones de la arquitectura).
+    </div>
+    <div class="proplist pl-purple">
+      <div>Instrucciones, su formato y códigos de operación</div>
+      <div>Cantidad y tipo de registros</div>
+      <div><strong>Longitud de palabra</strong>: bits que el IR/registros almacenan → hoy <strong>64 bits = 8 bytes</strong> (antes 32; los primeros micros, 4 y 8)</div>
+      <div>Modos de direccionamiento a memoria</div>
+    </div>
+    <div class="note warn">⚠️ No confundir (el profe lo marcó evaluable): <strong>palabra de memoria = 1 byte (8 bits)</strong>, la unidad direccionable de la MP, ≠ <strong>longitud de palabra del procesador</strong> = bits que maneja el IR/registros (64 bits = 8 bytes).</div>
+    <div class="insight">💡 de la clase · La ISA "vive" en la Unidad de Control: "tenía el set de instrucciones del procesador" como parte de la UC. El <strong>8086/8088</strong> (registros de propósito general AX, BX, CX, DX) fue la base de la <strong>primera IBM PC</strong>.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🏢 Organización</div>
+    <div class="op-name">Organización</div>
+    <div class="op-notation">no modificable por el programador</div>
+    <div class="op-rule">
+      Las <strong>unidades operativas y sus interconexiones</strong> necesarias para implementar la arquitectura: señales de control, tecnología de memoria, interfaces, unidades de cálculo y cómo se conectan.
+    </div>
+    <div class="op-rule">
+      <strong>Clave:</strong> dos procesadores con la <strong>misma arquitectura</strong> (la misma instrucción corre en ambos) pueden tener <strong>organizaciones internas totalmente distintas</strong> — uno con 1 ALU de enteros, otro con 4 + unidades vectoriales (SIMD), de bifurcación, gráficas, cripto e IA.
+    </div>
+    <div class="insight">💡 analogía del apunte · La organización es el <strong>organigrama de una empresa</strong>: cada procesador tiene su propia distribución de unidades funcionales.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">⚔️ Arquitectura vs Organización</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Arquitectura</h4>
+        <div class="vs-row">Visible al programador</div>
+        <div class="vs-row">Es la ISA: qué instrucciones existen</div>
+        <div class="vs-row">El programador la usa</div>
+        <div class="vs-row">Analogía: la orden del cliente</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>Organización</h4>
+        <div class="vs-row">Oculta al programador</div>
+        <div class="vs-row">Cómo se implementa esa ISA por dentro</div>
+        <div class="vs-row">El fabricante la decide</div>
+        <div class="vs-row">Analogía: cómo el chef cocina la orden</div>
+      </div>
+    </div>
+    <div class="note ok">✓ Compatibilidad binaria hacia atrás: <span style="font-family:var(--mono)">MOV AX,34F2h</span> corre en un 8086 y en un Core i7. Distinta organización, misma arquitectura → "no perdés tu inversión de software".</div>
+  </div>
+
+</div>
+
+<!-- ════════════ 03 ════════════ -->
+<div class="section-label">03 — Estructura del computador</div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🧩 Los 4 componentes</div>
+    <div class="op-rule">
+      La estructura de cualquier sistema = sus <strong>componentes/módulos y cómo se relacionan</strong>. Todo computador tiene 4:
+    </div>
+    <svg viewBox="0 0 440 130" width="100%" style="max-width:440px;display:block;margin:0.9rem auto">
+      <!-- Bus central -->
+      <line x1="30" y1="92" x2="410" y2="92" stroke="#2a2a3e" stroke-width="9" stroke-linecap="round"/>
+      <!-- CPU -->
+      <rect x="20" y="18" width="95" height="42" rx="5" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.5"/>
+      <text x="67" y="38" font-family="JetBrains Mono,monospace" font-size="12" fill="#a78bfa" text-anchor="middle">UCP / CPU</text>
+      <text x="67" y="52" font-family="JetBrains Mono,monospace" font-size="8" fill="#94a3b8" text-anchor="middle">procesa</text>
+      <!-- Memoria -->
+      <rect x="172" y="18" width="95" height="42" rx="5" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.5"/>
+      <text x="219" y="38" font-family="JetBrains Mono,monospace" font-size="12" fill="#06b6d4" text-anchor="middle">Memoria</text>
+      <text x="219" y="52" font-family="JetBrains Mono,monospace" font-size="8" fill="#94a3b8" text-anchor="middle">datos+instr.</text>
+      <!-- E/S -->
+      <rect x="320" y="18" width="90" height="42" rx="5" fill="rgba(245,158,11,0.10)" stroke="#f59e0b" stroke-width="1.5"/>
+      <text x="365" y="38" font-family="JetBrains Mono,monospace" font-size="12" fill="#f59e0b" text-anchor="middle">E/S</text>
+      <text x="365" y="52" font-family="JetBrains Mono,monospace" font-size="8" fill="#94a3b8" text-anchor="middle">periféricos</text>
+      <!-- Conectores -->
+      <line x1="67" y1="60" x2="67" y2="92" stroke="#7c3aed" stroke-width="1.5"/>
+      <line x1="219" y1="60" x2="219" y2="92" stroke="#06b6d4" stroke-width="1.5"/>
+      <line x1="365" y1="60" x2="365" y2="92" stroke="#f59e0b" stroke-width="1.5"/>
+      <!-- Label bus -->
+      <text x="219" y="116" font-family="JetBrains Mono,monospace" font-size="10" fill="#94a3b8" text-anchor="middle">Sistema de interconexión (BUS)</text>
+    </svg>
+    <div class="proplist pl-purple">
+      <div><strong>UCP / CPU</strong> — controla la operación y procesa los datos (hoy multi-<em>core</em>)</div>
+      <div><strong>Memoria Principal (MP)</strong> — almacena datos e instrucciones</div>
+      <div><strong>Unidad de E/S</strong> — conecta periféricos vía interfaces (placas/chips)</div>
+      <div><strong>Interconexión (BUS)</strong> — comunica CPU ↔ MP ↔ E/S</div>
+    </div>
+  </div>
+
+  <div class="card green">
+    <div class="card-title">✅ Lo que el profe espera oír</div>
+    <div class="op-rule">
+      "Estructura del computador. Es <strong>básico, recontra básico</strong>." Lo pregunta y espera que lo sepas sí o sí.
+    </div>
+    <div class="formula" style="color:var(--text)">
+      microprocesador (CPU) + memoria principal + interfaz de E/S + bus de sistema
+    </div>
+    <div class="insight">💡 de la clase · Un alumno respondió "CPU, sistema de interconexión, unidad de entrada y salida… memoria de almacenamiento" y el profe completó: "el microprocesador o CPU, la memoria principal, la unidad o interfaz de entrada y salida, y la interconexión o bus de sistema que conecta todo".</div>
+    <div class="note warn">⚠️ No confundas la estructura del <strong>computador</strong> (esta, de 4 bloques) con la estructura del <strong>CPU</strong> (sección 04). Son preguntas distintas.</div>
+  </div>
+
+</div>
+
+<!-- ════════════ 04 ════════════ -->
+<div class="section-label">04 — Estructura del CPU</div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">⚙️ Los 4 componentes del CPU</div>
+    <div class="op-rule">
+      Una "CPU básica y elemental" contiene 4 componentes. Esta es la grilla interna del procesador:
+    </div>
+    <div class="mwrap">
+      <div class="matrix" style="grid-template-columns:repeat(2,1fr);font-size:0.7rem;gap:0.5rem 0.9rem">
+        <span class="hl">Unidad de Control</span><span>Registros</span>
+        <span>ALU (UAL)</span><span class="hl">Interconexión interna</span>
+      </div>
+    </div>
+    <div class="proplist pl-purple">
+      <div><strong>Unidad de Control (UC)</strong> — administra el CPU y coordina la ejecución</div>
+      <div><strong>Registros (REG)</strong> — guardan instrucciones, direcciones y datos temporalmente</div>
+      <div><strong>Unidad Aritmético-Lógica (ALU/UAL)</strong> — procesa los datos</div>
+      <div><strong>Interconexión interna</strong> — bus propio del micro (Front/Back-Side Bus)</div>
+    </div>
+    <div class="note danger">🚨 La <strong>memoria principal NO está dentro del CPU</strong>. Aunque en micros nuevos venga en el mismo paquete, está separada del circuito de procesamiento. ("¿Está la memoria principal dentro de la estructura del procesador? No.")</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🎛️ Dentro de la Unidad de Control</div>
+    <div class="op-rule">
+      La UC es el director de orquesta. Por dentro tiene:
+    </div>
+    <div class="proplist pl-cyan">
+      <div><strong>Lógica secuencial</strong> — interpreta instrucciones y coordina las microinstrucciones</div>
+      <div><strong>Memoria de control (ROM de control)</strong> — almacena el set de instrucciones (ISA), las microinstrucciones en 0 y 1 que se vuelven señales eléctricas</div>
+      <div><strong>Registros temporales, decodificadores y multiplexores</strong> — implementan el secuenciamiento</div>
+    </div>
+    <div class="insight">💡 de la clase · La ROM de control es donde "vive" la ISA: convierte cada instrucción en señales eléctricas que se distribuyen por todo el procesador e incluso hacia afuera.</div>
+    <details class="recall">
+      <summary>⚡ ¿Cuál es la estructura del CPU? (pregunta típica del profe)</summary>
+      <div class="recall-a"><strong>Unidad de Control + Registros + Unidad Aritmético-Lógica (ALU) + Sistema de interconexión interno.</strong> Ojo: piden el CPU, no la computadora.</div>
+    </details>
+  </div>
+
+</div>
+
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">🚨 La trampa clásica — CPU ≠ computadora</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Estructura del CPU ✓</h4>
+        <div class="vs-row">Unidad de Control</div>
+        <div class="vs-row">Registros</div>
+        <div class="vs-row">ALU (UAL)</div>
+        <div class="vs-row">Interconexión interna</div>
+      </div>
+      <div class="vs-mid">≠</div>
+      <div class="vs-side">
+        <h4>Estructura de la computadora ✗</h4>
+        <div class="vs-row">Microprocesador (CPU)</div>
+        <div class="vs-row">Memoria principal</div>
+        <div class="vs-row">Entrada/Salida</div>
+        <div class="vs-row">Bus de sistema</div>
+      </div>
+    </div>
+    <div class="note danger">🚨 Error que el profe penaliza siempre: "Muchos me pusieron la del compu, la computadora… La consigna pide CPU". Si te preguntan por el <strong>CPU</strong>, no contestes los 4 bloques de la computadora.</div>
+  </div>
+</div>
+
+<!-- ════════════ 05 ════════════ -->
+<div class="section-label">05 — Función del computador</div>
+<div class="grid grid-2">
+
+  <div class="card amber">
+    <div class="card-title">🔄 Las 4 funciones básicas</div>
+    <div class="op-rule">
+      "La función de cualquier componente indica <strong>qué operación realiza</strong>." Todo ordenador hace 4 cosas, con <strong>CONTROLAR</strong> en el centro orquestando al resto:
+    </div>
+    <svg viewBox="0 0 320 210" width="100%" style="max-width:320px;display:block;margin:0.9rem auto">
+      <!-- líneas del centro a los 3 nodos -->
+      <line x1="160" y1="115" x2="160" y2="44"  stroke="#2a2a3e" stroke-width="1.5"/>
+      <line x1="160" y1="115" x2="62"  y2="178" stroke="#2a2a3e" stroke-width="1.5"/>
+      <line x1="160" y1="115" x2="258" y2="178" stroke="#2a2a3e" stroke-width="1.5"/>
+      <!-- centro: CONTROLAR -->
+      <circle cx="160" cy="115" r="40" fill="rgba(239,68,68,0.12)" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="160" y="112" font-family="JetBrains Mono,monospace" font-size="11" fill="#f87171" text-anchor="middle">CONTROLAR</text>
+      <text x="160" y="126" font-family="JetBrains Mono,monospace" font-size="7" fill="#94a3b8" text-anchor="middle">la más importante</text>
+      <!-- Mover (arriba) -->
+      <rect x="118" y="14" width="84" height="30" rx="4" fill="rgba(124,58,237,0.12)" stroke="#7c3aed" stroke-width="1.3"/>
+      <text x="160" y="33" font-family="JetBrains Mono,monospace" font-size="10" fill="#a78bfa" text-anchor="middle">MOVER</text>
+      <!-- Procesar (abajo izq) -->
+      <rect x="14" y="178" width="96" height="30" rx="4" fill="rgba(245,158,11,0.10)" stroke="#f59e0b" stroke-width="1.3"/>
+      <text x="62" y="197" font-family="JetBrains Mono,monospace" font-size="10" fill="#f59e0b" text-anchor="middle">PROCESAR</text>
+      <!-- Almacenar (abajo der) -->
+      <rect x="208" y="178" width="100" height="30" rx="4" fill="rgba(6,182,212,0.10)" stroke="#06b6d4" stroke-width="1.3"/>
+      <text x="258" y="197" font-family="JetBrains Mono,monospace" font-size="10" fill="#06b6d4" text-anchor="middle">ALMACENAR</text>
+    </svg>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">📋 Qué hace cada función</div>
+    <div class="proplist pl-cyan">
+      <div><strong>MOVER</strong> — datos desde el exterior (periféricos, E/S) y entre MP ↔ registros del CPU</div>
+      <div><strong>ALMACENAR</strong> — graba/lee la MP; también discos, pendrives, etc.</div>
+      <div><strong>PROCESAR</strong> — en la CPU se ejecutan los programas y algoritmos (instrucciones en binario)</div>
+      <div><strong>CONTROLAR</strong> — orquesta todos los recursos mediante señales eléctricas</div>
+    </div>
+    <div class="note ok">✓ CONTROLAR es <strong>"la función más importante de un ordenador"</strong>, y la maneja la Unidad de Control. Si tenés que destacar una, es esa.</div>
+  </div>
+
+</div>
+
+<!-- ════════════ 05b — Ciclo de instrucción (oral 2026-06-15) ════════════ -->
+<div class="section-label">05b — Ciclo de instrucción</div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🔄 Las 4 etapas</div>
+    <div class="op-rule">El procesador repite, para cada instrucción, un ciclo de hasta 4 etapas. La 3ª es <strong>opcional</strong>: depende del modo de direccionamiento (si el operando ya está implícito, no hace falta buscarlo).</div>
+    <div class="step">
+      <div class="s"><b>1. Búsqueda (fetch)</b> — se trae la instrucción desde memoria al registro de instrucción (IR). El <strong>PC = CS:IP</strong> direcciona dónde está.</div>
+      <div class="s"><b>2. Decodificación</b> — la UC interpreta el código de operación y los operandos de la instrucción.</div>
+      <div class="s"><b>3. Búsqueda de operandos</b> <span style="color:#94a3b8">(opcional)</span> — si el operando no está implícito, se trae según el modo de direccionamiento.</div>
+      <div class="s"><b>4. Ejecución</b> — la ALU/UC realiza la operación y se guarda el resultado.</div>
+    </div>
+    <div class="note warn">🔗 Es la puerta de entrada a la <strong>Unidad 08 (Unidad de Control)</strong>, donde el ciclo se ve en detalle (direccionamiento por bus de direcciones, señal de lectura, retorno por el bus de datos al IR, microinstrucciones).</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🎯 Cómo lo pregunta el profe</div>
+    <div class="insight">💡 cómo lo pregunta el profe (oral y final) · Arranca por acá: "cuáles son las etapas básicas del ciclo de instrucción de un procesador de los 80". Sigue con cómo el procesador sabe DÓNDE está la instrucción → el PC (CS:IP) la direcciona en memoria y se trae por el bus de direcciones.</div>
+    <details class="recall">
+      <summary>💡 ¿Cuáles son las etapas del ciclo de instrucción?</summary>
+      <div class="recall-a"><strong>Búsqueda → Decodificación → Búsqueda de operandos (opcional, según el modo de direccionamiento) → Ejecución.</strong> El PC = CS:IP apunta a la próxima instrucción en memoria; se trae al IR para decodificarla.</div>
+    </details>
+  </div>
+
+</div>
+
+<!-- ════════════ 06 ════════════ -->
+<div class="section-label">06 — Arquitectura Von Neumann</div>
+<div class="grid grid-2">
+
+  <div class="card purple">
+    <div class="card-title">🧠 Programa almacenado</div>
+    <div class="op-name">Arquitectura Von Neumann</div>
+    <div class="op-notation">proyecto EDVAC → máquina IAS (Princeton, 1946-52)</div>
+    <div class="op-rule">
+      Máquina cuyo <strong>programa está almacenado dentro de su propia memoria</strong> ("programa almacenado"). Base de todos los ordenadores <strong>de propósito general</strong> (reprogramables, a diferencia del Colossus, de tarea fija).
+    </div>
+    <div class="formula" style="color:var(--text)">
+      MP + UAL + UC + Unidades de E/S
+    </div>
+    <div class="op-rule" style="margin-bottom:0.4rem">
+      <strong>Característica de la memoria (la pregunta clave):</strong> una Memoria Principal que almacena <strong>tanto instrucciones como datos</strong> → se comparte el mismo espacio de memoria para instrucciones y datos.
+    </div>
+    <div class="insight">💡 de la clase · Idea desarrollada en paralelo por Turing, pero el primero en publicarla fue Von Neumann. La UC busca cada instrucción en memoria, la decodifica y la ejecuta una por una.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">📥 Registros del modelo Von Neumann</div>
+    <div class="op-rule">
+      Registros que la UC usa para guardar temporalmente datos y códigos de operación:
+    </div>
+    <table>
+      <thead>
+        <tr><th>Reg.</th><th>Nombre (inglés)</th><th>Qué contiene</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="k">PC</td><td>Program Counter</td><td>dirección de la <strong>próxima</strong> instrucción</td></tr>
+        <tr><td class="k">IR</td><td>Instruction Register</td><td>instrucción buscada, a decodificar/ejecutar</td></tr>
+        <tr><td class="k">AC</td><td>Accumulator</td><td>resultado temporal de la UAL</td></tr>
+        <tr><td class="k">MBR</td><td>Memory Buffer Register</td><td>datos a guardar en memoria / enviar a E/S</td></tr>
+        <tr><td class="k">MAR</td><td>Memory Address Register</td><td>dirección donde se guardarán los datos</td></tr>
+      </tbody>
+    </table>
+    <div class="insight">💡 de la clase (8086) · El contador de programa se forma con el <strong>segmento de código + IP</strong>. "El PC apunta a la próxima instrucción que está en memoria, no en el procesador" — la instrucción se trae al IR para decodificarla.</div>
+  </div>
+
+</div>
+
+<div class="grid grid-1" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">⚡ Pregunta literal del profe (entró en el parcial 1 y reaparece en el final)</div>
+    <details class="recall">
+      <summary>⚡ ¿Qué característica principal presenta la memoria en la arquitectura Von Neumann?</summary>
+      <div class="recall-a">Se comparte el <strong>mismo espacio de memoria para datos e instrucciones</strong>.</div>
+    </details>
+    <div class="note danger">🚨 Doble trampa: (1) respondé "espacio de <strong>instrucciones y datos</strong>", NO "espacio de <strong>direcciones</strong>" — eso baja un punto. (2) Preguntan SOLO por la memoria: "no le digo descríbame toda la arquitectura Von Neumann" — no te pongas a describir todo el modelo.</div>
+  </div>
+</div>
+
+<!-- ════════════ 07 ════════════ -->
+<div class="section-label">07 — Von Neumann vs Harvard</div>
+<div class="grid grid-2">
+
+  <div class="card amber">
+    <div class="card-title">⚔️ Memoria unificada vs separada</div>
+    <div class="versus">
+      <div class="vs-side">
+        <h4>Von Neumann</h4>
+        <div class="vs-row">1 espacio de memoria compartido</div>
+        <div class="vs-row">datos + instrucciones <strong>juntos</strong></div>
+        <div class="vs-row">acceso secuencial a memoria</div>
+        <div class="vs-row">propósito general (PC, x86)</div>
+      </div>
+      <div class="vs-mid">VS</div>
+      <div class="vs-side">
+        <h4>Harvard</h4>
+        <div class="vs-row">memorias <strong>separadas</strong></div>
+        <div class="vs-row">datos por un lado, instrucciones por otro</div>
+        <div class="vs-row"><strong>acceso simultáneo</strong> (paralelismo)</div>
+        <div class="vs-row">DSPs, microcontroladores</div>
+      </div>
+    </div>
+    <div class="insight">🧭 método (clase) · La diferencia clave a responder: "Harvard tiene <strong>separados los datos y las instrucciones</strong>" — Von Neumann los comparte. Harvard apareció primero en la Harvard Mark 1 (1944); su desventaja es que complica las interconexiones.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🔀 Harvard modificada (la real de hoy)</div>
+    <div class="op-name">Harvard modificada</div>
+    <div class="op-notation">híbrido Von Neumann + Harvard</div>
+    <div class="op-rule">
+      La mayoría de procesadores modernos acceden a la <strong>memoria principal como Von Neumann</strong> (datos + instrucciones juntos), pero tienen <strong>caché L1 dividido</strong> en caché de datos y caché de instrucciones → eso es lo Harvard.
+    </div>
+    <div class="proplist pl-cyan">
+      <div><strong>Caché L1</strong> → separado datos/instrucciones (tipo Harvard)</div>
+      <div><strong>Caché L2</strong> → datos + instrucciones juntos (tipo Von Neumann)</div>
+      <div><strong>Memoria principal</strong> → unificada (Von Neumann)</div>
+    </div>
+    <div class="insight">💡 de la clase · El Pentium ya traía 8 KiB de caché de datos e instrucciones por separado — la teoría se ve en diseños reales. Harvard puro hoy solo en DSPs y algunos microcontroladores.</div>
+  </div>
+
+</div>
+
+<!-- ════════════ 08 ════════════ -->
+<div class="section-label">08 — Evolución de Von Neumann</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card cyan" style="grid-column:1/-1">
+    <div class="card-title">📅 De la máquina IAS a la PC moderna</div>
+    <div class="timeline">
+      <div class="tl-item gen0">
+        <span class="tl-year">ORIGEN</span><span class="tl-dot"></span>
+        <span class="tl-label">Máquina IAS</span>
+        <span class="tl-sub">programa almacenado, interconexiones sueltas</span>
+      </div>
+      <div class="tl-item gen1">
+        <span class="tl-year">PASO 1</span><span class="tl-dot"></span>
+        <span class="tl-label">E/S como memoria</span>
+        <span class="tl-sub">direccionar la E/S igual que la MP</span>
+      </div>
+      <div class="tl-item gen2">
+        <span class="tl-year">PASO 2</span><span class="tl-dot"></span>
+        <span class="tl-label">Buses por función</span>
+        <span class="tl-sub">direcciones · control/estados · datos</span>
+      </div>
+      <div class="tl-item gen3">
+        <span class="tl-year">PASO 3</span><span class="tl-dot"></span>
+        <span class="tl-label">Sincronismo (CLOCK)</span>
+        <span class="tl-sub">de asincrónico a sincrónico; reloj del CPU</span>
+      </div>
+      <div class="tl-item gen0">
+        <span class="tl-year">PASO 4</span><span class="tl-dot"></span>
+        <span class="tl-label">ROM no volátil</span>
+        <span class="tl-sub">instrucciones de encendido</span>
+      </div>
+    </div>
+    <div class="grid grid-3" style="margin-top:1rem">
+      <div class="proplist pl-cyan">
+        <div><strong>Bus de direccionamiento</strong> — qué posición de MP/E/S se accede</div>
+      </div>
+      <div class="proplist pl-amber">
+        <div><strong>Bus de control y estados</strong> — lleva la señal de CLOCK del CPU</div>
+      </div>
+      <div class="proplist pl-purple">
+        <div><strong>Bus de datos</strong> — transporta la información</div>
+      </div>
+    </div>
+    <div class="insight">💡 de la clase · El sincronismo lo provee la UCP: una señal de CLOCK llega por las líneas de control a todas las unidades para coordinarlas.</div>
+  </div>
+</div>
+
+<!-- ════════════ 09 ════════════ -->
+<div class="section-label">09 — Arquitectura de una PC real</div>
+<div class="grid grid-3">
+
+  <div class="card green">
+    <div class="card-title">🔌 Qué SÍ es la estructura</div>
+    <div class="op-rule">
+      La estructura del computador se implementa físicamente en la <strong>placa madre (Motherboard)</strong> y lo conectado a ella.
+    </div>
+    <div class="proplist pl-green">
+      <div>✓ Placa madre + su bus</div>
+      <div>✓ Microprocesador (CPU)</div>
+      <div>✓ Memoria principal (RAM)</div>
+    </div>
+    <div class="insight">💡 de la clase · Por eso los kits de actualización traen placa madre + micro + RAM: "los componentes que implementan aún hoy la vieja arquitectura Von Neumann".</div>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">🚫 Qué NO es la estructura</div>
+    <div class="op-rule">
+      Dispositivos externos y memoria secundaria — no forman parte de la estructura del ordenador:
+    </div>
+    <div class="proplist pl-purple">
+      <div>✗ Fuente de alimentación</div>
+      <div>✗ Disco SSD/NVMe ("no es un disco, es memoria electrónica")</div>
+      <div>✗ Disco óptico, monitor, mouse, teclado</div>
+    </div>
+    <div class="note warn">⚠️ La misma estructura Von Neumann está en una PC de escritorio y en un smartphone (iPhone 6s: Apple A9 + 2 GB LPDDR4 + interconexión + E/S + almacenamiento secundario).</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">🔧 BIOS · Chipset · DMA</div>
+    <div class="op-name">BIOS</div>
+    <div class="op-notation">ROM en un chip</div>
+    <div class="op-rule">
+      Hace el chequeo de hardware (<strong>POST</strong>) al encender, configura dispositivos y carga el <em>Boot Manager / Boot Loader</em> que arranca el SO. Una porción volátil guarda hora/fecha, mantenida por una <strong>pila</strong>.
+    </div>
+    <div class="op-name" style="font-size:0.95rem">Chipset / DMA</div>
+    <div class="op-rule">
+      El <strong>chipset</strong> ayuda al CPU con la memoria y las interfaces. Integra el <strong>acceso directo a memoria (DMA)</strong>, parte del sistema de E/S.
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════ 10 ════════════ -->
+<div class="section-label">10 — U4 en el final integrador</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card green" style="grid-column:1/-1">
+    <div class="card-title">🧩 Cómo U4 conecta con el resto de la materia</div>
+    <div class="op-rule">
+      El profe llama a esta unidad <strong>"la unidad integradora"</strong>: sus conceptos vuelven a aparecer en casi todas las demás. En un final integrador, U4 es la columna vertebral.
+    </div>
+    <table>
+      <thead>
+        <tr><th>Concepto de U4</th><th>Dónde se profundiza en el final</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="k">Estructura del CPU · Unidad de Control · función CONTROLAR</td><td>Módulo 8 (UC, ciclo de instrucción, señales de control)</td></tr>
+        <tr><td class="k">ALU (1 de los 4 componentes del CPU)</td><td>Módulo 5 (sumador, banderas / registro de estado)</td></tr>
+        <tr><td class="k">Registros: PC=CS:IP, IR, flags</td><td>Módulo 8 (fetch), Módulo 12 (IF / anidamiento en interrupciones), Módulo 14 (AX/BX, MOV/ADD en assembler)</td></tr>
+        <tr><td class="k">Von Neumann (memoria compartida)</td><td>Módulos 6-7 (memorias / caché), Módulo 9 (multinúcleo)</td></tr>
+        <tr><td class="k">Harvard / caché L1 dividido</td><td>Módulo 7 (caché), Módulo 9 (Pentium superescalar Harvard)</td></tr>
+        <tr><td class="k">Organización (más ALUs, SIMD, fuera de orden)</td><td>Módulo 9 (pipeline, superescalar, paralelismo)</td></tr>
+        <tr><td class="k">Buses por función (evolución Von Neumann)</td><td>Módulo 10 (buses) — no entró en el parcial, sí en el final</td></tr>
+      </tbody>
+    </table>
+    <div class="note warn">⚠️ Qué NO te piden de U4: dibujar ni reproducir los diagramas de bloques del <strong>AMD Ryzen 7</strong> ni del <strong>Intel 8086</strong> del apunte — son ilustraciones de "organización", no preguntas.</div>
+  </div>
+</div>
+
+<!-- ════════════ 11 ════════════ -->
+<div class="section-label">11 — Claves para el FINAL</div>
+<div class="grid grid-1" style="max-width:1400px;margin:0 auto">
+  <div class="card red" style="grid-column:1/-1">
+    <div class="card-title">💡 Claves para el final integrador</div>
+    <div class="note danger">🗣️ <strong>LO QUE MÁS PESA EN EL FINAL — el vocabulario.</strong> El profe penaliza términos no técnicos: "respondan con el <strong>lenguaje de la materia</strong>… estudien más para el final", "no me pueden decir 'un cacho de memoria'". Términos en castellano, completos y precisos: es el motivo nº1 por el que se recursa el final.</div>
+    <div class="step">
+      <div class="s"><b>1.</b> <strong>Estructura del CPU:</strong> Unidad de Control + Registros + ALU + interconexión interno. NO confundas con la estructura de la computadora (CPU + MP + E/S + bus). La consigna pide CPU, no computadora.</div>
+      <div class="s"><b>2.</b> <strong>Memoria en Von Neumann:</strong> "se comparte el espacio de <em>instrucciones y datos</em>" — no "direcciones". Y respondé solo por la memoria, no describas toda la arquitectura.</div>
+      <div class="s"><b>3.</b> <strong>La memoria principal NO está dentro del CPU</strong>, aunque venga en el mismo paquete: está separada del circuito de procesamiento.</div>
+      <div class="s"><b>4.</b> <strong>Harvard vs Von Neumann:</strong> Harvard tiene datos e instrucciones <em>separados</em>; Von Neumann los comparte. La Harvard modificada de hoy = caché L1 dividido.</div>
+      <div class="s"><b>5.</b> <strong>Arquitectura ≠ Organización:</strong> arquitectura = visible al programador (la ISA); organización = cómo se implementa por dentro. Misma arquitectura → compatibilidad binaria hacia atrás.</div>
+      <div class="s"><b>6.</b> <strong>Palabra de memoria = byte</strong> (unidad direccionable) ≠ <strong>longitud de palabra del procesador</strong> = bits del IR/registros (64 bits = 8 bytes). Y <strong>CONTROLAR</strong> es la función más importante del ordenador.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>El Computador · Arquitectura de Computadores · Universidad de Palermo</p>
+</footer>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#arquitectura-de-computadores" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

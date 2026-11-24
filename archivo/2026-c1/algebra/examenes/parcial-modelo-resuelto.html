@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parcial Modelo — Resuelto paso a paso · Álgebra UP</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;   /* violeta  */
+    --accent2: #06b6d4;  /* cyan     */
+    --accent3: #f59e0b;  /* ámbar    */
+    --accent4: #10b981;  /* verde    */
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    line-height: 1.55;
+    padding: 2rem 1.2rem 5rem;
+    background-image:
+      radial-gradient(ellipse at 8% 0%, rgba(124,58,237,0.16) 0%, transparent 48%),
+      radial-gradient(ellipse at 92% 12%, rgba(6,182,212,0.10) 0%, transparent 46%);
+  }
+  .wrap { max-width: 940px; margin: 0 auto; }
+
+  /* ── HEADER ───────────────────────────── */
+  header { text-align: center; margin-bottom: 2.4rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.62rem;
+    letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 3px; padding: 0.25rem 0.75rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(1.9rem, 5vw, 3rem); font-weight: 800; letter-spacing: -0.03em;
+    line-height: 1.05;
+    background: linear-gradient(135deg, #fff 35%, var(--accent) 120%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .subtitle { color: var(--muted); font-size: 0.86rem; font-family: var(--mono); margin-top: 0.5rem; }
+  .divider { width: 64px; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); margin: 1.1rem auto 0; border-radius: 2px; }
+
+  /* ── LEYENDA DE SÍMBOLOS ──────────────── */
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 0.45rem; justify-content: center;
+    margin: 1.6rem auto 0; max-width: 880px;
+  }
+  .legend .chip {
+    font-family: var(--mono); font-size: 0.68rem; padding: 0.25rem 0.55rem;
+    border-radius: 4px; background: rgba(255,255,255,0.04); color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .legend .chip b { color: #fff; font-weight: 700; }
+
+  /* ── ANSWER KEY ───────────────────────── */
+  .answerkey {
+    background: linear-gradient(180deg, rgba(16,185,129,0.10), rgba(16,185,129,0.02));
+    border: 1px solid rgba(16,185,129,0.35); border-radius: 10px;
+    padding: 1.1rem 1.3rem; margin: 2.2rem 0;
+  }
+  .answerkey h2 {
+    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--accent4); margin-bottom: 0.8rem;
+  }
+  .answerkey ul { list-style: none; display: grid; gap: 0.5rem; }
+  .answerkey li { font-size: 0.84rem; display: flex; gap: 0.6rem; align-items: baseline; }
+  .answerkey .k { font-family: var(--mono); color: var(--accent4); font-weight: 700; min-width: 2.6rem; flex-shrink: 0; }
+  .answerkey .k.sub { color: var(--muted); }
+
+  /* ── EXERCISE SECTION ─────────────────── */
+  .ex { margin: 3rem 0 0; }
+  .ex-head { display: flex; align-items: center; gap: 0.9rem; margin-bottom: 1.1rem; }
+  .ex-num {
+    font-family: var(--mono); font-weight: 700; font-size: 0.95rem;
+    width: 2.4rem; height: 2.4rem; flex-shrink: 0; display: grid; place-items: center;
+    border-radius: 8px; background: var(--accent); color: #fff;
+  }
+  .ex-head h2 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.01em; }
+  .ex-head .topic { font-family: var(--mono); font-size: 0.66rem; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.12em; }
+
+  /* ── BOXES ────────────────────────────── */
+  .box { border-radius: 9px; padding: 1rem 1.15rem; margin: 0.9rem 0; border: 1px solid var(--border); background: var(--card); }
+  .box .label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+    margin-bottom: 0.6rem; display: inline-block;
+  }
+  .box.enun  { border-left: 3px solid var(--accent3); }
+  .box.enun  .label { color: var(--accent3); }
+  .box.concepto { border-left: 3px solid var(--accent2); background: rgba(6,182,212,0.05); }
+  .box.concepto .label { color: var(--accent2); }
+  .box.resp  { border-left: 3px solid var(--accent4); background: rgba(16,185,129,0.07); }
+  .box.resp  .label { color: var(--accent4); }
+  .box.ojo   { border-left: 3px solid var(--red); background: rgba(239,68,68,0.06); }
+  .box.ojo   .label { color: #f87171; }
+  .box p { font-size: 0.88rem; margin: 0.35rem 0; }
+  .box ul { margin: 0.4rem 0 0.2rem 1.1rem; }
+  .box li { font-size: 0.86rem; margin: 0.3rem 0; }
+  .box.enun p, .box.enun li { color: #cbd5e1; }
+  .box.resp p, .box.resp li { color: #d1fae5; }
+  .box.resp strong { color: #fff; }
+  em.q { color: #cbd5e1; font-style: italic; }
+
+  /* ── INLINE MATH ──────────────────────── */
+  .m { font-family: var(--mono); font-size: 0.92em; color: #fff; white-space: nowrap; }
+  .m.op { color: var(--accent3); }
+  code, .mono { font-family: var(--mono); }
+  .v { color: #4ade80; font-weight: 700; }
+  .f { color: #f87171; font-weight: 700; }
+
+  /* ── STEPS ────────────────────────────── */
+  .steps { counter-reset: step; list-style: none; margin: 0.5rem 0; }
+  .steps > li {
+    position: relative; padding: 0.55rem 0 0.55rem 2.4rem; font-size: 0.88rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .steps > li:last-child { border-bottom: none; }
+  .steps > li::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 0; top: 0.5rem;
+    width: 1.55rem; height: 1.55rem; display: grid; place-items: center;
+    font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+    background: rgba(124,58,237,0.18); color: #a78bfa; border-radius: 6px;
+  }
+  .steps .why { display: block; color: var(--muted); font-size: 0.8rem; margin-top: 0.15rem; }
+
+  /* ── DERIVATION CHAIN ─────────────────── */
+  .deriv { font-family: var(--mono); font-size: 0.82rem; margin: 0.7rem 0; }
+  .deriv .row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem 0.8rem; padding: 0.35rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .deriv .row:last-child { border-bottom: none; }
+  .deriv .expr { color: #fff; }
+  .deriv .eq { color: var(--accent); font-weight: 700; }
+  .deriv .rule { color: var(--muted); font-size: 0.74rem; margin-left: auto; font-style: italic; }
+  .deriv .row.final .expr { color: #4ade80; }
+
+  /* ── INFERENCE TABLE ──────────────────── */
+  .premisas { font-family: var(--mono); font-size: 0.84rem; margin: 0.6rem 0; }
+  .premisas .pr { display: flex; gap: 0.8rem; padding: 0.28rem 0; }
+  .premisas .pr .tag { color: var(--accent2); min-width: 5.6rem; flex-shrink: 0; }
+  .premisas .concl { border-top: 1px solid var(--border); margin-top: 0.4rem; padding-top: 0.5rem; }
+  .premisas .concl .tag { color: var(--accent4); }
+  .premisas .concl .expr { color: #4ade80; font-weight: 700; }
+
+  /* ── TRUTH TABLE ──────────────────────── */
+  .tt-wrap { overflow-x: auto; margin: 0.7rem 0; }
+  table.tt { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.8rem; }
+  table.tt th {
+    background: rgba(255,255,255,0.05); color: var(--muted); font-weight: 500;
+    padding: 0.45rem 0.5rem; text-align: center; border-bottom: 1px solid var(--border); white-space: nowrap;
+  }
+  table.tt td { padding: 0.34rem 0.5rem; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  table.tt tr:last-child td { border-bottom: none; }
+  table.tt .colsep { border-left: 1px solid var(--border); }
+  table.tt th.result, table.tt td.result { background: rgba(124,58,237,0.12); }
+  table.tt th.result { color: #c4b5fd; }
+
+  /* ── RELATION / PROPERTY TABLE ────────── */
+  table.prop { width: 100%; border-collapse: collapse; font-size: 0.84rem; margin: 0.6rem 0; }
+  table.prop td { padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  table.prop tr:last-child td { border-bottom: none; }
+  table.prop .pname { font-family: var(--mono); font-weight: 700; white-space: nowrap; min-width: 7rem; }
+  table.prop .yes { color: #4ade80; }
+  table.prop .no  { color: #f87171; }
+
+  /* ── VENN ─────────────────────────────── */
+  .venn-row { display: flex; flex-wrap: wrap; gap: 1.4rem; justify-content: center; margin: 0.8rem 0; }
+  .venn-fig { text-align: center; }
+  .venn-fig svg { max-width: 100%; height: auto; }
+  .venn-fig .cap { font-family: var(--mono); font-size: 0.84rem; color: #fff; margin-top: 0.3rem; }
+  .venn-lbl { font-family: var(--display); font-weight: 700; font-size: 14px; fill: var(--muted); }
+  .venn-num { font-family: var(--mono); font-weight: 700; font-size: 15px; fill: #fff; }
+  .venn-num.zero { fill: var(--muted); }
+
+  /* ── SUBPART HEADING ──────────────────── */
+  .sub { font-weight: 700; color: var(--accent3); font-family: var(--mono); font-size: 0.82rem; margin: 1.2rem 0 0.2rem; letter-spacing: 0.04em; }
+
+  footer { text-align: center; margin-top: 4rem; color: var(--muted); font-family: var(--mono); font-size: 0.7rem; line-height: 1.7; }
+  footer a { color: var(--accent2); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="badge">Álgebra · Universidad de Palermo</span>
+    <h1>Parcial Modelo — Resuelto</h1>
+    <p class="subtitle">5 ejercicios · paso a paso · con teoría y lógica de cada paso</p>
+    <div class="divider"></div>
+    <div class="legend">
+      <span class="chip"><b>~</b> negación (no)</span>
+      <span class="chip"><b>∧</b> conjunción (y)</span>
+      <span class="chip"><b>∨</b> disyunción (o)</span>
+      <span class="chip"><b>→</b> implicación (si…entonces)</span>
+      <span class="chip"><b>↔</b> bicondicional (sii)</span>
+      <span class="chip"><b>≡</b> equivalente</span>
+      <span class="chip"><b>∈</b> pertenece</span>
+      <span class="chip"><b>∪</b> unión</span>
+      <span class="chip"><b>∩</b> intersección</span>
+      <span class="chip"><b>−</b> diferencia</span>
+    </div>
+  </header>
+
+  <!-- ANSWER KEY -->
+  <div class="answerkey">
+    <h2>★ Clave de respuestas (para verificar de un vistazo)</h2>
+    <ul>
+      <li><span class="k">1a</span><span>La proposición es una <strong>contingencia</strong> (hay <span class="v">V</span> y <span class="f">F</span> en la columna final).</span></li>
+      <li><span class="k">1b</span><span>Se simplifica a <span class="m">(p ∧ ~r) → q</span>; el bicondicional es una <strong>tautología</strong>.</span></li>
+      <li><span class="k">2</span><span>El razonamiento es <strong>válido</strong> (MP → contrarrecíproco + MP → silogismo disyuntivo → adición).</span></li>
+      <li><span class="k">3a</span><span><span class="m">A = {0, 1, 2, 3, 4}</span></span></li>
+      <li><span class="k sub">3b</span><span>R = 10 pares; <strong>no reflexiva, simétrica, no transitiva, no antisimétrica</strong> → no clasificable.</span></li>
+      <li><span class="k sub">3c</span><span><strong>Falso.</strong> &nbsp; <span class="k sub">3d</span> <strong>Verdadero.</strong></span></li>
+      <li><span class="k">4</span><span>Izq: <span class="m">G − S</span> &nbsp;·&nbsp; Der: <span class="m">(G − S) ∪ (S ∩ T)</span></span></li>
+      <li><span class="k">5a</span><span><strong>3</strong> personas usan notebook y celular.</span></li>
+      <li><span class="k sub">5b</span><span><strong>23</strong> personas usan solamente tablet.</span></li>
+    </ul>
+  </div>
+
+  <!-- ══════════════ EJERCICIO 1 ══════════════ -->
+  <section class="ex">
+    <div class="ex-head">
+      <div class="ex-num">1</div>
+      <div>
+        <div class="topic">Operaciones lógicas</div>
+        <h2>Tabla de verdad y simplificación</h2>
+      </div>
+    </div>
+
+    <div class="box enun">
+      <span class="label">Enunciado</span>
+      <p><strong>a)</strong> Realizar la tabla de verdad de <span class="m">(p ∧ q) <span class="op">∨</span> (~r → p)</span> y determinar si es tautología, contradicción o contingencia.</p>
+      <p><strong>b)</strong> Simplificar <span class="m">p → (q ∨ r)</span> hasta obtener <span class="m">(p ∧ ~r) → q</span> justificando los pasos. Sin tabla, clasificar <span class="m">p → (q ∨ r) <span class="op">↔</span> (p ∧ ~r) → q</span>.</p>
+    </div>
+
+    <div class="box concepto">
+      <span class="label">Conceptos clave</span>
+      <ul>
+        <li><strong>Filas:</strong> una tabla con <span class="m">n</span> proposiciones simples tiene <span class="m">2ⁿ</span> filas. Aquí <span class="m">p, q, r</span> → <span class="m">2³ = 8</span> filas.</li>
+        <li><strong>Conectivos:</strong> <span class="m">∧</span> es <span class="v">V</span> solo si <em>ambas</em> son V · <span class="m">∨</span> es <span class="f">F</span> solo si <em>ambas</em> son F · <span class="m">→</span> es <span class="f">F</span> solo cuando antecedente <span class="v">V</span> y consecuente <span class="f">F</span> · <span class="m">~</span> invierte.</li>
+        <li><strong>Conectivo principal:</strong> el de menor jerarquía / fuera de paréntesis. Acá es el <span class="op">∨</span> central — su columna es el resultado.</li>
+        <li><strong>Clasificación:</strong> <span class="v">todo V</span> = tautología · <span class="f">todo F</span> = contradicción · <span style="color:#c4b5fd">mezcla</span> = contingencia.</li>
+      </ul>
+    </div>
+
+    <div class="sub">a) Construcción de la tabla</div>
+    <ol class="steps">
+      <li>Armamos las 8 filas con el patrón estándar de <span class="m">p, q, r</span> (de VVV a FFF).</li>
+      <li>Calculamos <span class="m">~r</span> (negamos la columna <span class="m">r</span>).</li>
+      <li>Calculamos <span class="m">~r → p</span>: solo es <span class="f">F</span> cuando <span class="m">~r</span> es <span class="v">V</span> y <span class="m">p</span> es <span class="f">F</span>.</li>
+      <li>Calculamos <span class="m">p ∧ q</span>: <span class="v">V</span> solo en las filas donde ambas son V.</li>
+      <li>Disyunción final <span class="m">(p ∧ q) ∨ (~r → p)</span>: <span class="f">F</span> solo si <em>las dos</em> partes son F.</li>
+    </ol>
+
+    <div class="tt-wrap">
+      <table class="tt">
+        <thead>
+          <tr>
+            <th>p</th><th>q</th><th>r</th>
+            <th class="colsep">~r</th>
+            <th class="colsep">~r → p</th>
+            <th class="colsep">p ∧ q</th>
+            <th class="colsep result">(p∧q) ∨ (~r→p)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="v">V</td><td class="v">V</td><td class="v">V</td><td class="colsep f">F</td><td class="colsep v">V</td><td class="colsep v">V</td><td class="colsep result v">V</td></tr>
+          <tr><td class="v">V</td><td class="v">V</td><td class="f">F</td><td class="colsep v">V</td><td class="colsep v">V</td><td class="colsep v">V</td><td class="colsep result v">V</td></tr>
+          <tr><td class="v">V</td><td class="f">F</td><td class="v">V</td><td class="colsep f">F</td><td class="colsep v">V</td><td class="colsep f">F</td><td class="colsep result v">V</td></tr>
+          <tr><td class="v">V</td><td class="f">F</td><td class="f">F</td><td class="colsep v">V</td><td class="colsep v">V</td><td class="colsep f">F</td><td class="colsep result v">V</td></tr>
+          <tr><td class="f">F</td><td class="v">V</td><td class="v">V</td><td class="colsep f">F</td><td class="colsep v">V</td><td class="colsep f">F</td><td class="colsep result v">V</td></tr>
+          <tr><td class="f">F</td><td class="v">V</td><td class="f">F</td><td class="colsep v">V</td><td class="colsep f">F</td><td class="colsep f">F</td><td class="colsep result f">F</td></tr>
+          <tr><td class="f">F</td><td class="f">F</td><td class="v">V</td><td class="colsep f">F</td><td class="colsep v">V</td><td class="colsep f">F</td><td class="colsep result v">V</td></tr>
+          <tr><td class="f">F</td><td class="f">F</td><td class="f">F</td><td class="colsep v">V</td><td class="colsep f">F</td><td class="colsep f">F</td><td class="colsep result f">F</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="box resp">
+      <span class="label">Respuesta modelo · a)</span>
+      <p>La columna del conectivo principal es <span class="v">V V V V V</span> <span class="f">F</span> <span class="v">V</span> <span class="f">F</span>: contiene valores <span class="v">verdaderos</span> y <span class="f">falsos</span>. Por lo tanto la proposición es una <strong>contingencia</strong>.</p>
+    </div>
+
+    <div class="sub">b) Simplificación justificada</div>
+    <div class="box concepto">
+      <span class="label">Leyes que vas a usar</span>
+      <ul>
+        <li><strong>Implicación:</strong> <span class="m">a → b ≡ ~a ∨ b</span> (y al revés: <span class="m">~a ∨ b ≡ a → b</span>).</li>
+        <li><strong>Conmutativa:</strong> <span class="m">a ∨ b ≡ b ∨ a</span> · <strong>Asociativa:</strong> <span class="m">(a ∨ b) ∨ c ≡ a ∨ (b ∨ c)</span>.</li>
+        <li><strong>De Morgan:</strong> <span class="m">~(a ∨ b) ≡ ~a ∧ ~b</span> · <strong>Doble negación:</strong> <span class="m">~~a ≡ a</span>.</li>
+      </ul>
+    </div>
+
+    <div class="deriv">
+      <div class="row"><span class="expr">p → (q ∨ r)</span><span class="rule">punto de partida</span></div>
+      <div class="row"><span class="eq">≡</span><span class="expr">~p ∨ (q ∨ r)</span><span class="rule">equiv. de la implicación</span></div>
+      <div class="row"><span class="eq">≡</span><span class="expr">~p ∨ (r ∨ q)</span><span class="rule">conmutativa</span></div>
+      <div class="row"><span class="eq">≡</span><span class="expr">(~p ∨ r) ∨ q</span><span class="rule">asociativa</span></div>
+      <div class="row"><span class="eq">≡</span><span class="expr">~(~p ∨ r) → q</span><span class="rule">equiv. de la implicación (inversa)</span></div>
+      <div class="row"><span class="eq">≡</span><span class="expr">(~~p ∧ ~r) → q</span><span class="rule">De Morgan</span></div>
+      <div class="row final"><span class="eq">≡</span><span class="expr">(p ∧ ~r) → q</span><span class="rule">doble negación ✓</span></div>
+    </div>
+
+    <div class="box concepto">
+      <span class="label">La idea del paso 4 (la más confusa)</span>
+      <p>Tenemos <span class="m">(~p ∨ r) ∨ q</span>. Lo leemos como <span class="m">A ∨ q</span> con <span class="m">A = (~p ∨ r)</span>. Como <span class="m">~A ∨ q ≡ A... </span> — usamos la implicación al revés: <span class="m">A ∨ q ≡ ~A → q</span>. Por eso aparece <span class="m">~(~p ∨ r) → q</span>, y recién ahí De Morgan rompe la negación del paréntesis.</p>
+    </div>
+
+    <div class="box resp">
+      <span class="label">Respuesta modelo · b)</span>
+      <p>Quedó demostrado que <span class="m">p → (q ∨ r) ≡ (p ∧ ~r) → q</span>: son <strong>lógicamente equivalentes</strong>.</p>
+      <p>Un bicondicional <span class="m">A ↔ B</span> es <strong>tautología</strong> exactamente cuando <span class="m">A</span> y <span class="m">B</span> son equivalentes. Como acabamos de probar la equivalencia, <span class="m">p → (q ∨ r) ↔ (p ∧ ~r) → q</span> es una <strong>tautología</strong> — sin necesidad de armar la tabla.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════ EJERCICIO 2 ══════════════ -->
+  <section class="ex">
+    <div class="ex-head">
+      <div class="ex-num">2</div>
+      <div>
+        <div class="topic">Razonamientos</div>
+        <h2>Simbolizar y demostrar validez</h2>
+      </div>
+    </div>
+
+    <div class="box enun">
+      <span class="label">Enunciado</span>
+      <p><em class="q">"Cuando salgo sin paraguas, llueve. Cuando está despejado, no llueve. Según el hombre del tiempo, mañana estará despejado o habrá niebla. De todos modos, saldré sin paraguas. Entonces, llueve o hay niebla."</em></p>
+    </div>
+
+    <div class="box concepto">
+      <span class="label">Reglas de inferencia que necesitás</span>
+      <ul>
+        <li><strong>Modus Ponens (MP):</strong> de <span class="m">a → b</span> y <span class="m">a</span> se deduce <span class="m">b</span>.</li>
+        <li><strong>Contrarrecíproco:</strong> <span class="m">a → b ≡ ~b → ~a</span> (misma verdad, se da vuelta y se niega).</li>
+        <li><strong>Silogismo disyuntivo:</strong> de <span class="m">a ∨ b</span> y <span class="m">~a</span> se deduce <span class="m">b</span>.</li>
+        <li><strong>Adición:</strong> de <span class="m">a</span> se deduce <span class="m">a ∨ b</span> (cualquier <span class="m">b</span>).</li>
+        <li><strong>Válido</strong> = si todas las premisas son verdaderas, la conclusión <em>obligatoriamente</em> lo es.</li>
+      </ul>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <strong>Definimos las proposiciones simples.</strong>
+        <span class="why"><span class="m">p</span>: salgo sin paraguas · <span class="m">q</span>: llueve · <span class="m">r</span>: está despejado · <span class="m">s</span>: hay niebla.</span>
+      </li>
+      <li>
+        <strong>Traducimos premisas y conclusión.</strong> Ojo: <em>"cuando A, B"</em> = <span class="m">A → B</span>.
+      </li>
+    </ol>
+
+    <div class="premisas">
+      <div class="pr"><span class="tag">Premisa 1</span><span class="expr m">p → q</span><span class="why" style="margin-left:.6rem">cuando salgo sin paraguas, llueve</span></div>
+      <div class="pr"><span class="tag">Premisa 2</span><span class="expr m">r → ~q</span><span class="why" style="margin-left:.6rem">cuando está despejado, no llueve</span></div>
+      <div class="pr"><span class="tag">Premisa 3</span><span class="expr m">r ∨ s</span><span class="why" style="margin-left:.6rem">despejado o niebla</span></div>
+      <div class="pr"><span class="tag">Premisa 4</span><span class="expr m">p</span><span class="why" style="margin-left:.6rem">saldré sin paraguas</span></div>
+      <div class="pr concl"><span class="tag">Conclusión</span><span class="expr m">q ∨ s</span><span class="why" style="margin-left:.6rem">llueve o hay niebla</span></div>
+    </div>
+
+    <div class="sub">Demostración (encadenamos inferencias)</div>
+    <ol class="steps">
+      <li>
+        <strong>MP entre P1 y P4:</strong> de <span class="m">p → q</span> y <span class="m">p</span> obtenemos <span class="m">q</span>.
+        <span class="why">→ Ya sabemos que <span class="v">llueve</span>.</span>
+      </li>
+      <li>
+        <strong>Contrarrecíproco de P2:</strong> <span class="m">r → ~q ≡ q → ~r</span>.
+        <span class="why">Reescribimos P2 para poder usar el <span class="m">q</span> que ya tenemos.</span>
+      </li>
+      <li>
+        <strong>MP entre (paso 2) y (paso 1):</strong> de <span class="m">q → ~r</span> y <span class="m">q</span> obtenemos <span class="m">~r</span>.
+        <span class="why">→ No está despejado.</span>
+      </li>
+      <li>
+        <strong>Silogismo disyuntivo entre P3 y (paso 3):</strong> de <span class="m">r ∨ s</span> y <span class="m">~r</span> obtenemos <span class="m">s</span>.
+        <span class="why">→ Hay niebla.</span>
+      </li>
+      <li>
+        <strong>Adición:</strong> de <span class="m">s</span> (o del <span class="m">q</span> del paso 1) obtenemos <span class="m">q ∨ s</span>, que es justo la conclusión.
+      </li>
+    </ol>
+
+    <div class="box resp">
+      <span class="label">Respuesta modelo</span>
+      <p>Llegamos a <span class="m">q ∨ s</span> partiendo solo de las premisas. El razonamiento es <strong>válido</strong>.</p>
+      <p style="color:#a7f3d0;font-size:.82rem">Nota: derivamos <span class="m">q</span> (paso 1) y <span class="m">s</span> (paso 4) por separado; con cualquiera de los dos, por adición, ya se obtiene <span class="m">q ∨ s</span>.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════ EJERCICIO 3 ══════════════ -->
+  <section class="ex">
+    <div class="ex-head">
+      <div class="ex-num">3</div>
+      <div>
+        <div class="topic">Relaciones</div>
+        <h2>Conjunto, relación y propiedades</h2>
+      </div>
+    </div>
+
+    <div class="box enun">
+      <span class="label">Enunciado</span>
+      <p>Sea <span class="m">A = {x ∈ ℤ / 0 ≤ x &lt; 5}</span>.</p>
+      <p><strong>a)</strong> Definir <span class="m">A</span> por extensión. <strong>b)</strong> Dada <span class="m">R = {(x,y) ∈ A² / x + y divide a 4}</span>, escribirla por extensión, indicar propiedades y, si se puede, clasificarla.</p>
+      <p><strong>c)</strong> <em class="q">Una relación antisimétrica no puede ser simétrica y no reflexiva a la vez.</em> <strong>d)</strong> <em class="q">Para clasificar una relación, esta debe ser por lo menos transitiva.</em> (Justificar: con ejemplo si es falsa, con definiciones si es verdadera.)</p>
+    </div>
+
+    <div class="sub">a) Conjunto por extensión</div>
+    <div class="box concepto">
+      <span class="label">Concepto</span>
+      <p><strong>Por comprensión</strong> describe la regla; <strong>por extensión</strong> lista los elementos. Acá: enteros <span class="m">x</span> con <span class="m">0 ≤ x &lt; 5</span> → el 0 entra (<span class="m">≤</span>), el 5 no (<span class="m">&lt;</span>).</p>
+    </div>
+    <div class="box resp"><span class="label">Respuesta · a)</span><p><span class="m">A = {0, 1, 2, 3, 4}</span></p></div>
+
+    <div class="sub">b) Relación por extensión y propiedades</div>
+    <div class="box concepto">
+      <span class="label">Cómo leer "x + y divide a 4"</span>
+      <p>Significa que <span class="m">x + y</span> es un <strong>divisor</strong> de 4. Los divisores positivos de 4 son <span class="m">1, 2 y 4</span>. Entonces buscamos los pares con <span class="m">x + y ∈ {1, 2, 4}</span> (con <span class="m">x, y ∈ A</span>). Ojo: <span class="m">x + y = 0</span> no sirve, porque 0 no divide a 4.</p>
+    </div>
+    <ol class="steps">
+      <li><strong>Suma = 1:</strong> <span class="m">(0,1), (1,0)</span>.</li>
+      <li><strong>Suma = 2:</strong> <span class="m">(0,2), (1,1), (2,0)</span>.</li>
+      <li><strong>Suma = 4:</strong> <span class="m">(0,4), (1,3), (2,2), (3,1), (4,0)</span>.</li>
+    </ol>
+    <div class="box resp">
+      <span class="label">Relación por extensión</span>
+      <p><span class="m" style="white-space:normal">R = {(0,1), (1,0), (0,2), (1,1), (2,0), (0,4), (1,3), (2,2), (3,1), (4,0)}</span> &nbsp;— 10 pares.</p>
+    </div>
+
+    <table class="prop">
+      <tr>
+        <td class="pname no">No reflexiva</td>
+        <td>Reflexiva exige <span class="m">(a,a) ∈ R</span> para <em>todo</em> <span class="m">a</span>. Falla con <span class="m">(0,0)</span>: <span class="m">0 + 0 = 0</span> y 0 no divide a 4. → no se cumple.</td>
+      </tr>
+      <tr>
+        <td class="pname yes">Simétrica</td>
+        <td>Si <span class="m">(x,y) ∈ R</span> entonces <span class="m">(y,x) ∈ R</span>. Como <span class="m">x + y = y + x</span>, la condición es la misma → siempre se cumple.</td>
+      </tr>
+      <tr>
+        <td class="pname no">No transitiva</td>
+        <td>Contraejemplo: <span class="m">(0,1) ∈ R</span> y <span class="m">(1,3) ∈ R</span>, pero <span class="m">(0,3) ∉ R</span> (<span class="m">0 + 3 = 3</span>, no divide a 4).</td>
+      </tr>
+      <tr>
+        <td class="pname no">No antisimétrica</td>
+        <td>Contraejemplo: <span class="m">(0,1)</span> y <span class="m">(1,0)</span> están ambos en R con <span class="m">0 ≠ 1</span>.</td>
+      </tr>
+    </table>
+    <div class="box resp">
+      <span class="label">Clasificación · b)</span>
+      <p>Equivalencia exige reflexiva + simétrica + transitiva; orden exige antisimétrica + transitiva. Como R <strong>no es reflexiva ni transitiva</strong>, <strong>no se puede clasificar</strong> (no es de equivalencia ni de orden).</p>
+    </div>
+
+    <div class="sub">c) "Antisimétrica no puede ser simétrica y no reflexiva a la vez"</div>
+    <div class="box concepto">
+      <span class="label">La clave</span>
+      <p>Una relación que es <strong>simétrica Y antisimétrica</strong> a la vez solo puede contener pares del tipo <span class="m">(a,a)</span> (queda <em>contenida en la diagonal</em>). Demostración rápida: si <span class="m">(a,b) ∈ R</span>, por simetría <span class="m">(b,a) ∈ R</span>, y por antisimetría <span class="m">a = b</span>. Si esa diagonal está <em>incompleta</em>, la relación es <strong>no reflexiva</strong>. → Las tres cosas pueden convivir.</p>
+    </div>
+    <div class="box resp">
+      <span class="label">Respuesta · c) — Falso</span>
+      <p>Contraejemplo: <span class="m">B = {0, 1, 2}</span>, <span class="m">R = {(0,0)}</span>.</p>
+      <ul>
+        <li><strong>Antisimétrica:</strong> no hay ningún par <span class="m">(a,b)</span> con <span class="m">(b,a)</span> y <span class="m">a ≠ b</span> → se cumple.</li>
+        <li><strong>Simétrica:</strong> el único par <span class="m">(0,0)</span> tiene su recíproco <span class="m">(0,0)</span> → se cumple.</li>
+        <li><strong>No reflexiva:</strong> faltan <span class="m">(1,1)</span> y <span class="m">(2,2)</span>.</li>
+      </ul>
+      <p>Es antisimétrica, simétrica y no reflexiva <em>simultáneamente</em> ⟹ la afirmación es <strong>falsa</strong>. (La relación vacía <span class="m">∅</span> también sirve: es simétrica, antisimétrica y no reflexiva.)</p>
+    </div>
+    <div class="box ojo">
+      <span class="label">⚠ Ojo con la solución oficial</span>
+      <p>El slide oficial propone <span class="m">R = {(0,1), (1,1)}</span>, pero esa relación <strong>no es simétrica</strong> (falta <span class="m">(1,0)</span>), así que no demuestra el "simétrica + no reflexiva a la vez" que pide refutar. El contraejemplo correcto es una <strong>diagonal parcial</strong> como <span class="m">{(0,0)}</span> o la relación vacía. La conclusión (Falso) sí es correcta.</p>
+    </div>
+
+    <div class="sub">d) "Para clasificar debe ser por lo menos transitiva"</div>
+    <div class="box resp">
+      <span class="label">Respuesta · d) — Verdadero</span>
+      <p>Todas las clasificaciones posibles exigen transitividad:</p>
+      <ul>
+        <li><strong>Equivalencia:</strong> reflexiva + simétrica + <strong>transitiva</strong>.</li>
+        <li><strong>Orden amplio (parcial):</strong> reflexiva + antisimétrica + <strong>transitiva</strong>.</li>
+        <li><strong>Orden estricto:</strong> arreflexiva + asimétrica + <strong>transitiva</strong>.</li>
+      </ul>
+      <p>Como la transitividad aparece en las tres, sin ella no se puede ubicar la relación en ninguna categoría → <strong>verdadero</strong>.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════ EJERCICIO 4 ══════════════ -->
+  <section class="ex">
+    <div class="ex-head">
+      <div class="ex-num">4</div>
+      <div>
+        <div class="topic">Conjuntos</div>
+        <h2>Operaciones de regiones sombreadas</h2>
+      </div>
+    </div>
+
+    <div class="box enun">
+      <span class="label">Enunciado</span>
+      <p>Escribir las operaciones que simbolizan las regiones sombreadas (tres conjuntos <span class="m">G, S, T</span>).</p>
+    </div>
+
+    <div class="box concepto">
+      <span class="label">Recordatorio de operaciones</span>
+      <ul>
+        <li><span class="m">A ∪ B</span>: todo lo de A o de B. · <span class="m">A ∩ B</span>: lo que está en ambos.</li>
+        <li><span class="m">A − B</span> (diferencia): lo que está en A <em>pero no</em> en B.</li>
+        <li><strong>Estrategia:</strong> identificá el conjunto "base" sombreado y restá / sumá las zonas que sobran o faltan.</li>
+      </ul>
+    </div>
+
+    <div class="venn-row">
+      <!-- Diagrama 1: G − S -->
+      <div class="venn-fig">
+        <svg viewBox="0 0 320 280" width="280" role="img" aria-label="G menos S">
+          <defs>
+            <mask id="m1g">
+              <circle cx="120" cy="110" r="70" fill="white"/>
+              <circle cx="200" cy="110" r="70" fill="black"/>
+            </mask>
+          </defs>
+          <circle cx="120" cy="110" r="70" fill="rgba(124,58,237,0.45)" mask="url(#m1g)"/>
+          <circle cx="120" cy="110" r="70" fill="none" stroke="#94a3b8" stroke-width="1.6"/>
+          <circle cx="200" cy="110" r="70" fill="none" stroke="#94a3b8" stroke-width="1.6"/>
+          <circle cx="160" cy="175" r="70" fill="none" stroke="#94a3b8" stroke-width="1.6"/>
+          <text class="venn-lbl" x="72" y="106" text-anchor="middle">G</text>
+          <text class="venn-lbl" x="248" y="106" text-anchor="middle">S</text>
+          <text class="venn-lbl" x="160" y="225" text-anchor="middle">T</text>
+        </svg>
+        <div class="cap">G − S</div>
+      </div>
+
+      <!-- Diagrama 2: (G − S) ∪ (S ∩ T) -->
+      <div class="venn-fig">
+        <svg viewBox="0 0 320 280" width="280" role="img" aria-label="G menos S union S inter T">
+          <defs>
+            <mask id="m2g">
+              <circle cx="120" cy="110" r="70" fill="white"/>
+              <circle cx="200" cy="110" r="70" fill="black"/>
+            </mask>
+            <clipPath id="m2c"><circle cx="160" cy="175" r="70"/></clipPath>
+          </defs>
+          <circle cx="120" cy="110" r="70" fill="rgba(124,58,237,0.45)" mask="url(#m2g)"/>
+          <circle cx="200" cy="110" r="70" fill="rgba(124,58,237,0.45)" clip-path="url(#m2c)"/>
+          <circle cx="120" cy="110" r="70" fill="none" stroke="#94a3b8" stroke-width="1.6"/>
+          <circle cx="200" cy="110" r="70" fill="none" stroke="#94a3b8" stroke-width="1.6"/>
+          <circle cx="160" cy="175" r="70" fill="none" stroke="#94a3b8" stroke-width="1.6"/>
+          <text class="venn-lbl" x="72" y="106" text-anchor="middle">G</text>
+          <text class="venn-lbl" x="248" y="106" text-anchor="middle">S</text>
+          <text class="venn-lbl" x="160" y="225" text-anchor="middle">T</text>
+        </svg>
+        <div class="cap">(G − S) ∪ (S ∩ T)</div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>Izquierda:</strong> está pintado todo <span class="m">G</span> salvo lo que toca <span class="m">S</span> (incluye la parte que <span class="m">G</span> comparte con <span class="m">T</span>, mientras no entre en <span class="m">S</span>). Eso es exactamente <span class="m">G − S</span>.</li>
+      <li><strong>Derecha:</strong> a lo anterior se le agrega la lente central entre <span class="m">S</span> y <span class="m">T</span> → se suma <span class="m">S ∩ T</span>: <span class="m">(G − S) ∪ (S ∩ T)</span>.</li>
+    </ol>
+
+    <div class="box resp">
+      <span class="label">Respuesta modelo</span>
+      <p>Región izquierda: <strong><span class="m">G − S</span></strong> &nbsp;·&nbsp; Región derecha: <strong><span class="m">(G − S) ∪ (S ∩ T)</span></strong>.</p>
+    </div>
+  </section>
+
+  <!-- ══════════════ EJERCICIO 5 ══════════════ -->
+  <section class="ex">
+    <div class="ex-head">
+      <div class="ex-num">5</div>
+      <div>
+        <div class="topic">Problemas de conteo</div>
+        <h2>Venn de tres conjuntos</h2>
+      </div>
+    </div>
+
+    <div class="box enun">
+      <span class="label">Enunciado</span>
+      <p>100 personas. <span class="m">|Celular| = 20</span>, <span class="m">|Tablet| = 38</span>, <span class="m">|Notebook| = 41</span>. 18 usan <em>exactamente dos</em> de los tres equipos; <em>ninguno</em> usa los tres. 17 usan celular pero no notebook; 5 usan celular y tablet.</p>
+      <p><strong>a)</strong> ¿Cuántas usan notebook y celular? <strong>b)</strong> ¿Cuántas usan solamente tablet?</p>
+    </div>
+
+    <div class="box concepto">
+      <span class="label">Método: dividir en 7 regiones disjuntas</span>
+      <p>Cada zona del diagrama es un valor desconocido. Traducimos cada dato a una <strong>ecuación de regiones</strong> y resolvemos. Claves de lectura:</p>
+      <ul>
+        <li><strong>"|Celular| = 20"</strong> = suma de las 4 regiones dentro del círculo Celular.</li>
+        <li><strong>"exactamente dos"</strong> = las 3 lentes de pares, <em>sin</em> el centro: <span class="m">b + d + f</span>.</li>
+        <li><strong>"ninguno usa los tres"</strong> = el centro vale 0: <span class="m">e = 0</span>.</li>
+        <li><strong>"solamente tablet"</strong> = la zona exclusiva de Tablet: <span class="m">c</span>.</li>
+      </ul>
+    </div>
+
+    <div class="venn-row">
+      <div class="venn-fig">
+        <svg viewBox="0 0 380 320" width="360" role="img" aria-label="Diagrama de Venn con valores">
+          <circle cx="140" cy="125" r="88" fill="none" stroke="#94a3b8" stroke-width="1.6"/>
+          <circle cx="240" cy="125" r="88" fill="none" stroke="#94a3b8" stroke-width="1.6"/>
+          <circle cx="190" cy="205" r="88" fill="none" stroke="#94a3b8" stroke-width="1.6"/>
+          <!-- etiquetas -->
+          <text class="venn-lbl" x="70"  y="55"  text-anchor="middle">CELULAR</text>
+          <text class="venn-lbl" x="312" y="55"  text-anchor="middle">TABLET</text>
+          <text class="venn-lbl" x="190" y="312" text-anchor="middle">NOTEBOOK</text>
+          <!-- valores de regiones -->
+          <text class="venn-num" x="100" y="110" text-anchor="middle">12</text>  <!-- a solo C -->
+          <text class="venn-num" x="190" y="92"  text-anchor="middle">5</text>   <!-- b C∩T -->
+          <text class="venn-num" x="280" y="110" text-anchor="middle">23</text>  <!-- c solo T -->
+          <text class="venn-num" x="143" y="178" text-anchor="middle">3</text>   <!-- d C∩N -->
+          <text class="venn-num zero" x="190" y="158" text-anchor="middle">0</text> <!-- e centro -->
+          <text class="venn-num" x="237" y="178" text-anchor="middle">10</text>  <!-- f T∩N -->
+          <text class="venn-num" x="190" y="245" text-anchor="middle">28</text>  <!-- g solo N -->
+        </svg>
+        <div class="cap">Fuera de los tres: 19</div>
+      </div>
+    </div>
+
+    <ol class="steps">
+      <li><strong>Centro:</strong> ninguno usa los tres → <span class="m">e = 0</span>.</li>
+      <li><strong>Celular ∩ Tablet = 5:</strong> <span class="m">b + e = 5</span> → con <span class="m">e = 0</span>, <span class="m">b = 5</span>.</li>
+      <li><strong>Celular y no notebook = 17:</strong> <span class="m">a + b = 17</span> → <span class="m">a = 12</span>.</li>
+      <li><strong>|Celular| = 20:</strong> <span class="m">a + b + d + e = 20</span> → <span class="m">17 + d + 0 = 20</span> → <span class="m">d = 3</span>.</li>
+      <li><strong>Exactamente dos = 18:</strong> <span class="m">b + d + f = 18</span> → <span class="m">5 + 3 + f = 18</span> → <span class="m">f = 10</span>.</li>
+      <li><strong>|Tablet| = 38:</strong> <span class="m">b + c + e + f = 38</span> → <span class="m">5 + c + 0 + 10 = 38</span> → <span class="m">c = 23</span>.</li>
+    </ol>
+
+    <div class="box resp">
+      <span class="label">Respuesta · a) Notebook y celular</span>
+      <p>Quienes usan notebook <em>y</em> celular son las regiones <span class="m">d + e = 3 + 0 = </span><strong>3 personas</strong>.</p>
+    </div>
+    <div class="box resp">
+      <span class="label">Respuesta · b) Solamente tablet</span>
+      <p>La zona exclusiva de tablet es <span class="m">c = </span><strong>23 personas</strong>.</p>
+    </div>
+    <div class="box ojo">
+      <span class="label">⚠ Distinción típica que confunde</span>
+      <p><em>"Notebook y celular"</em> incluye a los que también tienen tablet (regiones <span class="m">d + e</span>). <em>"Solamente tablet"</em> es <strong>exclusivamente</strong> tablet (<span class="m">c</span>), sin nada más. Leer mal este matiz es el error más común del ejercicio.</p>
+    </div>
+  </section>
+
+  <footer>
+    Parcial Modelo · Álgebra · Licenciatura en IA — Universidad de Palermo<br>
+    Material de estudio generado a partir de <span class="mono">examenes/parcial-modelo.pdf</span> y su solución oficial.<br>
+    Símbolos según la notación de la cátedra (~ = negación).
+  </footer>
+
+</div>
+<a href="../../../../index.html#algebra" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

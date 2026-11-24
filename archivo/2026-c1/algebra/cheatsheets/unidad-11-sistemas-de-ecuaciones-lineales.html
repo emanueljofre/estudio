@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistemas de Ecuaciones Lineales — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)']],
+    displayMath: [['\\[', '\\]']]
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea'] },
+  chtml: { scale: 0.95 }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  header { text-align: center; margin-bottom: 1.6rem; }
+  .badge {
+    display: inline-block; font-family: var(--mono); font-size: 0.65rem;
+    letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent2);
+    border: 1px solid var(--accent2); border-radius: 2px; padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(1.7rem, 5vw, 3.5rem); font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1.05; overflow-wrap: anywhere;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2));
+    margin: 1.2rem auto 0; border-radius: 2px;
+  }
+
+  .scope {
+    max-width: 1400px; margin: 0 auto 2rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3); border-radius: 6px;
+    padding: 0.8rem 1rem; display: grid; grid-template-columns: auto 1fr; gap: 0.9rem; align-items: center;
+  }
+  .scope-label {
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--accent3); font-weight: 700;
+    writing-mode: vertical-rl; transform: rotate(180deg);
+    border-right: 1px solid var(--border); padding-right: 0.7rem; align-self: stretch;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .scope-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .spill {
+    font-family: var(--mono); font-size: 0.6rem; padding: 0.22rem 0.55rem;
+    border-radius: 3px; border: 1px solid var(--border); color: var(--muted);
+  }
+  .spill.in  { color: var(--accent4); border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.06); }
+  .spill.key { color: var(--accent3); border-color: rgba(245,158,11,0.4); background: rgba(245,158,11,0.06); }
+  .spill.cut { color: var(--muted); border-style: dashed; text-decoration: line-through; opacity: 0.75; }
+  @media (max-width: 600px) {
+    .scope { grid-template-columns: 1fr; }
+    .scope-label { writing-mode: horizontal-tb; transform: none; border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 0.4rem; }
+  }
+
+  .tier {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.15em;
+    text-transform: uppercase; padding: 0.15rem 0.45rem; border-radius: 3px;
+    vertical-align: middle; line-height: 1;
+  }
+  .tier::before { content: ''; width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+  .tier.core { color: var(--accent4); background: rgba(16,185,129,0.10); border: 1px solid rgba(16,185,129,0.35); }
+  .tier.core::before { background: var(--accent4); box-shadow: 0 0 6px var(--accent4); }
+  .tier.key  { color: var(--accent3); background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.4); }
+  .tier.key::before  { background: var(--accent3); box-shadow: 0 0 6px var(--accent3); }
+  .tier.ctx  { color: var(--muted); background: rgba(148,163,184,0.06); border: 1px solid var(--border); }
+  .tier.ctx::before  { background: var(--muted); }
+  .section-label.is-ctx { color: var(--muted); }
+  .grid.is-ctx { opacity: 0.82; }
+
+  .progress {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%; z-index: 100;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .toc-rail {
+    position: fixed; left: 0.7rem; top: 50%; transform: translateY(-50%); z-index: 90;
+    display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0.3rem;
+  }
+  .toc-rail a {
+    display: flex; align-items: center; gap: 0.55rem; text-decoration: none;
+    font-family: var(--mono); font-size: 0.55rem; color: var(--muted);
+    padding: 0.12rem 0.25rem; border-radius: 3px;
+  }
+  .toc-rail a .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    border: 1px solid var(--border); flex-shrink: 0; transition: all 0.2s;
+  }
+  .toc-rail a .lbl {
+    opacity: 0; transform: translateX(-5px); transition: all 0.2s; white-space: nowrap;
+  }
+  .toc-rail:hover a .lbl { opacity: 1; transform: none; }
+  .toc-rail a.active { color: var(--text); }
+  .toc-rail a.active .dot { background: var(--accent2); border-color: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+  @media (max-width: 1280px) { .toc-rail { display: none; } }
+
+  .grid { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 900px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .section-label {
+    font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--accent);
+    margin: 2.5rem auto 1rem; display: flex; align-items: center; gap: 0.8rem;
+    max-width: 1400px; scroll-margin-top: 1rem;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.3rem; position: relative; overflow: hidden;
+  }
+  .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem; font-family: var(--mono); letter-spacing: 0.15em;
+    text-transform: uppercase; margin-bottom: 0.9rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  .op-name { font-size: 1.1rem; font-weight: 800; color: #fff; margin-bottom: 0.25rem; }
+  .op-notation { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); margin-bottom: 0.7rem; }
+  .op-rule {
+    font-size: 0.78rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.9rem;
+    padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border); border-radius: 0 4px 4px 0;
+  }
+  .op-rule strong { color: #fff; }
+
+  .formula {
+    font-family: var(--mono); font-size: 0.82rem; color: var(--text);
+    background: rgba(124,58,237,0.10); border: 1px solid rgba(124,58,237,0.25);
+    border-radius: 5px; padding: 0.5rem 0.7rem; text-align: center; margin: 0.5rem 0;
+  }
+  .formula.cyan-f  { background: rgba(6,182,212,0.10);  border-color: rgba(6,182,212,0.25); }
+  .formula.amber-f { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.25); }
+  .formula.green-f { background: rgba(16,185,129,0.10); border-color: rgba(16,185,129,0.25); }
+  .formula.red-f   { background: rgba(239,68,68,0.10);  border-color: rgba(239,68,68,0.3);  color: #f87171; }
+
+  .step {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--muted);
+    display: grid; gap: 0.4rem;
+  }
+  .step .s {
+    padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--accent); border-radius: 0 4px 4px 0;
+  }
+  .step .s b { color: #fff; }
+
+  .note {
+    font-family: var(--mono); font-size: 0.65rem; margin-top: 0.5rem;
+    padding: 0.35rem 0.55rem; border-radius: 4px;
+  }
+  .note.warn   { color: var(--accent3); background: rgba(245,158,11,0.06); }
+  .note.danger { color: #f87171;        background: rgba(239,68,68,0.06); }
+  .note.ok     { color: var(--accent4); background: rgba(16,185,129,0.06); }
+
+  .insight {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--accent3);
+    background: rgba(245,158,11,0.06); border-left: 2px solid var(--accent3);
+    border-radius: 0 4px 4px 0; padding: 0.4rem 0.6rem; margin-top: 0.5rem;
+  }
+
+  /* Matrix */
+  .matrix {
+    display: inline-grid; gap: 0.15rem 0.55rem; font-family: var(--mono);
+    font-size: 0.78rem; color: var(--text); padding: 0.3rem 0.65rem; position: relative;
+  }
+  .matrix::before, .matrix::after {
+    content: ''; position: absolute; top: 0; bottom: 0; width: 7px;
+    border: 1.5px solid var(--accent2);
+  }
+  .matrix::before { left: 0; border-right: none; }
+  .matrix::after  { right: 0; border-left: none; }
+  .matrix span { text-align: center; }
+  .matrix .hl  { color: var(--accent3); font-weight: 700; }
+  .matrix .hl2 { color: #a78bfa; font-weight: 700; }
+  .matrix .hl3 { color: var(--accent4); font-weight: 700; }
+  .matrix .z   { color: #475569; }
+  .matrix .vbar {
+    position: relative;
+  }
+  /* augmented matrix: vertical bar */
+  .matrix.aug { gap: 0.15rem 0.4rem; }
+  .matrix.aug .bar {
+    color: var(--accent3); font-weight: 700; padding: 0 0.15rem;
+  }
+  /* determinant: vertical bars instead of brackets, tinted with currentColor */
+  .matrix.det::before, .matrix.det::after { width: 0; border: none; }
+  .matrix.det::before { left: 2px;  border-left:  1.5px solid currentColor; }
+  .matrix.det::after  { right: 2px; border-right: 1.5px solid currentColor; }
+
+  .mwrap { display: flex; justify-content: center; align-items: center; gap: 0.6rem; margin: 0.6rem 0; flex-wrap: wrap; }
+  .mwrap .eq { font-family: var(--mono); color: var(--muted); font-size: 0.95rem; }
+  .mwrap .lbl { font-family: var(--mono); font-size: 0.55rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+  .mwrap .arrow {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--accent2);
+    display: flex; flex-direction: column; align-items: center; gap: 0.15rem;
+    padding: 0 0.4rem;
+  }
+  .mwrap .arrow .op { color: var(--accent3); }
+
+  /* Worked: derivación */
+  .worked {
+    font-family: var(--mono); font-size: 0.74rem;
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+    border-left: 2px solid var(--accent3); border-radius: 0 6px 6px 0;
+    padding: 0.7rem 0.9rem; margin: 0.6rem 0;
+  }
+  .worked .wr {
+    display: grid; grid-template-columns: 95px 1fr; gap: 0.7rem;
+    align-items: baseline; padding: 0.18rem 0;
+  }
+  .worked .wl { font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .worked .wb { color: var(--text); letter-spacing: 0.03em; }
+  .worked .det-x { color: #f87171; font-weight: 700; }
+  .worked .det-y { color: var(--accent2); font-weight: 700; }
+  .worked .det-z { color: var(--accent4); font-weight: 700; }
+  .worked .denom { color: var(--accent3); font-weight: 700; }
+  .worked .res { color: #fff; font-weight: 700; }
+  .worked .wr.total { border-top: 1px solid var(--border); margin-top: 0.3rem; padding-top: 0.4rem; }
+
+  /* Versus */
+  .versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; }
+  .vs-side {
+    padding: 0.8rem; font-family: var(--mono); font-size: 0.72rem;
+    color: var(--muted); display: flex; flex-direction: column; gap: 0.35rem;
+  }
+  .vs-side h4 {
+    font-family: var(--display); font-size: 0.8rem; font-weight: 700;
+    color: #fff; margin-bottom: 0.3rem;
+  }
+  .vs-mid {
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.75rem; font-weight: 700;
+    color: var(--accent3); padding: 0 0.7rem;
+    border-left: 1px solid var(--border); border-right: 1px solid var(--border);
+  }
+  .vs-row { padding: 0.25rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .vs-row:last-child { border-bottom: none; }
+  @media (max-width: 600px) {
+    .versus { grid-template-columns: 1fr; }
+    .vs-mid {
+      border: none; border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border); padding: 0.4rem; text-align: center;
+    }
+  }
+
+  /* Power-table (clasificación CD/CI/I) */
+  .ptbl-wrap { overflow-x: auto; margin: 0.8rem 0; }
+  .power-table {
+    display: grid; border: 1px solid var(--border); border-radius: 6px;
+    overflow: hidden; font-family: var(--mono); font-size: 0.7rem;
+    min-width: 580px;
+    grid-template-columns: 60px 1.1fr 1.1fr 1.6fr 1.3fr;
+  }
+  .power-table > div {
+    padding: 0.55rem 0.6rem; text-align: center;
+    border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .power-table .pt-rl {
+    justify-content: flex-start; color: var(--muted);
+    font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.08em;
+    background: rgba(255,255,255,0.03); padding-left: 0.6rem;
+  }
+  .power-table .pt-head {
+    background: rgba(255,255,255,0.04); color: #fff;
+    font-weight: 700; font-size: 0.6rem;
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .power-table .pt-cd { color: var(--accent4); font-weight: 700; }
+  .power-table .pt-ci { color: var(--accent3); font-weight: 700; }
+  .power-table .pt-si { color: #f87171;        font-weight: 700; }
+  .power-table .pt-val { color: var(--text); font-weight: 700; }
+
+  /* Cmatrix (operaciones permitidas) */
+  .cmatrix-wrap { overflow-x: auto; max-width: 1400px; margin: 0.5rem auto; }
+  .cmatrix {
+    display: grid; border: 1px solid var(--border); border-radius: 6px;
+    overflow: hidden; font-family: var(--mono); font-size: 0.66rem;
+    min-width: 640px;
+    grid-template-columns: 220px 1fr 1fr;
+  }
+  .cmatrix > div {
+    padding: 0.6rem 0.7rem; border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .cmatrix .cm-corner, .cmatrix .cm-rl {
+    background: rgba(255,255,255,0.03); color: var(--muted);
+    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em;
+    display: flex; align-items: center;
+  }
+  .cmatrix .cm-head {
+    font-family: var(--display); font-weight: 700; color: #fff;
+    font-size: 0.8rem; text-align: center;
+  }
+  .cmatrix .cm-head.is-ok { color: var(--accent4); }
+  .cmatrix .cm-head.is-no { color: #f87171; }
+  .cmatrix .ok { color: var(--accent4); font-weight: 700; }
+  .cmatrix .no { color: #f87171;        font-weight: 700; text-decoration: line-through; }
+
+  /* Recall */
+  .recall {
+    font-family: var(--mono); font-size: 0.72rem; margin: 0.6rem 0;
+    border: 1px solid rgba(124,58,237,0.3); border-radius: 6px; overflow: hidden;
+  }
+  .recall summary {
+    cursor: pointer; padding: 0.5rem 0.8rem; color: var(--accent2);
+    background: rgba(124,58,237,0.06); list-style: none;
+    display: flex; align-items: center; gap: 0.5rem; user-select: none;
+  }
+  .recall summary::-webkit-details-marker { display: none; }
+  .recall summary::before {
+    content: '▸'; font-size: 0.7rem; color: var(--accent);
+    transition: transform 0.15s; flex-shrink: 0;
+  }
+  .recall[open] summary::before { transform: rotate(90deg); }
+  .recall-a {
+    padding: 0.55rem 0.8rem; color: var(--text); line-height: 1.5;
+    border-top: 1px solid rgba(124,58,237,0.2); background: rgba(124,58,237,0.04);
+  }
+  .recall-a strong { color: #fff; }
+
+  /* Exam-q */
+  .exam-q {
+    position: relative; margin: 0.6rem 0;
+    padding: 0.7rem 0.9rem 0.7rem 2.7rem;
+    background: rgba(239,68,68,0.05); border: 1px solid rgba(239,68,68,0.3);
+    border-left: 2px solid var(--red); border-radius: 0 6px 6px 0;
+    font-family: var(--mono); font-size: 0.7rem;
+  }
+  .exam-q::before {
+    content: 'Q'; position: absolute; left: 0.65rem; top: 0.7rem;
+    width: 1.35rem; height: 1.35rem; border-radius: 50%;
+    background: var(--red); color: #fff;
+    font-family: var(--display); font-weight: 800;
+    display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+  }
+  .exam-q .q { color: #fff; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.4; }
+  .exam-q .a { color: var(--muted); line-height: 1.6; }
+  .exam-q .a strong { color: var(--text); }
+
+  /* Reference table */
+  .reftable { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.68rem; }
+  .reftable th {
+    padding: 0.5rem 0.6rem; text-align: left;
+    background: rgba(255,255,255,0.04);
+    border-bottom: 1px solid var(--border);
+    color: var(--muted); font-size: 0.55rem; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .reftable td {
+    padding: 0.45rem 0.6rem; border-bottom: 1px solid var(--border); color: var(--text);
+  }
+  .reftable td.ej { color: var(--accent2); font-weight: 700; width: 38px; }
+  .reftable td.scd { color: var(--accent4); font-weight: 700; }
+  .reftable td.sci { color: var(--accent3); font-weight: 700; }
+  .reftable td.si  { color: #f87171;        font-weight: 700; }
+
+  footer {
+    text-align: center; margin-top: 3rem; padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.65rem; color: var(--muted);
+  }
+  footer .out { margin-top: 0.4rem; color: var(--muted); opacity: 0.7; }
+  footer .out s { color: var(--muted); }
+
+  @media print {
+    body { background: #fff; color: #111; padding: 0; background-image: none; }
+    .toc-rail, .progress { display: none !important; }
+    h1 { -webkit-text-fill-color: #111; color: #111; }
+    .section-label { color: #555; }
+    .card, .scope, .cmatrix, .power-table, .worked, .exam-q, .recall { break-inside: avoid; }
+    .card { background: #fff; border-color: #bbb; box-shadow: none; }
+    .op-rule, .formula, .insight, .note, .step .s { background: #f4f4f6 !important; color: #222; }
+    details.recall > *:not(summary) { display: block !important; }
+    .recall { border-color: #bbb; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+
+<nav class="toc-rail" aria-label="Tabla de contenidos">
+  <a href="#s01"><span class="dot"></span><span class="lbl">01 · Las 4 matrices</span></a>
+  <a href="#s02"><span class="dot"></span><span class="lbl">02 · Clasificación CD/CI/I</span></a>
+  <a href="#s03"><span class="dot"></span><span class="lbl">03 · Cramer</span></a>
+  <a href="#s04"><span class="dot"></span><span class="lbl">04 · Gauss-Jordan</span></a>
+  <a href="#s05"><span class="dot"></span><span class="lbl">05 · Matriz inversa</span></a>
+  <a href="#s06"><span class="dot"></span><span class="lbl">06 · Operaciones SÍ/NO</span></a>
+  <a href="#s07"><span class="dot"></span><span class="lbl">07 · Elegir método</span></a>
+  <a href="#s08"><span class="dot"></span><span class="lbl">08 · SCI paramétrica</span></a>
+  <a href="#s09"><span class="dot"></span><span class="lbl">09 · Homogéneos</span></a>
+  <a href="#s10"><span class="dot"></span><span class="lbl">10 · Rouché · rango</span></a>
+  <a href="#s11"><span class="dot"></span><span class="lbl">11 · Discusión por parámetros</span></a>
+  <a href="#s12"><span class="dot"></span><span class="lbl">12 · Resultados 1a-1i</span></a>
+  <a href="#s13"><span class="dot"></span><span class="lbl">13 · Autoevaluación</span></a>
+  <a href="#s14"><span class="dot"></span><span class="lbl">14 · Claves del final</span></a>
+</nav>
+
+<header>
+  <div class="badge">Álgebra · Unidad 11 — Sistemas de Ecuaciones Lineales</div>
+  <h1>Sistemas de Ecuaciones Lineales</h1>
+  <p class="subtitle">Cramer · Gauss-Jordan · inversa · clasificación CD/CI/I · rango y Rouché-Frobenius · examen final integrador</p>
+  <div class="divider"></div>
+</header>
+
+<div class="scope">
+  <div class="scope-label">Examen final</div>
+  <div class="scope-pills">
+    <span class="spill key">★ 10 temas · se eligen 5 ejercicios</span>
+    <span class="spill key">★ 2 hs · multiple-choice + desarrollo obligatorio</span>
+    <span class="spill in">solo se permiten tablas de verdad</span>
+    <span class="spill in">propiedades → de memoria (sin resumen permitido)</span>
+    <span class="spill in">sin oral</span>
+    <span class="spill in">énfasis: propiedades · por qué se resuelve con matrices / inversa / determinante</span>
+    <span class="spill cut">Relaciones (otra unidad) — fuera en las 2 primeras fechas de julio</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     01 — DEFINICIÓN + LAS 4 MATRICES
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s01">01 — Sistema lineal · las 4 matrices <span class="tier core">vocabulario base</span></div>
+
+<div class="grid grid-2">
+  <div class="card purple">
+    <div class="card-title">📐 Definición</div>
+    <div class="op-name">Sistema de m ecuaciones con n incógnitas</div>
+    <div class="op-notation">A · X = B</div>
+    <div class="op-rule">
+      Conjunto de m ecuaciones lineales que <strong>comparten la solución</strong>. <em>Resolver</em> significa encontrar todas las n-uplas (x₁, …, xₙ) que satisfacen <strong>todas las ecuaciones simultáneamente</strong>. La forma matricial compacta es <strong>A · X = B</strong>.
+    </div>
+    <div class="formula">
+      \[ A \cdot X = B \quad\Leftrightarrow\quad \begin{pmatrix} a_{11} & \cdots & a_{1n} \\ \vdots & & \vdots \\ a_{m1} & \cdots & a_{mn} \end{pmatrix} \begin{pmatrix} x_1 \\ \vdots \\ x_n \end{pmatrix} = \begin{pmatrix} b_1 \\ \vdots \\ b_m \end{pmatrix} \]
+    </div>
+    <div class="formula green-f" style="margin-top:0.5rem;font-size:0.8rem">
+      🔑 eje del final: &nbsp; <strong>det(A) ≠ 0 &nbsp;⟺&nbsp; A inversible &nbsp;⟺&nbsp; sistema SCD</strong>
+    </div>
+    <div class="note ok">El determinante decide todo: si |A| ≠ 0 hay <strong>solución única</strong> (sirve Cramer, Gauss-Jordan o la inversa); si |A| = 0 el sistema es SCI o SI. Profe (2026-06-16): "<em>para que una matriz tenga inversa, el determinante no puede ser 0 — eso lo tienen que tener tatuado</em>".</div>
+    <div class="insight">💡 de la clase (2026-05-26) · "Lo primero que tengo que hacer es <strong>armar la matriz principal</strong>, primero que nada, calcular su determinante. Y después la matriz en x, en y en z."</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧱 Las 4 matrices del sistema</div>
+    <div class="step">
+      <div class="s"><b>A — matriz principal (de coeficientes).</b> m × n. a<sub>ij</sub>: i = nº ecuación, j = nº incógnita.</div>
+      <div class="s"><b>A' — matriz ampliada (u orlada).</b> m × (n+1). La principal + una columna con los b<sub>i</sub>.</div>
+      <div class="s"><b>X — matriz de incógnitas.</b> n × 1 (vector columna): [x₁; x₂; …; xₙ].</div>
+      <div class="s"><b>B — matriz de términos independientes.</b> m × 1: [b₁; b₂; …; bₘ].</div>
+    </div>
+
+    <div class="mwrap" style="margin-top:0.9rem">
+      <span class="lbl">A</span>
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr)">
+        <span class="hl">2</span><span class="hl">1</span><span class="hl">−1</span>
+        <span class="hl">1</span><span class="hl">1</span><span class="hl">1</span>
+        <span class="hl">−1</span><span class="hl">−1</span><span class="hl">1</span>
+      </div>
+      <span class="lbl">A'</span>
+      <div class="matrix aug" style="grid-template-columns:repeat(3,1fr) auto 1fr">
+        <span class="hl">2</span><span class="hl">1</span><span class="hl">−1</span><span class="bar">│</span><span class="hl3">1</span>
+        <span class="hl">1</span><span class="hl">1</span><span class="hl">1</span><span class="bar">│</span><span class="hl3">6</span>
+        <span class="hl">−1</span><span class="hl">−1</span><span class="hl">1</span><span class="bar">│</span><span class="hl3">0</span>
+      </div>
+    </div>
+
+    <div class="insight">💡 vocabulario del profe · "matriz principal" = matriz de coeficientes; "matriz en X / Y / Z" = Δₓ / Δᵧ / Δ_z (los determinantes de Cramer). Coloquial pero consistente.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     02 — CLASIFICACIÓN CD/CI/I
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s02">02 — Clasificación · SCD · SCI · SI <span class="tier key">★ núcleo · "resolver y clasificar"</span></div>
+
+<div class="card purple" style="max-width:1400px;margin:0 auto 1.2rem">
+  <div class="card-title">🌳 Árbol de decisión por Cramer (versión correcta — apunte)</div>
+  <div class="op-rule">
+    Una vez calculados <strong>|A|</strong> y los <strong>Δᵢ</strong>, hay <strong>tres posibilidades</strong>. Profe textual: "<em>una vez que yo encuentro el resultado, voy a analizar qué tipo de sistema es</em>". En el examen <strong>la consigna típica es "resolver Y clasificar"</strong> — no alcanza con dar la terna.
+  </div>
+
+  <div class="ptbl-wrap">
+    <div class="power-table">
+      <div class="pt-head">caso</div>
+      <div class="pt-head">|A| (denom)</div>
+      <div class="pt-head">Δᵢ (num)</div>
+      <div class="pt-head">Resultado xᵢ = Δᵢ / |A|</div>
+      <div class="pt-head">Sistema</div>
+
+      <div class="pt-rl">1</div>
+      <div class="pt-val">≠ 0</div>
+      <div>cualquiera</div>
+      <div>número único <span class="pt-val">→ k</span></div>
+      <div class="pt-cd">SCD &nbsp;★ solución única</div>
+
+      <div class="pt-rl">2</div>
+      <div>= 0</div>
+      <div class="pt-val">todos = 0</div>
+      <div><strong>0 / 0</strong> &nbsp;indeterminación</div>
+      <div class="pt-ci">SCI &nbsp;infinitas</div>
+
+      <div class="pt-rl">3</div>
+      <div>= 0</div>
+      <div class="pt-val">algún ≠ 0</div>
+      <div><strong>k / 0</strong> &nbsp;sin solución</div>
+      <div class="pt-si">SI &nbsp;∅</div>
+    </div>
+  </div>
+
+  <div class="formula" style="margin-top:1rem;font-size:0.85rem">
+    <strong style="color:#4ade80">|A|≠0 → SCD</strong> &nbsp;·&nbsp;
+    <strong style="color:#fbbf24">|A|=0, todos Δᵢ=0 → SCI</strong> &nbsp;·&nbsp;
+    <strong style="color:#f87171">|A|=0, algún Δᵢ≠0 → SI</strong>
+  </div>
+  <div class="insight" style="margin-top:0.9rem">💡 mnemónica corta · <strong>0/0 = infinitas (SCI)</strong> · <strong>número/0 = ninguna (SI)</strong>. Se confirma con la guía: ejercicio <strong>1f es SCI</strong> (sale 0/0) · ejercicio <strong>1b es SI</strong> (sale número/0).</div>
+</div>
+
+<div class="card red" style="max-width:1400px;margin:0 auto">
+  <div class="card-title">🚨 TRAMPA — la profe se equivocó oralmente en clase 2026-05-26</div>
+  <div class="op-rule">
+    En la grabación del 2026-05-26 la profe <strong>invirtió oralmente dos veces</strong> la asociación entre el caso (0/0 vs k/0) y la clasificación. Si estudiás solo por la clase grabada, vas a memorizar lo opuesto y perder los puntos. <strong>La versión correcta es la del apunte</strong> (verificada contra respuestas oficiales 1b y 1f).
+  </div>
+
+  <div class="versus" style="margin-top:0.8rem;border:1px solid rgba(239,68,68,0.3);border-radius:6px;overflow:hidden">
+    <div class="vs-side" style="background:rgba(239,68,68,0.05)">
+      <h4 style="color:#f87171">❌ Versión oral (incorrecta)</h4>
+      <div class="vs-row">"Si tengo <strong>cero sobre cero</strong> [...] una indeterminación, <strong>el sistema es incompatible</strong>."</div>
+      <div class="vs-row">"Si tengo <strong>dieciseis sobre cero</strong> [...] infinito. <strong>Voy a tener infinitas soluciones [SCI]</strong>."</div>
+      <div class="vs-row" style="color:#f87171">Aplicada a la guía falla: predeciría que 1f es SI (y es SCI) y que 1b es SCI (y es SI).</div>
+    </div>
+    <div class="vs-mid" style="color:#f87171">vs</div>
+    <div class="vs-side" style="background:rgba(16,185,129,0.05)">
+      <h4 style="color:#4ade80">✓ Versión correcta (apunte + respuestas)</h4>
+      <div class="vs-row"><strong>0 / 0</strong> indeterminación → <strong>SCI (infinitas soluciones)</strong>. Ejemplo: 1f → S = {(3z, 8, z)}.</div>
+      <div class="vs-row"><strong>k / 0</strong> sin definir → <strong>SI (sin solución, S = ∅)</strong>. Ejemplo: 1b → ∅.</div>
+      <div class="vs-row" style="color:#4ade80">Consistente con apunte §1 (pp.1-2) y todas las respuestas oficiales.</div>
+    </div>
+  </div>
+  <div class="note danger" style="margin-top:0.7rem">⚠️ Estrategia en el examen: <strong>siempre usar la versión correcta</strong> (apunte). Si te confundís, anclate en el caso concreto: ej 1f (0/0, infinitas) y ej 1b (algo/0, ninguna). La red de seguridad es el <strong>rango</strong>: R(A)≠R(A') → SI nunca falla (sección 10).</div>
+</div>
+
+<div class="grid grid-3" style="margin-top:1.2rem">
+  <div class="card green">
+    <div class="card-title">✓ SCD &nbsp;·&nbsp; Compatible Determinado</div>
+    <div class="op-name">Solución única</div>
+    <div class="op-rule">
+      Existe <strong>un único valor</strong> para cada incógnita. La terna (x₁, x₂, …, xₙ) está completamente determinada. <strong>|A| ≠ 0</strong>.
+    </div>
+    <div class="formula green-f" style="font-size:0.75rem">S = {(x₁, x₂, …, xₙ)} &nbsp;·&nbsp; un solo punto</div>
+    <div class="note ok">Ejemplos de la guía: 1a, 1c, 1d, 1e, 1g, 1h, 1i (7 de 9).</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">∞ SCI &nbsp;·&nbsp; Compatible Indeterminado</div>
+    <div class="op-name">Infinitas soluciones</div>
+    <div class="op-rule">
+      Existen <strong>infinitos valores</strong> que satisfacen el sistema. Hay grado de indeterminación: una o más incógnitas quedan como <strong>parámetros libres</strong>. <strong>|A| = 0</strong> y <strong>todos los Δᵢ = 0</strong>.
+    </div>
+    <div class="formula amber-f" style="font-size:0.72rem">S = {(3z, 8, z) ∈ ℝ³ / z ∈ ℝ}</div>
+    <div class="note warn">Ejemplo guía: 1f. Ver sección 07 para cómo escribir la solución paramétrica.</div>
+  </div>
+
+  <div class="card red">
+    <div class="card-title">∅ SI &nbsp;·&nbsp; Incompatible</div>
+    <div class="op-name">Sin solución</div>
+    <div class="op-rule">
+      <strong>No hay ningún valor</strong> que verifique todas las ecuaciones a la vez. El sistema es contradictorio. <strong>|A| = 0</strong> y <strong>algún Δᵢ ≠ 0</strong> (al menos uno da k/0).
+    </div>
+    <div class="formula red-f" style="font-size:0.72rem">S = ∅</div>
+    <div class="note danger">Ejemplo guía: 1b. Tip: las dos ecuaciones se contradicen (x+y=52 y x+y=68).</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     03 — CRAMER
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s03">03 — Regla de Cramer (método 1) <span class="tier key">★ método directo por determinantes</span></div>
+
+<div class="grid grid-2">
+  <div class="card purple">
+    <div class="card-title">∑ Cramer</div>
+    <div class="op-name">Cada incógnita = cociente de dos determinantes</div>
+    <div class="op-notation">requiere |A| ≠ 0 (matriz no singular)</div>
+    <div class="op-rule">
+      Si A es cuadrada y <strong>|A| ≠ 0</strong>, el sistema tiene <strong>solución única</strong> y cada x<sub>i</sub> se obtiene como:
+      <strong>el numerador es |A| pero reemplazando la columna i por la columna B</strong> (los términos independientes); el denominador es |A|.
+    </div>
+    <div class="formula">
+      \[ x_i = \frac{\Delta x_i}{\Delta} = \frac{|A_i|}{|A|} \quad\text{donde } A_i = A \text{ con la columna } i \text{ reemplazada por } B \]
+    </div>
+
+    <div class="step" style="margin-top:0.7rem">
+      <div class="s"><b>1.</b> Calcular Δ = |A|. Si <b>|A| = 0</b> → Cramer no resuelve directo (caso SCI o SI, ver árbol).</div>
+      <div class="s"><b>2.</b> Para cada incógnita: armar A<sub>i</sub> reemplazando su columna por B, calcular Δᵢ.</div>
+      <div class="s"><b>3.</b> Dividir: xᵢ = Δᵢ / Δ.</div>
+      <div class="s"><b>4. Clasificar</b>: SCD (si |A|≠0). Escribir S = {(x₁, x₂, …, xₙ)}.</div>
+    </div>
+
+    <div class="insight">💡 de la clase (2026-05-26) · "<strong>A veces pasa que Cramer, como son determinantes, y el determinante es algo fácil de resolver, porque ya lo manejan. Entonces eligen Cramer.</strong>" → si Sarrus/Laplace te salen rápido, Cramer es directo.</div>
+    <div class="note warn">📊 rúbrica de la profe: "<strong>el resultado puede quedar fracción, entero o todos ceros</strong>" — no obliga a pasar a decimal. Si te queda 16/5, dejalo así.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧮 Ejemplo 1c — resuelto en clase 2026-05-26</div>
+    <div class="op-notation" style="margin-bottom:0.4rem">Sistema: 3x₁+x₂+x₃=1 · x₁−x₃=5 · x₂−x₃=−5</div>
+
+    <div class="mwrap">
+      <span class="lbl">A</span>
+      <div class="matrix" style="grid-template-columns:repeat(3,1fr)">
+        <span>3</span><span>1</span><span>1</span>
+        <span>1</span><span>0</span><span>−1</span>
+        <span>0</span><span>1</span><span>−1</span>
+      </div>
+      <span class="lbl">B</span>
+      <div class="matrix" style="grid-template-columns:1fr">
+        <span class="hl3">1</span>
+        <span class="hl3">5</span>
+        <span class="hl3">−5</span>
+      </div>
+    </div>
+
+    <div class="worked">
+      <div class="wr"><span class="wl">Δ = |A|</span><span class="wb"><span class="denom">5</span> &nbsp;≠ 0 → Cramer aplicable, sistema SCD</span></div>
+      <div class="wr"><span class="wl">Δx₁</span><span class="wb"><span class="matrix det det-x" style="grid-template-columns:repeat(3,1fr)"><span>1</span><span>1</span><span>1</span><span>5</span><span>0</span><span>−1</span><span>−5</span><span>1</span><span>−1</span></span> &nbsp;=&nbsp; <strong>16</strong> &nbsp;(col 1 ← B)</span></div>
+      <div class="wr"><span class="wl">Δx₂</span><span class="wb"><span class="matrix det det-y" style="grid-template-columns:repeat(3,1fr)"><span>3</span><span>1</span><span>1</span><span>1</span><span>5</span><span>−1</span><span>0</span><span>−5</span><span>−1</span></span> &nbsp;=&nbsp; <strong>−34</strong> &nbsp;(col 2 ← B)</span></div>
+      <div class="wr"><span class="wl">Δx₃</span><span class="wb"><span class="matrix det det-z" style="grid-template-columns:repeat(3,1fr)"><span>3</span><span>1</span><span>1</span><span>1</span><span>0</span><span>5</span><span>0</span><span>1</span><span>−5</span></span> &nbsp;=&nbsp; <strong>−9</strong> &nbsp;(col 3 ← B)</span></div>
+      <div class="wr total"><span class="wl">x₁ =</span><span class="wb"><span class="det-x">16</span> / <span class="denom">5</span> &nbsp;=&nbsp; <span class="res">16/5</span></span></div>
+      <div class="wr"><span class="wl">x₂ =</span><span class="wb"><span class="det-y">−34</span> / <span class="denom">5</span> &nbsp;=&nbsp; <span class="res">−34/5</span></span></div>
+      <div class="wr"><span class="wl">x₃ =</span><span class="wb"><span class="det-z">−9</span> / <span class="denom">5</span> &nbsp;=&nbsp; <span class="res">−9/5</span></span></div>
+    </div>
+
+    <div class="formula green-f" style="margin-top:0.6rem">
+      S = {(16/5, −34/5, −9/5)} &nbsp;·&nbsp; <strong style="color:#4ade80">SCD</strong>
+    </div>
+
+    <div class="insight">💡 de la clase · Para ejercicio 1d (números feos: 423, 1142, 394) la profe calculó todo en la pizarra. <strong>Las fracciones grandes no se simplifican si no se puede</strong>: 1142/423 se queda así.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     04 — GAUSS-JORDAN
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s04">04 — Método de Gauss-Jordan (método 2) <span class="tier key">★ método 2 · matrices equivalentes + triángulo de ceros</span></div>
+
+<div class="grid grid-2">
+  <div class="card amber">
+    <div class="card-title">📐 Idea</div>
+    <div class="op-name">Reducir A' a triangular y despejar desde abajo</div>
+    <div class="op-rule">
+      Profe textual: "<em>Consiste en formar <strong>matrices equivalentes</strong>. Voy a tomar la matriz ampliada y voy a tratar de conseguir una matriz <strong>equivalente</strong> donde el <strong>triángulo inferior izquierdo sea de ceros</strong>.</em>" Después se escribe el sistema equivalente y se despeja de la última ecuación hacia arriba.
+    </div>
+
+    <div class="step">
+      <div class="s"><b>1.</b> Armar la matriz <b>ampliada</b> A' = [A | B].</div>
+      <div class="s"><b>2.</b> Aplicar <b>operaciones permitidas</b> (intercambiar filas · multiplicar fila por k≠0 · sumar/restar filas) hasta llegar a <b>triángulo inferior de ceros</b>. <strong>Anotar cada operación</strong>: F<sub>i</sub> + F<sub>j</sub> → F<sub>k</sub>.</div>
+      <div class="s"><b>3.</b> Escribir el <b>sistema equivalente</b> asociado a la matriz triangular.</div>
+      <div class="s"><b>4. Backward substitution</b>: de la última ecuación sale el valor de la última incógnita; subís reemplazando.</div>
+      <div class="s"><b>5. Clasificar.</b> Leé los rangos en la matriz reducida (sección 10): fila de ceros con término independiente ≠ 0 (<b>0 = k</b>) → <b>SI</b>; fila toda de ceros (<b>0 = 0</b>) → <b>SCI</b>; sin filas nulas → <b>SCD</b>.</div>
+    </div>
+
+    <div class="note ok">⚡ <strong>Atajo del final</strong> (profe 2026-06-16): con Gauss-Jordan, apenas aparece una <strong>fila de ceros</strong> ya sabés que el sistema es <strong>SI o SCI</strong> y <strong>frenás</strong> — no calculás nada más. "<em>Con Kramer tenés que hacer todos los determinantes para ver en qué resulta. Pero los 2 métodos son válidos.</em>"</div>
+    <div class="insight">💡 de la clase (2026-05-26) · "<strong>Este método es mucho más rápido que Cramer, porque en tres pasos resolví el sistema.</strong> Lo que pasa, que a veces no me tocan números muy amigables. Entonces hay que ir con paciencia."</div>
+    <div class="insight">💡 vocabulario · "<strong>Cada procedimiento que hago lo tengo que ir anunciando.</strong> Voy a decir qué es lo que voy a hacer." → notación obligatoria también en el final.</div>
+    <div class="note warn">📘 <strong>Reconocer el método del apunte (pivote / regla del rectángulo):</strong> el apunte resuelve eligiendo un <strong>pivote</strong> (un 1) y completando su columna con ceros vía <strong>diferencia del producto en cruz</strong> (pivote·a − a·a); reduce directo a la <strong>forma identidad</strong> y lee la solución <strong>sin</strong> despeje. La profe enseñó la versión <strong>triangular + backward</strong> — usá esa, pero reconocé la otra si la ves en el apunte o la bibliografía.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧮 Ejemplo trabajado en clase 2026-05-26</div>
+    <div class="op-notation" style="margin-bottom:0.4rem">Sistema: 2x+y−z=1 · x+y+z=6 · −x−y+z=0</div>
+
+    <div class="mwrap">
+      <span class="lbl">paso 0 · A'</span>
+      <div class="matrix aug" style="grid-template-columns:repeat(3,1fr) auto 1fr">
+        <span>2</span><span>1</span><span>−1</span><span class="bar">│</span><span class="hl3">1</span>
+        <span>1</span><span>1</span><span>1</span><span class="bar">│</span><span class="hl3">6</span>
+        <span>−1</span><span>−1</span><span>1</span><span class="bar">│</span><span class="hl3">0</span>
+      </div>
+    </div>
+
+    <div class="mwrap">
+      <div class="arrow">↓ <span class="op">F₂ + F₃ → F₃</span></div>
+    </div>
+
+    <div class="mwrap">
+      <span class="lbl">paso 1</span>
+      <div class="matrix aug" style="grid-template-columns:repeat(3,1fr) auto 1fr">
+        <span>2</span><span>1</span><span>−1</span><span class="bar">│</span><span class="hl3">1</span>
+        <span>1</span><span>1</span><span>1</span><span class="bar">│</span><span class="hl3">6</span>
+        <span class="hl">0</span><span class="hl">0</span><span>2</span><span class="bar">│</span><span class="hl3">6</span>
+      </div>
+    </div>
+
+    <div class="mwrap">
+      <div class="arrow">↓ <span class="op">F₂ × (−2)</span></div>
+    </div>
+
+    <div class="mwrap">
+      <span class="lbl">paso 2</span>
+      <div class="matrix aug" style="grid-template-columns:repeat(3,1fr) auto 1fr">
+        <span>2</span><span>1</span><span>−1</span><span class="bar">│</span><span class="hl3">1</span>
+        <span>−2</span><span>−2</span><span>−2</span><span class="bar">│</span><span class="hl3">−12</span>
+        <span class="hl">0</span><span class="hl">0</span><span>2</span><span class="bar">│</span><span class="hl3">6</span>
+      </div>
+    </div>
+
+    <div class="mwrap">
+      <div class="arrow">↓ <span class="op">F₁ + F₂ → F₂</span></div>
+    </div>
+
+    <div class="mwrap">
+      <span class="lbl">final · ▲ triangular</span>
+      <div class="matrix aug" style="grid-template-columns:repeat(3,1fr) auto 1fr">
+        <span>2</span><span>1</span><span>−1</span><span class="bar">│</span><span class="hl3">1</span>
+        <span class="hl">0</span><span>−1</span><span>−3</span><span class="bar">│</span><span class="hl3">−11</span>
+        <span class="hl">0</span><span class="hl">0</span><span>2</span><span class="bar">│</span><span class="hl3">6</span>
+      </div>
+    </div>
+
+    <div class="formula amber-f" style="margin-top:0.6rem;font-size:0.72rem">
+      Sistema equivalente: &nbsp; 2x + y − z = 1 &nbsp;·&nbsp; −y − 3z = −11 &nbsp;·&nbsp; 2z = 6
+    </div>
+
+    <div class="worked" style="margin-top:0.5rem">
+      <div class="wr"><span class="wl">de F₃</span><span class="wb"><span class="det-z">2z = 6</span> &nbsp;→&nbsp; <span class="res">z = 3</span></span></div>
+      <div class="wr"><span class="wl">en F₂</span><span class="wb"><span class="det-y">−y − 3(3) = −11</span> &nbsp;→&nbsp; <span class="res">y = 2</span></span></div>
+      <div class="wr"><span class="wl">en F₁</span><span class="wb"><span class="det-x">2x + 2 − 3 = 1</span> &nbsp;→&nbsp; <span class="res">x = 1</span></span></div>
+      <div class="wr total"><span class="wl">S =</span><span class="wb">{<span class="res">(1, 2, 3)</span>} &nbsp;·&nbsp; <span class="pos-tag" style="color:#4ade80;font-weight:700">SCD</span></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     05 — MATRIZ INVERSA (X = A⁻¹·B)
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s05">05 — Resolución vía matriz inversa · X = A⁻¹·B <span class="tier key">★ método 3 · pedido para el final</span></div>
+
+<div class="grid grid-2">
+  <div class="card green">
+    <div class="card-title">🔁 Método de la inversa</div>
+    <div class="op-name">Si |A| ≠ 0, despejás X multiplicando por A⁻¹</div>
+    <div class="op-rule">
+      Partiendo de <strong>A · X = B</strong>, si A es <strong>cuadrada y no singular</strong> (|A| ≠ 0) existe A⁻¹. Multiplicando por A⁻¹ a izquierda: A⁻¹·A·X = A⁻¹·B → I·X = A⁻¹·B → <strong>X = A⁻¹·B</strong>. Solución única ⇒ <strong>SCD</strong>.
+    </div>
+    <div class="formula green-f">\[ A\cdot X = B \;\Longrightarrow\; X = A^{-1}\cdot B \quad (\text{si } |A|\neq 0) \]</div>
+    <div class="formula" style="margin-top:0.4rem;font-size:0.78rem">🔑 <strong>det(A) ≠ 0 ⟺ A inversible ⟺ SCD</strong> &nbsp;·&nbsp; det(A) = 0 ⟺ no inversible ⟺ SCI o SI</div>
+    <div class="note ok">Por qué entra en el final: la profe insistió en que "<em>siempre resolvemos sistemas con matrices</em>" y que la inversa "<em>se usa para resolver sistemas de ecuaciones</em>". Es la lectura matricial del problema.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧮 De dónde sale Cramer</div>
+    <div class="op-rule">
+      Cramer <strong>es</strong> este método escrito con determinantes. Como A⁻¹ = (1/|A|)·Adj(A), al reemplazar: X = (1/|A|)·Adj(A)·B. Cada componente de ese producto es exactamente <strong>Δxᵢ</strong>, así que xᵢ = Δxᵢ / |A|.
+    </div>
+    <div class="formula cyan-f">\[ X = \frac{1}{|A|}\,\operatorname{Adj}(A)\cdot B \;\Longrightarrow\; x_i = \frac{\Delta x_i}{|A|} \]</div>
+    <div class="note warn">📘 Para <strong>calcular A⁻¹</strong> (por adjunta o por Gauss-Jordan con [A | I] → [I | A⁻¹]) → mecánica en el cheatsheet de <strong>unidad 9</strong>. <strong>No</strong> se pide reproducir la demostración formal; sí entender la conexión y poder resolver con la inversa.</div>
+    <div class="insight">💡 verificación · si calculaste A⁻¹, comprobá <strong>A·A⁻¹ = I</strong> antes de multiplicar por B. Un error en la inversa arruina todo el sistema.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     06 — OPERACIONES PERMITIDAS
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s06">06 — Operaciones permitidas · SÍ y NO <span class="tier key">★ trampa típica del Gauss-Jordan</span></div>
+
+<div class="cmatrix-wrap">
+  <div class="cmatrix">
+    <div class="cm-corner">Operación</div>
+    <div class="cm-head is-ok">✓ SÍ se puede</div>
+    <div class="cm-head is-no">✗ NO se puede</div>
+
+    <div class="cm-rl">Intercambiar</div>
+    <div class="ok">Intercambiar 2 <strong>filas</strong> entre sí (cambia el orden de ecuaciones).</div>
+    <div class="no">Intercambiar columnas — eso cambiaría qué variable es cuál.</div>
+
+    <div class="cm-rl">Multiplicar</div>
+    <div class="ok">Multiplicar toda una <strong>fila completa</strong> por un escalar <strong>k ≠ 0</strong>. Dividir también vale (es × (1/k)).</div>
+    <div class="no">Multiplicar por <strong>0</strong> (perderías la ecuación). Multiplicar solo algunos elementos de la fila.</div>
+
+    <div class="cm-rl">Sumar / restar</div>
+    <div class="ok">Sumar o restar <strong>filas entre sí</strong>. Anotar destino: F<sub>i</sub> + F<sub>j</sub> → F<sub>k</sub>.</div>
+    <div class="no">Sumar o restar <strong>un número</strong> a una fila ("F₂ − 3"). <strong>Prohibido.</strong></div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="margin-top:1rem">
+  <div class="card red">
+    <div class="card-title">🚨 La trampa más típica del tema</div>
+    <div class="op-name">Querer "restar 3" para eliminar un 3</div>
+    <div class="op-rule">
+      Verbatim de la profe (clase 2026-05-26): "<strong>No puedo sumar y restar números. Puedo sumar y restar filas, pero no números.</strong>" Un alumno preguntó exactamente esto y la profe lo confirmó tres veces.
+    </div>
+    <div class="formula red-f" style="font-size:0.74rem">
+      ❌ F₂ − 3 &nbsp;·&nbsp; F₂ + 5 &nbsp;·&nbsp; F₃ ÷ 2 con divisor ≠ fila completa
+    </div>
+    <div class="note ok">✓ En su lugar: multiplicá una fila por el escalar adecuado y sumala/restale a otra fila para anular ese coeficiente.</div>
+  </div>
+
+  <div class="card amber">
+    <div class="card-title">✍️ Notación obligatoria de pasos</div>
+    <div class="op-name">F<sub>i</sub> ⊕ F<sub>j</sub> → F<sub>k</sub></div>
+    <div class="op-rule">
+      Cada vez que aplicás una operación, anotala explícitamente y decí <strong>en qué fila colocás el resultado</strong>. La profe lo dijo verbatim: "<em>Cada procedimiento que hago lo tengo que ir anunciando.</em>"
+    </div>
+    <div class="step" style="margin-top:0.5rem">
+      <div class="s"><b>F₂ + F₃ → F₃</b> &nbsp;= sumá F₂ con F₃; el resultado va a F₃; F₂ no cambia.</div>
+      <div class="s"><b>F₂ × (−2)</b> &nbsp;= multiplicá F₂ por −2; el resultado se queda en F₂.</div>
+      <div class="s"><b>F₁ ↔ F₂</b> &nbsp;= intercambiar F₁ y F₂. Se usa cuando F₂ ya tiene un cero útil.</div>
+    </div>
+    <div class="insight">💡 estilo profe · "<strong>El destino lo elegís vos.</strong> Donde a mí me conviene poner el resultado, lo pongo." (clase 2026-05-26)</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     06 — CRAMER VS GAUSS-JORDAN
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s07">07 — Elegir método · Cramer · Gauss-Jordan · inversa <span class="tier core">decisión de método (final)</span></div>
+
+<div class="card amber" style="max-width:1400px;margin:0 auto">
+  <div class="card-title">⚔️ Comparación de métodos · libertad total de método</div>
+  <div class="op-rule">
+    Verbatim de la profe (2026-05-26): "<strong>Recién Javier preguntaba lo mismo. No, ningún método. Ustedes lo tienen que resolver. Yo les brindo las herramientas. Dos herramientas, tres herramientas. Ustedes eligen.</strong>" → <strong>libertad absoluta de método</strong> también en el final. Tenés tres: Cramer, Gauss-Jordan y la inversa.
+  </div>
+
+  <div class="versus">
+    <div class="vs-side">
+      <h4>🧮 Regla de Cramer</h4>
+      <div class="vs-row"><strong>4 determinantes</strong> (1 denominador + 3 numeradores en 3 incógnitas).</div>
+      <div class="vs-row">Más lento (calculás 4 dets), pero <strong>sistemático</strong>: sabés exactamente qué hacer en cada paso.</div>
+      <div class="vs-row"><strong>Tolerante a números feos</strong>: si los coeficientes son grandes/fraccionarios, el determinante es más mecánico que las operaciones de fila.</div>
+      <div class="vs-row">Detecta SCI/SI directamente del valor de |A| y los Δᵢ.</div>
+      <div class="vs-row"><strong>Aprovecha conocimiento previo</strong>: ya sabés Sarrus y Laplace de unidad 10.</div>
+    </div>
+    <div class="vs-mid">VS</div>
+    <div class="vs-side">
+      <h4>📐 Gauss-Jordan</h4>
+      <div class="vs-row"><strong>Más rápido</strong> con números amigables: "3 pasos y listo" (profe).</div>
+      <div class="vs-row">Exige <strong>elegir bien</strong> qué operación hacer en cada paso — no hay receta única.</div>
+      <div class="vs-row"><strong>Los números crecen rápido</strong>: si los coeficientes son fracciones, multiplicaciones cruzadas dan números grandes.</div>
+      <div class="vs-row">Para SCI/SI hay que <strong>interpretar</strong> la fila de ceros (o de "0=k").</div>
+      <div class="vs-row">Útil cuando ya hay <strong>ceros estratégicos</strong> en la matriz original.</div>
+    </div>
+  </div>
+
+  <div class="formula" style="margin-top:1rem;font-size:0.78rem">
+    🧭 <strong>regla de decisión</strong>: coeficientes chicos, enteros, con ceros → <strong>Gauss-Jordan</strong> (y si aparece una fila de ceros, clasificás al toque). Grandes / fraccionarios / sin ceros → <strong>Cramer</strong>. Si ya tenés o te dan <strong>A⁻¹</strong> → <strong>inversa</strong>: X = A⁻¹·B directo.
+  </div>
+
+  <div class="note ok">⚡ ventaja de Gauss para clasificar (profe 2026-06-16): "<em>con Gauss te simplifica, porque al generarse una fila de ceros ya sabés que el sistema no es compatible y no continuás. Con Kramer tenés que hacer todos los determinantes</em>". Para <strong>SI/SCI</strong>, Gauss suele ser más rápido; para una <strong>solución única limpia</strong>, Cramer o inversa.</div>
+  <div class="insight">💡 de la clase (2026-05-26) · "<strong>A veces pasa que Cramer, como son determinantes, y el determinante es algo fácil de resolver, porque ya lo manejan. Entonces eligen Cramer.</strong>" → la profe lo recomienda implícitamente cuando hay dudas.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     07 — SCI PARAMÉTRICA
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s08">08 — SCI con solución paramétrica <span class="tier core">cómo escribir infinitas soluciones</span></div>
+
+<div class="grid grid-2">
+  <div class="card amber">
+    <div class="card-title">∞ Cuando |A| = 0 y todos los Δᵢ = 0</div>
+    <div class="op-name">El sistema tiene infinitas soluciones — parametrizá</div>
+    <div class="op-rule">
+      Si al calcular Cramer te queda <strong>todo 0/0</strong>, no hay un punto único — hay una <strong>recta o plano</strong> de soluciones. Hay que escribir el conjunto solución dejando una (o más) incógnitas como <strong>parámetro libre</strong>. Para cada valor real del parámetro, hay una solución del sistema.
+    </div>
+
+    <div class="step">
+      <div class="s"><b>1.</b> Aplicá Gauss-Jordan. Una fila va a anularse completamente (todos los coeficientes y el término independiente = 0).</div>
+      <div class="s"><b>2.</b> Identificá la <b>variable libre</b> (la que no aparece "fijada" por las otras ecuaciones).</div>
+      <div class="s"><b>3.</b> Expresá las otras incógnitas <b>en función del parámetro</b>.</div>
+      <div class="s"><b>4.</b> Escribí el conjunto solución: <strong>S = {(f(t), g(t), t) ∈ ℝ³ / t ∈ ℝ}</strong>.</div>
+      <div class="s"><b>5. Clasificá:</b> SCI.</div>
+    </div>
+
+    <div class="note danger">⚠️ Trampa: <strong>olvidarse de escribir "SCI"</strong> además de la terna paramétrica. La consigna "<strong>resolver Y clasificar</strong>" exige ambas. Solo dar (3z, 8, z) sin decir "SCI" pierde puntos.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧮 Ejercicio 1f de la guía</div>
+    <div class="op-notation" style="margin-bottom:0.4rem">Único SCI no homogéneo de la guía — paramétrica con 1 parámetro libre.</div>
+
+    <div class="formula cyan-f" style="font-size:0.72rem">
+      x + 2y = 16 + 3z &nbsp;·&nbsp; 6x − 18z − y = −8 &nbsp;·&nbsp; −4x + 3y + 12z = 24
+    </div>
+
+    <div class="worked">
+      <div class="wr"><span class="wl">|A| =</span><span class="wb"><span class="denom">0</span></span></div>
+      <div class="wr"><span class="wl">Δx =</span><span class="wb"><span class="det-x">0</span></span></div>
+      <div class="wr"><span class="wl">Δy =</span><span class="wb"><span class="det-y">0</span></span></div>
+      <div class="wr"><span class="wl">Δz =</span><span class="wb"><span class="det-z">0</span></span></div>
+      <div class="wr total"><span class="wl">caso</span><span class="wb">todo <strong>0/0</strong> &nbsp;→&nbsp; <strong style="color:#fbbf24">SCI</strong> &nbsp;→&nbsp; parametrizar</span></div>
+    </div>
+
+    <div class="formula green-f" style="margin-top:0.6rem;font-size:0.85rem">
+      S = {(x, y, z) ∈ ℝ³ / <strong>(3z, 8, z)</strong>, z ∈ ℝ}
+    </div>
+
+    <div class="op-rule" style="margin-top:0.5rem">
+      <strong>Lectura:</strong> para cada z real, x = 3z e y = 8 son una solución. Ej: z=0 → (0, 8, 0); z=1 → (3, 8, 1); z=2 → (6, 8, 2)… <strong>infinitas ternas</strong>, todas con y = 8 fijo.
+    </div>
+
+    <div class="insight">💡 grado de indeterminación · h = R(A) = 2, n = 3 incógnitas. n − h = <strong>1 parámetro libre</strong> (z).</div>
+    <div class="note warn">📘 <strong>Caso de 2 parámetros libres (n − h = 2):</strong> misma idea, dejás <strong>dos</strong> incógnitas libres. Ejemplo 3 del apunte (3 ec × 4 incóg) → <strong>SCI</strong>, S = {(1−2y−w, &nbsp;y, &nbsp;w, &nbsp;−3+4y+3w) / y, w ∈ ℝ}. Reconocelo: más incógnitas que ecuaciones ⇒ nunca SCD (a lo sumo SCI).</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     08 — SISTEMAS HOMOGÉNEOS
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s09">09 — Sistemas homogéneos · A · X = 0 <span class="tier core">caso especial · siempre compatible</span></div>
+
+<div class="grid grid-2">
+  <div class="card green">
+    <div class="card-title">⓪ Sistema homogéneo</div>
+    <div class="op-name">Todos los términos independientes = 0</div>
+    <div class="op-notation">A · X = 0 &nbsp;·&nbsp; B = vector nulo</div>
+    <div class="op-rule">
+      Un sistema lineal en el que <strong>b₁ = b₂ = … = bₘ = 0</strong>. Siempre tiene como mínimo la <strong>solución trivial</strong> x₁ = x₂ = … = xₙ = 0 (todas las incógnitas en cero).
+    </div>
+
+    <div class="formula green-f" style="margin-top:0.5rem;font-size:0.85rem">
+      ⇒ <strong>Todo sistema homogéneo es compatible.</strong>
+    </div>
+
+    <div class="step" style="margin-top:0.6rem">
+      <div class="s"><b>|A| ≠ 0</b> → SCD · la única solución es la <b>trivial</b> (0, 0, …, 0).</div>
+      <div class="s"><b>|A| = 0</b> → SCI · existen <b>infinitas soluciones no triviales</b> (la trivial es una de ellas).</div>
+    </div>
+
+    <div class="note ok">✓ Nunca puede ser SI. La trivial siempre verifica el sistema.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧮 Ejercicio 3 — hallar a para solución no trivial</div>
+    <div class="op-notation" style="margin-bottom:0.4rem">"Hallá a ∈ ℝ tal que el sistema homogéneo admita solución distinta de la trivial."</div>
+
+    <div class="op-rule">
+      <strong>Condición:</strong> el sistema homogéneo tiene solución no trivial ⟺ <strong>|A| = 0</strong> (porque entonces es SCI, no SCD). Es el <em>mismo</em> ejercicio que "hallar x para que A no sea inversible" de la unidad 10 — la condición es exactamente |A(a)| = 0.
+    </div>
+
+    <div class="formula" style="margin-top:0.5rem">|A(a)| = 0 &nbsp;→&nbsp; resolver para a</div>
+
+    <div class="step" style="margin-top:0.6rem">
+      <div class="s"><b>1.</b> Plantear |A(a)| por Sarrus o Laplace.</div>
+      <div class="s"><b>2.</b> Igualar a 0; resolver el polinomio en a.</div>
+      <div class="s"><b>3.</b> Las raíces son los valores de a buscados.</div>
+    </div>
+
+    <table class="reftable" style="margin-top:0.7rem">
+      <thead>
+        <tr><th>Ej</th><th>Respuesta oficial</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="ej">3a</td><td>a ∈ {0, 4}</td></tr>
+        <tr><td class="ej">3b</td><td>a ∈ {0, 1/3}</td></tr>
+        <tr><td class="ej">3c</td><td>a ∈ {6}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     09 — ROUCHÉ + RANGO
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s10">10 — Teorema de Rouché-Frobenius · rango <span class="tier key">★ criterio riguroso · gana peso en el final</span></div>
+
+<div class="grid grid-2">
+  <div class="card purple">
+    <div class="card-title">∇ Rango de una matriz</div>
+    <div class="op-name">Cantidad máxima de vectores canónicos columna distintos</div>
+    <div class="op-rule">
+      <strong>R(A) = rango de A</strong>: la mayor cantidad de vectores canónicos columna distintos (vector con todas las componentes 0 excepto una que vale 1) que se obtienen por operaciones elementales. Las matrices equivalentes <strong>tienen el mismo rango</strong>.
+    </div>
+    <div class="note ok">🔎 <strong>En la práctica:</strong> reducí con Gauss-Jordan y <strong>contá las filas no nulas</strong> — ese número es el rango. R(A) cuenta filas no nulas en la parte de coeficientes; R(A') las cuenta con la columna de términos independientes.</div>
+    <div class="insight">💡 La profe en clase no lo nombró (lo aplicó sin decir "rango"), pero <strong>en el final gana peso</strong>: es el criterio formal cuando piden "analizá la compatibilidad" o discutir un sistema con parámetros (sección 11).</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🎯 Rouché-Frobenius — criterio de compatibilidad</div>
+    <div class="op-name">Compatible ⟺ R(A) = R(A')</div>
+    <div class="op-rule">
+      Un sistema es <strong>compatible</strong> (tiene al menos una solución) si y solo si la matriz de coeficientes y la ampliada tienen el <strong>mismo rango</strong>.
+    </div>
+
+    <div class="step">
+      <div class="s"><b>R(A) = R(A') = n</b> &nbsp;(n = nº incógnitas) &nbsp;→&nbsp; <b>SCD</b></div>
+      <div class="s"><b>R(A) = R(A') = h &lt; n</b> &nbsp;→&nbsp; <b>SCI</b> con grado de indeterminación n − h.</div>
+      <div class="s"><b>R(A) ≠ R(A')</b> &nbsp;→&nbsp; <b>SI</b> (incompatible).</div>
+    </div>
+
+    <div class="note warn">📘 Corolario: si <strong>hay más incógnitas que ecuaciones</strong>, no puede ser SCD (a lo sumo SCI).</div>
+  </div>
+</div>
+
+<div class="card amber" style="max-width:1400px;margin:1.2rem auto 0">
+  <div class="card-title">🔬 Leer el rango desde Gauss-Jordan · ejemplos del apunte</div>
+  <div class="op-rule">
+    Casos con <strong>más ecuaciones que incógnitas</strong> (4 ec × 3 incóg): el rango decide. Reducís y comparás filas no nulas de A vs A'.
+  </div>
+  <div style="overflow-x:auto;margin-top:0.6rem">
+    <table class="reftable">
+      <thead><tr><th>Apunte</th><th>Sistema (4 ec × 3 incóg)</th><th>R(A)</th><th>R(A')</th><th>n</th><th>Resultado</th></tr></thead>
+      <tbody>
+        <tr><td class="ej">Ej. 2</td><td>x−y+z=4 · 2x+y−2z=3 · x+y−z=2 · −x+2y+z=1</td><td>3</td><td>3</td><td>3</td><td class="scd">R(A)=R(A')=n → SCD · S={(3,1,2)}</td></tr>
+        <tr><td class="ej">Ej. 4</td><td>x+y−3z=−1 · 2x+y−2z=1 · x+y+z=3 · x+2y−3z=1</td><td>3</td><td>4</td><td>3</td><td class="si">R(A)≠R(A') → SI</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note ok">✓ <strong>Criterio riguroso:</strong> <strong>R(A) ≠ R(A') → SI nunca falla.</strong> Es la red de seguridad del atajo de Cramer "0/0 → SCI": en sistemas degenerados (rango 1 con términos independientes incompatibles) el rango te evita clasificar mal.</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     11 — DISCUSIÓN POR PARÁMETROS
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s11">11 — Discusión de sistemas por parámetros <span class="tier key">★ clásico de final · ejercicio 2</span></div>
+
+<div class="grid grid-2">
+  <div class="card purple">
+    <div class="card-title">⚙️ Discutir según un parámetro</div>
+    <div class="op-name">¿Para qué valores el sistema es SCD, SCI o SI?</div>
+    <div class="op-rule">
+      Cuando el sistema tiene un <strong>parámetro</strong> (k, b, a…) en los coeficientes o términos independientes, no se "resuelve" un único caso: se <strong>discute</strong>. Método: estudiar <strong>|A|</strong> y los rangos <strong>R(A), R(A')</strong> según el parámetro.
+    </div>
+    <div class="step">
+      <div class="s"><b>1.</b> Calcular <b>|A|</b> en función del parámetro e igualar a 0 → valores "críticos" que rompen la regularidad.</div>
+      <div class="s"><b>2.</b> Para <b>|A| ≠ 0</b> (parámetro genérico) → <b>SCD</b>.</div>
+      <div class="s"><b>3.</b> En cada valor crítico (|A| = 0) → comparar R(A) vs R(A'): iguales → <b>SCI</b>; distintos → <b>SI</b>.</div>
+    </div>
+    <div class="insight">💡 Es el mismo razonamiento que "hallar a para solución no trivial" (sección 09), pero generalizado: ahí buscabas |A| = 0; acá clasificás <strong>todos</strong> los casos del parámetro.</div>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">🧮 Ejercicio 2 de la guía · resultados oficiales</div>
+    <div class="op-notation" style="margin-bottom:0.4rem">Sistemas con parámetros k, b — clasificar según sus valores.</div>
+    <div class="ptbl-wrap">
+      <div class="power-table" style="min-width:0;grid-template-columns:54px 1fr 1.2fr 1.2fr">
+        <div class="pt-head">Ej</div>
+        <div class="pt-head pt-cd">SCD</div>
+        <div class="pt-head pt-ci">SCI</div>
+        <div class="pt-head pt-si">SI</div>
+
+        <div class="pt-rl">2a</div>
+        <div class="pt-cd">k ≠ 1</div>
+        <div class="pt-ci">k = 1 ∧ b = 1</div>
+        <div class="pt-si">k = 1 ∧ b ≠ 1</div>
+
+        <div class="pt-rl">2b</div>
+        <div class="pt-cd">b ≠ 1</div>
+        <div class="pt-ci">b = 1</div>
+        <div class="pt-si">nunca</div>
+
+        <div class="pt-rl">2c</div>
+        <div class="pt-cd">nunca</div>
+        <div class="pt-ci">∀ k, b ∈ ℝ</div>
+        <div class="pt-si">nunca</div>
+      </div>
+    </div>
+    <div class="note warn">⚠️ La consigna es <strong>discutir</strong>, no dar un número: hay que cubrir <strong>todos</strong> los casos del parámetro y clasificar cada uno.</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     12 — RESULTADOS OFICIALES 1a-1i
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s12">12 — Resultados oficiales · ejercicios 1a-1i de la guía <span class="tier core">tabla de verificación</span></div>
+
+<div class="card cyan" style="max-width:1400px;margin:0 auto">
+  <div class="card-title">📋 Las 9 respuestas oficiales de la guía</div>
+  <div class="op-rule">
+    Todos los sistemas de la guía con su clasificación y solución oficial. Usalo para <strong>verificar tu trabajo</strong> al practicar. <strong>1c, 1d y 1g</strong> son los que la profe resolvió en clase 2026-05-26 (canónicos).
+  </div>
+  <div style="overflow-x:auto;margin-top:0.7rem">
+    <table class="reftable">
+      <thead>
+        <tr><th>Ej</th><th>Sistema</th><th>Clasif.</th><th>Solución</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="ej">1a</td><td>2x+y=13 · 3x+2y=21</td><td class="scd">SCD</td><td>(5, 3)</td></tr>
+        <tr><td class="ej">1b</td><td>x+y=52 · x+y−16=52</td><td class="si">SI</td><td>∅</td></tr>
+        <tr><td class="ej">1c <span style="color:#fbbf24">★</span></td><td>3x₁+x₂+x₃=1 · x₁−x₃=5 · x₂−x₃=−5</td><td class="scd">SCD</td><td>(16/5, −34/5, −9/5)</td></tr>
+        <tr><td class="ej">1d <span style="color:#fbbf24">★</span></td><td>3x−2y−11z=−25 · −6x+2y−13z=12 · 2x+3y−2z=0</td><td class="scd">SCD</td><td>(−1319/423, 1142/423, 394/423)</td></tr>
+        <tr><td class="ej">1e</td><td>3x−2y+6z=−1 · −5x+3y+2z=0 · x−6y−2z=−11</td><td class="scd">SCD</td><td>(59/49, 101/49, −4/49)</td></tr>
+        <tr><td class="ej">1f</td><td>x+2y=16+3z · 6x−18z−y=−8 · −4x+3y+12z=24</td><td class="sci">SCI</td><td>(3z, 8, z) · z ∈ ℝ</td></tr>
+        <tr><td class="ej">1g <span style="color:#fbbf24">★</span></td><td>x+2y+3z=−7 · 2x−y+z=5 · 4x+6y−5z=8</td><td class="scd">SCD</td><td>(187/75, −143/75, −142/75)</td></tr>
+        <tr><td class="ej">1h</td><td>3x+2y−z=3 · 2x−3y+5z=−5 · 4x+6y−5z=8</td><td class="scd">SCD</td><td>(1, −1, −2)</td></tr>
+        <tr><td class="ej">1i</td><td>2x−y+z=1 · x+y=1 · x−y−z=2</td><td class="scd">SCD</td><td>(1, 0, −1)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note ok">★ resueltos en clase por la profe — son los modelos de respuesta.</div>
+  <div class="note warn">📋 Ejercicio 2 (parámetros k, b): discusión por parámetro — desarrollada en la <strong>sección 11</strong>. Ejercicio 4 (billetes $10 y $5): planteo simple, sale por sustitución, Cramer o G-J → (6, 8).</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     11 — AUTOEVALUACIÓN
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label is-ctx" id="s13">13 — Autoevaluación · banco de recall <span class="tier ctx">repaso activo (Bjork)</span></div>
+
+<div class="grid grid-2 is-ctx">
+  <div class="card purple">
+    <div class="card-title">🧠 Preguntas conceptuales</div>
+
+    <details class="recall">
+      <summary>¿Cuáles son las tres clasificaciones y qué condición las define con Cramer?</summary>
+      <div class="recall-a">
+        <strong>SCD</strong>: |A| ≠ 0 — solución única.<br>
+        <strong>SCI</strong>: |A| = 0 y todos los Δᵢ = 0 (0/0 indeterminación) — infinitas.<br>
+        <strong>SI</strong>: |A| = 0 y algún Δᵢ ≠ 0 (k/0) — sin solución (∅).<br>
+        Mnemónica: <strong>0/0 = infinitas · número/0 = ninguna</strong>.
+      </div>
+    </details>
+
+    <details class="recall">
+      <summary>En Gauss-Jordan, ¿puedo restarle 3 a toda una fila para eliminar un 3?</summary>
+      <div class="recall-a"><strong>NO.</strong> Solo se puede: <strong>intercambiar filas · multiplicar una fila por k≠0 · sumar o restar filas entre sí</strong>. Sumar/restar un número a una fila es prohibido — eso modificaría la ecuación de forma no equivalente.</div>
+    </details>
+
+    <details class="recall">
+      <summary>¿Qué método conviene cuando los coeficientes son números enteros chicos con varios ceros?</summary>
+      <div class="recall-a"><strong>Gauss-Jordan.</strong> Profe textual: "3 pasos y listo". Con ceros estratégicos la triangulación es rápida y los números no se descontrolan. Si en cambio hay fracciones o coeficientes grandes/sin ceros, <strong>Cramer</strong> es más mecánico (4 determinantes, ya los sabés calcular).</div>
+    </details>
+
+    <details class="recall">
+      <summary>¿Cómo se anota "sumo F₂ con F₃ y el resultado lo pongo en F₃"?</summary>
+      <div class="recall-a"><strong>F₂ + F₃ → F₃</strong>. Notación obligatoria. La profe lo dijo: "<em>cada procedimiento que hago lo tengo que ir anunciando</em>". El destino lo elegís vos (podés poner el resultado en F₂ si te conviene).</div>
+    </details>
+
+    <details class="recall">
+      <summary>¿Por qué un sistema homogéneo nunca puede ser SI?</summary>
+      <div class="recall-a">Porque siempre admite la <strong>solución trivial</strong> (todas las incógnitas = 0). Reemplazá x = y = z = 0 en cualquier sistema A·X = 0 y verifica. Por tanto, siempre tiene <strong>al menos una solución</strong>. La pregunta interesante es si admite <strong>otras</strong> (no triviales): eso pasa solo si |A| = 0 (SCI).</div>
+    </details>
+
+    <details class="recall">
+      <summary>Si al hacer Cramer te queda Δ = 0 y Δₓ = 16, ¿qué sistema es?</summary>
+      <div class="recall-a"><strong>SI (incompatible).</strong> k/0 no es un número — el sistema no tiene solución. <em>Cuidado:</em> la profe en clase 2026-05-26 invirtió esto oralmente diciendo "infinitas soluciones" — ignorá esa parte y mirá el ejercicio 1b de la guía como ancla (también termina con algo/0 y la respuesta oficial es <strong>SI / ∅</strong>).</div>
+    </details>
+  </div>
+
+  <div class="card cyan">
+    <div class="card-title">⚡ Modelos de examen · respuesta visible</div>
+
+    <div class="exam-q">
+      <div class="q">Resolver y clasificar por Cramer: &nbsp;3x₁+x₂+x₃=1, &nbsp;x₁−x₃=5, &nbsp;x₂−x₃=−5.</div>
+      <div class="a">
+        Δ = <span class="matrix det" style="grid-template-columns:repeat(3,1fr)"><span>3</span><span>1</span><span>1</span><span>1</span><span>0</span><span>−1</span><span>0</span><span>1</span><span>−1</span></span> = <strong>5 ≠ 0</strong> → aplicable, SCD.<br>
+        Δx₁ = <span class="matrix det" style="grid-template-columns:repeat(3,1fr)"><span>1</span><span>1</span><span>1</span><span>5</span><span>0</span><span>−1</span><span>−5</span><span>1</span><span>−1</span></span> = <strong>16</strong>.<br>
+        Δx₂ = <span class="matrix det" style="grid-template-columns:repeat(3,1fr)"><span>3</span><span>1</span><span>1</span><span>1</span><span>5</span><span>−1</span><span>0</span><span>−5</span><span>−1</span></span> = <strong>−34</strong>.<br>
+        Δx₃ = <span class="matrix det" style="grid-template-columns:repeat(3,1fr)"><span>3</span><span>1</span><span>1</span><span>1</span><span>0</span><span>5</span><span>0</span><span>1</span><span>−5</span></span> = <strong>−9</strong>.<br>
+        <strong>S = {(16/5, −34/5, −9/5)} · SCD</strong>.
+      </div>
+    </div>
+
+    <div class="exam-q">
+      <div class="q">Resolver por Gauss-Jordan: &nbsp;2x+y−z=1, &nbsp;x+y+z=6, &nbsp;−x−y+z=0.</div>
+      <div class="a">
+        Matriz ampliada <span class="matrix aug" style="grid-template-columns:repeat(3,1fr) auto 1fr"><span>2</span><span>1</span><span>−1</span><span class="bar">│</span><span class="hl3">1</span><span>1</span><span>1</span><span>1</span><span class="bar">│</span><span class="hl3">6</span><span>−1</span><span>−1</span><span>1</span><span class="bar">│</span><span class="hl3">0</span></span>.<br>
+        F₂+F₃→F₃ → <span class="matrix aug" style="grid-template-columns:repeat(3,1fr) auto 1fr"><span>2</span><span>1</span><span>−1</span><span class="bar">│</span><span class="hl3">1</span><span>1</span><span>1</span><span>1</span><span class="bar">│</span><span class="hl3">6</span><span>0</span><span>0</span><span>2</span><span class="bar">│</span><span class="hl3">6</span></span>.<br>
+        F₂×(−2) → <span class="matrix aug" style="grid-template-columns:repeat(3,1fr) auto 1fr"><span>2</span><span>1</span><span>−1</span><span class="bar">│</span><span class="hl3">1</span><span>−2</span><span>−2</span><span>−2</span><span class="bar">│</span><span class="hl3">−12</span><span>0</span><span>0</span><span>2</span><span class="bar">│</span><span class="hl3">6</span></span>.<br>
+        F₁+F₂→F₂ → triangular: 2x+y−z=1, −y−3z=−11, 2z=6.<br>
+        Despeje: <strong>z=3, y=2, x=1</strong>. <strong>S={(1,2,3)} · SCD</strong>.
+      </div>
+    </div>
+
+    <div class="exam-q">
+      <div class="q">Hallar a ∈ ℝ tal que el sistema homogéneo a·x+y+z=0, x+a·y+z=0, x+y+a·z=0 admita solución no trivial.</div>
+      <div class="a">
+        Condición: <strong>|A(a)| = 0</strong>. Por Sarrus:<br>
+        |A| = a³ + 1 + 1 − a − a − a = a³ − 3a + 2 = (a−1)²(a+2).<br>
+        |A| = 0 ⟺ <strong>a = 1</strong> ó <strong>a = −2</strong>.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     12 — TIPS DE CLASE
+═══════════════════════════════════════════════════ -->
+
+<div class="section-label" id="s14">14 — Claves para el final</div>
+
+<div class="card red" style="max-width:1400px;margin:0 auto">
+  <div class="card-title">💡 Tips de clase — checklist del final</div>
+  <div class="step">
+    <div class="s"><b>★ Libertad de método absoluta.</b> La profe lo dijo dos veces: "<em>ningún método. Ustedes lo tienen que resolver. Ustedes eligen.</em>" Sarrus o Laplace para determinantes; <strong>Cramer, Gauss-Jordan o inversa</strong> para sistemas. Elegí el que te haga más rápido.</div>
+    <div class="s"><b>★ "Resolver Y clasificar".</b> La consigna típica del examen. No alcanza con dar la terna — hay que decir explícitamente <strong>SCD / SCI / SI</strong>. Punto perdido si no lo escribís.</div>
+    <div class="s"><b>★ El árbol de Cramer está CORREGIDO.</b> En la grabación la profe invirtió SCI ↔ SI. La versión correcta: <strong>|A|≠0 → SCD · 0/0 → SCI · k/0 → SI</strong>. Ancla mental: ejercicio 1b → SI · ejercicio 1f → SCI.</div>
+    <div class="s"><b>★ Cramer es 4 determinantes y dividís.</b> Si los números son feos o no ves cómo arrancar Gauss-Jordan, Cramer es directo: calcular |A|, calcular cada Δᵢ reemplazando columna por B, dividir. Listo.</div>
+    <div class="s"><b>★ Gauss-Jordan: triángulo inferior izquierdo de ceros, no triangulación completa.</b> La versión de la profe (no la del apunte). Después <strong>backward substitution</strong> desde la última ecuación hacia arriba.</div>
+    <div class="s"><b>★ Anotá CADA paso de Gauss-Jordan.</b> "F₂ + F₃ → F₃" al costado de la flecha. La profe es estricta: "<em>cada procedimiento que hago lo tengo que ir anunciando</em>". Si no se ve el procedimiento, no se evalúa.</div>
+    <div class="s"><b>★ Operaciones permitidas — solo 3.</b> Intercambiar filas · multiplicar una fila por k≠0 · sumar/restar filas entre sí. <strong>NO restar números a una fila</strong> ("F₂ − 3" es ilegal). <strong>NO intercambiar columnas</strong>.</div>
+    <div class="s"><b>★ Fracciones aceptadas.</b> "<em>Puede quedar fracción, entero, o todos ceros</em>" (profe). No fuerces a pasar a decimal — 1142/423 se queda así.</div>
+    <div class="s"><b>★ SCI = parametrizar.</b> Cuando todo es 0/0, dejá una incógnita como parámetro libre: S = {(f(z), g(z), z) ∈ ℝ³ / z ∈ ℝ}. Y escribí "SCI" al final.</div>
+    <div class="s"><b>★ Sistemas homogéneos siempre compatibles.</b> Nunca SI. La trivial (0,…,0) siempre vale. "Hallar a para solución no trivial" = igualar |A(a)| a 0 y resolver.</div>
+    <div class="s"><b>★ "En matemática no existe ni el siempre ni el nunca."</b> Si una pregunta te dice "esto siempre es así" — pensá en contraejemplos. Profe (2026-05-26).</div>
+    <div class="s"><b>★ Paciencia con matrices.</b> "<em>Matrices es paciencia</em>" (profe). Los cálculos son largos; si te equivocás en un signo, todo el ejercicio cae. Verificá determinantes con Sarrus + Laplace por separado cuando puedas, y A·A⁻¹ = I si calculaste una inversa.</div>
+    <div class="s"><b>★ Tres métodos, no dos.</b> Para el final sumá la <strong>inversa</strong> (X = A⁻¹·B) a Cramer y Gauss-Jordan. Y tené "tatuado": <strong>det(A) ≠ 0 ⟺ A inversible ⟺ SCD</strong>. La profe (2026-06-16): "<em>para que una matriz tenga inversa, el determinante no puede ser 0</em>".</div>
+    <div class="s"><b>★ Si piden "analizá/discutí la compatibilidad" → rango y Rouché-Frobenius.</b> R(A)=R(A')=n → SCD · R(A)=R(A')=h&lt;n → SCI · R(A)≠R(A') → SI. <strong>R(A)≠R(A') nunca falla</strong>. Para sistemas con parámetros (k, b), discutí TODOS los casos (sección 11).</div>
+    <div class="s"><b>★ Las propiedades van DE MEMORIA.</b> En el final solo se permiten <strong>tablas de verdad</strong> — no el resumen de propiedades del parcial. Repasá propiedades de determinantes (fila de ceros → 0 · triangular → producto de la diagonal · 2 filas iguales/proporcionales → 0) en el cheatsheet de unidad 10.</div>
+    <div class="s"><b>★ Formato del final.</b> 10 temas, se eligen <strong>5 ejercicios</strong> · 2 hs · multiple-choice <strong>con desarrollo obligatorio</strong> (hay que mostrar el procedimiento, no es tatetí) · sin oral. Practicá con la bibliografía: la profe dijo que los ejercicios del final siguen esa misma línea.</div>
+  </div>
+</div>
+
+<footer>
+  <p>Sistemas de Ecuaciones Lineales · Álgebra · Universidad de Palermo · examen final integrador</p>
+  <p class="out">Se apoya en otras unidades: <strong>propiedades de determinantes</strong> (fila de ceros → 0 · triangular → producto de la diagonal · 2 filas iguales o proporcionales → 0) y <strong>cálculo de la inversa A⁻¹</strong> → ver cheatsheets de <strong>unidad 10</strong> (determinantes) y <strong>unidad 9</strong> (matrices). La <strong>demostración formal de Cramer</strong> (vía A⁻¹·B y adjunta) no se pide reproducir, pero sí entender la conexión det≠0 ⟺ inversible ⟺ SCD. <strong>Relaciones</strong> es otra unidad (con su propio cheatsheet) y no entra en las 2 primeras fechas de julio.</p>
+</footer>
+
+<script>
+(function () {
+  var links = [].slice.call(document.querySelectorAll('.toc-rail a'));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var sections = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.remove('active'); });
+        var a = byId[e.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+  sections.forEach(function (s) { obs.observe(s); });
+  var bar = document.getElementById('progress');
+  function onScroll() { var h = document.documentElement; var max = h.scrollHeight - h.clientHeight; bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%'; }
+  document.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+})();
+</script>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#algebra" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>

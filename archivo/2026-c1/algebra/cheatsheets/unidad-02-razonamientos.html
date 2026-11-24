@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Razonamientos — Cheatsheet</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --accent4: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --mono: 'JetBrains Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--display);
+    min-height: 100vh;
+    padding: 2rem 1.5rem 4rem;
+    background-image:
+      radial-gradient(ellipse at 10% 0%, rgba(124,58,237,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(6,182,212,0.10) 0%, transparent 50%);
+  }
+
+  header { text-align: center; margin-bottom: 3rem; }
+  .badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    border: 1px solid var(--accent2);
+    border-radius: 2px;
+    padding: 0.2rem 0.7rem;
+    margin-bottom: 1rem;
+  }
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle { color: var(--muted); font-size: 0.9rem; font-family: var(--mono); }
+  .divider {
+    width: 60px; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    margin: 1.2rem auto 0; border-radius: 2px;
+  }
+
+  .grid { display: grid; gap: 1.2rem; max-width: 1400px; margin: 0 auto; }
+  .grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-5 { grid-template-columns: repeat(5, 1fr); }
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-5 { grid-template-columns: 1fr; }
+  }
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .grid-3 { grid-template-columns: repeat(2, 1fr); }
+    .grid-5 { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1101px) and (max-width: 1300px) {
+    .grid-5 { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 2.5rem 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent), transparent); }
+  .card.cyan::before   { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.amber::before  { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before  { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before    { background: linear-gradient(90deg, var(--red), transparent); }
+
+  .card-title {
+    font-size: 0.7rem;
+    font-family: var(--mono);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .card.purple .card-title { color: #a78bfa; }
+  .card.cyan   .card-title { color: var(--accent2); }
+  .card.amber  .card-title { color: var(--accent3); }
+  .card.green  .card-title { color: var(--accent4); }
+  .card.red    .card-title { color: #f87171; }
+
+  /* INFERENCE RULE BLOCK */
+  .rule-block {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.75rem 0.9rem;
+    font-family: var(--mono);
+    font-size: 0.82rem;
+  }
+  .rule-name {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 0.7rem;
+  }
+  /* Grid layout for rule rows */
+  .rule-grid {
+    display: grid;
+    grid-template-columns: 1.6rem max-content max-content max-content;
+    column-gap: 0.45rem;
+    row-gap: 0.3rem;
+    align-items: center;
+    width: fit-content;
+  }
+  .rg-divider {
+    grid-column: 1 / -1;
+    height: 1.5px;
+    background: #4b5563;
+    margin: 0.3rem 0;
+    width: 100%;
+  }
+  .rg-label {
+    font-size: 0.62rem;
+    color: #4b5563;
+    text-align: right;
+    padding-right: 0.2rem;
+  }
+  .rg-label.therefore { color: var(--accent3); font-size: 0.9rem; }
+  .rg-lhs  { color: var(--muted); }
+  .rg-op   { color: var(--muted); text-align: center; }
+  .rg-rhs  { color: var(--muted); }
+  .rg-lhs.conc, .rg-op.conc, .rg-rhs.conc { color: #fff; font-weight: 700; }
+
+  .rule-hint {
+    font-size: 0.65rem;
+    color: #4b5563;
+    margin-top: 0.55rem;
+    line-height: 1.4;
+    font-family: var(--mono);
+  }
+  .rule-hint span { color: var(--muted); }
+
+  /* METHOD CARDS */
+  .method-step {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    margin-bottom: 0.7rem;
+  }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .step-text {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .step-text strong { color: #fff; }
+
+  /* QUANTIFIER CARDS */
+  .q-symbol {
+    font-size: 2.8rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    font-family: var(--mono);
+  }
+  .q-reads {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-bottom: 0.7rem;
+    line-height: 1.6;
+  }
+  .q-truth {
+    font-size: 0.72rem;
+    color: var(--muted);
+    padding: 0.45rem 0.6rem;
+    background: rgba(255,255,255,0.03);
+    border-left: 2px solid var(--border);
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 0.6rem;
+    font-family: var(--mono);
+    line-height: 1.5;
+  }
+  .q-truth strong { color: #fff; }
+  .q-example {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: #4b5563;
+    line-height: 1.5;
+  }
+  .q-example span { color: var(--muted); }
+
+  /* NEGATION TABLE */
+  .neg-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+  }
+  .neg-row:last-child { border-bottom: none; }
+  .neg-before { color: var(--muted); line-height: 1.4; }
+  .neg-arrow { color: var(--accent3); font-size: 1rem; text-align: center; }
+  .neg-after { color: #fff; line-height: 1.4; }
+  .neg-label {
+    font-size: 0.6rem;
+    color: #4b5563;
+    display: block;
+    margin-bottom: 0.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 4rem;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: #374151;
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">Álgebra · Unidad 2</div>
+  <h1>Razonamientos</h1>
+  <p class="subtitle">Validez · Demostraciones · Reglas de inferencia · Cuantificadores</p>
+  <div class="divider"></div>
+</header>
+
+<!-- ══════════════════════════════════════════
+     NOTA DE ALCANCE — EXAMEN FINAL
+══════════════════════════════════════════ -->
+
+<div class="card amber" style="max-width:1400px;margin:0 auto 1.5rem;border-left:3px solid var(--accent3);">
+  <div class="card-title">★ Alcance en el final — leé esto primero</div>
+  <div style="font-size:0.78rem;color:var(--muted);line-height:1.7;">
+    El final es <strong style="color:#fff">acumulativo</strong>: la Unidad 2 entra <strong style="color:#fff">completa</strong> (validez, demostraciones, reglas de inferencia <em>y</em> cuantificadores). A diferencia de los parciales, la cátedra <strong style="color:#fff">pone el foco en demostraciones y propiedades</strong> — temas que "no se trabajaron mucho en los parciales, pero en el final seguro se van a tomar".
+    <div style="margin-top:0.7rem;padding:0.5rem 0.7rem;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);border-radius:5px;color:#cbd5e1;">
+      ⚠ En el final <strong style="color:#f87171">solo podés tener la tabla de verdad</strong> como material. El "resumen de propiedades" que se permitía en los parciales <strong style="color:#f87171">no está permitido</strong> → las leyes lógicas hay que saberlas de memoria (ver <span style="color:var(--accent4)">Leyes para justificar pasos</span>).
+    </div>
+    <div style="margin-top:0.5rem;font-size:0.7rem;color:#4b5563;">
+      Nada de la Unidad 2 queda afuera. <em>(La única exclusión que mencionó la profe —Relaciones— es de la Unidad 5 y solo en la 1ª/2ª fecha de julio.)</em>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECCIÓN 1: VALIDEZ — 4 FORMAS DE DEMOSTRARLA
+══════════════════════════════════════════ -->
+
+<div class="section-label">01 — Validez de un razonamiento · 4 formas de demostrarla</div>
+
+<div class="grid" style="max-width:1400px;margin:0 auto;grid-template-columns:1fr;">
+
+  <!-- Concepto -->
+  <div class="card cyan">
+    <div class="card-title">¿Qué es un razonamiento válido?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:start;">
+      <div>
+        <div style="font-size:0.78rem;color:var(--muted);line-height:1.6;margin-bottom:0.8rem;">
+          <strong style="color:#fff">Razonamiento:</strong> conjunto finito de proposiciones (las <strong style="color:#fff">premisas</strong> p₁, p₂…) de las que se afirma que deriva otra proposición, la <strong style="color:#fff">conclusión</strong> c. Es <strong style="color:#fff">válido</strong> cuando, si todas las premisas son verdaderas, la conclusión <em>necesariamente</em> también lo es.
+        </div>
+        <div style="font-family:var(--mono);font-size:0.72rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:0.7rem 0.9rem;line-height:1.8;">
+          <span style="color:#4b5563;">p1:</span> <span style="color:var(--muted);">premisa 1</span><br>
+          <span style="color:#4b5563;">p2:</span> <span style="color:var(--muted);">premisa 2</span><br>
+          <div style="border-top:1px solid var(--border);margin:0.35rem 0;"></div>
+          <span style="color:var(--accent3);">∴</span> <span style="color:#fff;font-weight:700;">conclusión</span>
+        </div>
+        <div style="margin-top:0.75rem;font-family:var(--mono);font-size:0.65rem;color:#4b5563;">
+          El símbolo <span style="color:var(--accent3);">∴</span> ("luego", "por lo tanto", "en consecuencia") introduce la conclusión.
+        </div>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:0.72rem;background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.25);border-radius:6px;padding:0.7rem 0.9rem;line-height:1.7;margin-bottom:0.8rem;">
+          <span style="color:var(--accent2);font-size:0.6rem;letter-spacing:0.12em;display:block;margin-bottom:0.4rem;">CONDICIÓN FORMAL</span>
+          El razonamiento es válido sii el condicional<br>
+          <span style="color:#fff;font-weight:700;">(p₁ ∧ p₂ ∧ … ∧ pₙ) → c</span><br>
+          es una <strong style="color:#fff">tautología</strong> (la conjunción de las premisas implica la conclusión).
+        </div>
+        <div style="font-size:0.72rem;color:var(--muted);line-height:1.6;padding:0.5rem 0.7rem;background:rgba(245,158,11,0.05);border-left:2px solid var(--accent3);border-radius:0 4px 4px 0;">
+          <strong style="color:var(--accent3)">Ojo:</strong> de un razonamiento se dice <strong style="color:#fff">válido o no válido</strong> — <em>nunca</em> "verdadero o falso". V/F es de las proposiciones; la validez es del razonamiento.
+        </div>
+        <div style="margin-top:0.8rem;font-size:0.72rem;color:var(--muted);line-height:1.6;">
+          <strong style="color:#fff">4 formas de demostrar la validez:</strong><br>
+          <span style="font-family:var(--mono);font-size:0.68rem;">① tabla de verdad · ② método directo · ③ reducción al absurdo · ④ reglas de inferencia <span style="color:#4b5563;">(sección 02)</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Método tabla de verdad -->
+  <div class="card purple">
+    <div class="card-title">Método 1 — Tabla de verdad</div>
+    <div class="method-step">
+      <div class="step-num" style="background:rgba(124,58,237,0.2);color:#a78bfa;">1</div>
+      <div class="step-text">Armar la implicación: <strong>(p1 ∧ p2 ∧ ... ) → c</strong></div>
+    </div>
+    <div class="method-step">
+      <div class="step-num" style="background:rgba(124,58,237,0.2);color:#a78bfa;">2</div>
+      <div class="step-text">Construir la tabla de verdad completa para esa implicación.</div>
+    </div>
+    <div class="method-step">
+      <div class="step-num" style="background:rgba(124,58,237,0.2);color:#a78bfa;">3</div>
+      <div class="step-text">Si la columna final es <strong>siempre V</strong> → es tautología → razonamiento <strong style="color:#4ade80">válido</strong>.</div>
+    </div>
+    <div style="margin-top:0.5rem;font-family:var(--mono);font-size:0.65rem;color:#4b5563;padding:0.4rem 0.6rem;background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.15);border-radius:4px;">
+      ⚠ Engorroso con muchas proposiciones → usar métodos 2 ó 3
+    </div>
+  </div>
+
+  <!-- Método 2: Directo -->
+  <div class="card amber">
+    <div class="card-title">Método 2 — Directo</div>
+
+    <!-- Definición -->
+    <div class="method-step">
+      <div class="step-num" style="background:rgba(245,158,11,0.15);color:var(--accent3);">1</div>
+      <div class="step-text">Asumir todas las premisas <strong>verdaderas</strong>.</div>
+    </div>
+    <div class="method-step">
+      <div class="step-num" style="background:rgba(245,158,11,0.15);color:var(--accent3);">2</div>
+      <div class="step-text">Deducir paso a paso que la conclusión <strong>debe ser V</strong>.</div>
+    </div>
+
+    <!-- Enunciado del ejemplo -->
+    <div style="margin:0.9rem 0 0.7rem;padding:0.6rem 0.9rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;font-family:var(--mono);font-size:0.72rem;">
+      <span style="color:#4b5563;font-size:0.6rem;letter-spacing:0.12em;display:block;margin-bottom:0.4rem;">EJEMPLO</span>
+      <span style="color:var(--muted);">p1: ¬p ∨ q &nbsp;&nbsp; p2: p &nbsp;&nbsp;</span><span style="color:var(--accent3);">∴</span> <span style="color:#fff;font-weight:700;">q</span>
+    </div>
+
+    <!-- Comparación de approaches -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;">
+
+      <!-- Approach de propagación de valores -->
+      <div style="background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.25);border-radius:5px;padding:0.7rem;font-family:var(--mono);font-size:0.67rem;">
+        <div style="color:var(--accent3);font-size:0.58rem;letter-spacing:0.15em;margin-bottom:0.6rem;font-weight:700;">APPROACH DE PROPAGACIÓN DE VALORES</div>
+        <div style="color:#6b7280;font-size:0.6rem;margin-bottom:0.6rem;line-height:1.4;">Propagás V/F usando el significado de cada conectivo.</div>
+
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <div style="padding:0.35rem 0.5rem;background:rgba(255,255,255,0.03);border-radius:4px;line-height:1.5;">
+            <span style="color:#4b5563;font-size:0.58rem;display:block;margin-bottom:0.1rem;">PASO 1 — leo p2</span>
+            <span style="color:var(--muted);">p2 = V </span><span style="color:#4b5563;"> → </span><span style="color:#fff;">p = V</span>
+          </div>
+          <div style="padding:0.35rem 0.5rem;background:rgba(255,255,255,0.03);border-radius:4px;line-height:1.5;">
+            <span style="color:#4b5563;font-size:0.58rem;display:block;margin-bottom:0.1rem;">PASO 2 — aplico negación</span>
+            <span style="color:var(--muted);">p = V </span><span style="color:#4b5563;"> → </span><span style="color:#fff;">¬p = F</span>
+          </div>
+          <div style="padding:0.35rem 0.5rem;background:rgba(255,255,255,0.03);border-radius:4px;line-height:1.5;">
+            <span style="color:#4b5563;font-size:0.58rem;display:block;margin-bottom:0.1rem;">PASO 3 — leo p1 con ¬p = F</span>
+            <span style="color:var(--muted);">p1: </span><span style="color:#f87171;">F</span><span style="color:var(--muted);"> ∨ q = V</span><span style="color:#4b5563;"> → </span><span style="color:#4ade80;font-weight:700;">q = V ✓</span>
+          </div>
+        </div>
+
+        <div style="margin-top:0.7rem;padding-top:0.5rem;border-top:1px solid rgba(245,158,11,0.15);font-size:0.6rem;color:#6b7280;line-height:1.6;">
+          Para que F∨q sea V,<br>q <em>necesariamente</em> debe ser V.<br>No se necesita reescribir nada.
+        </div>
+      </div>
+
+      <!-- Approach simbólico -->
+      <div style="background:rgba(124,58,237,0.05);border:1px solid rgba(124,58,237,0.25);border-radius:5px;padding:0.7rem;font-family:var(--mono);font-size:0.67rem;">
+        <div style="color:#a78bfa;font-size:0.58rem;letter-spacing:0.15em;margin-bottom:0.7rem;font-weight:700;">APPROACH SIMBÓLICO (equivalencia/inferencia)</div>
+
+        <!-- Paso 1: Equivalencia sobre p1 -->
+        <div style="font-size:0.58rem;color:#a78bfa;letter-spacing:0.1em;margin-bottom:0.3rem;">PASO 1 — Equivalencia sobre p1</div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;padding:0.55rem 0.7rem;margin-bottom:0.6rem;">
+          <div class="rule-grid" style="font-size:0.72rem;">
+            <div class="rg-label">p1</div><div class="rg-lhs">¬p</div><div class="rg-op">∨</div><div class="rg-rhs">q</div>
+            <div class="rg-divider"></div>
+            <div class="rg-label" style="color:#a78bfa;font-size:0.65rem;">≡</div>
+            <div class="rg-lhs" style="color:#fff;">p</div>
+            <div class="rg-op" style="color:#fff;">→</div>
+            <div class="rg-rhs" style="color:#fff;">q</div>
+          </div>
+          <div style="margin-top:0.4rem;font-size:0.58rem;color:#4b5563;">ley: (¬p ∨ q) ≡ (p → q)</div>
+        </div>
+
+        <!-- Paso 2: Modus Ponens -->
+        <div style="font-size:0.58rem;color:#a78bfa;letter-spacing:0.1em;margin-bottom:0.3rem;">PASO 2 — Modus Ponens</div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;padding:0.55rem 0.7rem;">
+          <div class="rule-grid" style="font-size:0.72rem;">
+            <div class="rg-label" style="color:#a78bfa;">≡</div><div class="rg-lhs">p</div><div class="rg-op">→</div><div class="rg-rhs">q</div>
+            <div class="rg-label">p2</div><div class="rg-lhs">p</div><div class="rg-op"></div><div class="rg-rhs"></div>
+            <div class="rg-divider"></div>
+            <div class="rg-label therefore">∴</div>
+            <div class="rg-lhs conc" style="color:#4ade80;">q</div>
+            <div class="rg-op conc" style="color:#4ade80;">✓</div>
+            <div class="rg-rhs"></div>
+          </div>
+          <div style="margin-top:0.4rem;font-size:0.58rem;color:#4b5563;">regla: Modus Ponens</div>
+        </div>
+      </div>
+
+    </div><!-- fin comparación -->
+
+  </div>
+
+  <!-- Método 3: Reducción al Absurdo -->
+  <div class="card red">
+    <div class="card-title">Método 3 — Reducción al Absurdo</div>
+
+    <!-- Definición -->
+    <div class="method-step">
+      <div class="step-num" style="background:rgba(239,68,68,0.12);color:#f87171;">1</div>
+      <div class="step-text">Asumir premisas <strong>verdaderas</strong> y conclusión <strong style="color:#f87171">falsa</strong>.</div>
+    </div>
+    <div class="method-step">
+      <div class="step-num" style="background:rgba(239,68,68,0.12);color:#f87171;">2</div>
+      <div class="step-text">Si se llega a una <strong style="color:#f87171">contradicción</strong> → razonamiento <strong style="color:#4ade80">válido</strong>.</div>
+    </div>
+
+    <!-- Nota: conclusión como premisa temporal -->
+    <div style="margin:0.6rem 0 0;padding:0.55rem 0.8rem;background:rgba(239,68,68,0.05);border-left:2px solid #f87171;border-radius:0 4px 4px 0;font-family:var(--mono);font-size:0.67rem;line-height:1.6;">
+      <span style="color:#f87171;font-weight:700;">★ La conclusión negada se convierte en premisa temporal.</span><br>
+      <span style="color:#6b7280;">Al asumir la conclusión falsa, su negación es un valor conocido — podés operarla igual que una premisa.<br>
+      A diferencia del método 2, donde solo las premisas son conocidas y la conclusión es el destino al que tenés que llegar.</span>
+    </div>
+
+    <!-- Enunciado del ejemplo -->
+    <div style="margin:0.9rem 0 0.7rem;padding:0.6rem 0.9rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;font-family:var(--mono);font-size:0.72rem;">
+      <span style="color:#4b5563;font-size:0.6rem;letter-spacing:0.12em;display:block;margin-bottom:0.4rem;">EJEMPLO</span>
+      <span style="color:var(--muted);">p1: p → q &nbsp;&nbsp; p2: ¬q &nbsp;&nbsp;</span><span style="color:var(--accent3);">∴</span> <span style="color:#fff;font-weight:700;">¬p</span>
+    </div>
+
+    <!-- Comparación de approaches -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.7rem;">
+
+      <!-- Approach de propagación de valores -->
+      <div style="background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.25);border-radius:5px;padding:0.7rem;font-family:var(--mono);font-size:0.67rem;">
+        <div style="color:#f87171;font-size:0.58rem;letter-spacing:0.15em;margin-bottom:0.6rem;font-weight:700;">APPROACH DE PROPAGACIÓN DE VALORES</div>
+        <div style="color:#6b7280;font-size:0.6rem;margin-bottom:0.6rem;line-height:1.4;">Asignás V/F directamente y propagás hasta encontrar una contradicción.</div>
+
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <div style="padding:0.35rem 0.5rem;background:rgba(255,255,255,0.03);border-radius:4px;line-height:1.5;">
+            <span style="color:#4b5563;font-size:0.58rem;display:block;margin-bottom:0.1rem;">PUNTO DE PARTIDA</span>
+            <span style="color:var(--muted);">Asumo: p1=V, p2=V, </span><span style="color:#f87171;">conclusión=F</span>
+          </div>
+          <div style="padding:0.35rem 0.5rem;background:rgba(255,255,255,0.03);border-radius:4px;line-height:1.5;">
+            <span style="color:#4b5563;font-size:0.58rem;display:block;margin-bottom:0.1rem;">PASO 1 — leo la conclusión falsa</span>
+            <span style="color:var(--muted);">¬p = F </span><span style="color:#4b5563;"> → </span><span style="color:#fff;">p = V</span>
+          </div>
+          <div style="padding:0.35rem 0.5rem;background:rgba(255,255,255,0.03);border-radius:4px;line-height:1.5;">
+            <span style="color:#4b5563;font-size:0.58rem;display:block;margin-bottom:0.1rem;">PASO 2 — leo p1 con p = V</span>
+            <span style="color:var(--muted);">p1: </span><span style="color:#fff;">V</span><span style="color:var(--muted);">→q = V </span><span style="color:#4b5563;">→ </span><span style="color:#fff;">q = V</span>
+          </div>
+          <div style="padding:0.35rem 0.5rem;background:rgba(255,255,255,0.03);border-radius:4px;line-height:1.5;">
+            <span style="color:#4b5563;font-size:0.58rem;display:block;margin-bottom:0.1rem;">PASO 3 — leo p2</span>
+            <span style="color:var(--muted);">p2: ¬q = V </span><span style="color:#4b5563;">→ </span><span style="color:#fff;">q = F</span>
+          </div>
+          <div style="padding:0.4rem 0.5rem;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:4px;line-height:1.5;">
+            <span style="color:#f87171;font-size:0.58rem;display:block;margin-bottom:0.1rem;">CONTRADICCIÓN ⚡</span>
+            <span style="color:var(--muted);">Paso 2 dice q=V<br>Paso 3 dice q=F</span><br>
+            <span style="color:#4ade80;font-weight:700;">→ válido ✓</span>
+          </div>
+        </div>
+
+        <div style="margin-top:0.7rem;padding-top:0.5rem;border-top:1px solid rgba(239,68,68,0.15);font-size:0.6rem;color:#6b7280;line-height:1.6;">
+          Para que p→q sea V con p=V,<br>q <em>necesariamente</em> debe ser V.<br>No se necesita aplicar ninguna ley.
+        </div>
+      </div>
+
+      <!-- Approach simbólico -->
+      <div style="background:rgba(124,58,237,0.05);border:1px solid rgba(124,58,237,0.25);border-radius:5px;padding:0.7rem;font-family:var(--mono);font-size:0.67rem;">
+        <div style="color:#a78bfa;font-size:0.58rem;letter-spacing:0.15em;margin-bottom:0.7rem;font-weight:700;">APPROACH SIMBÓLICO (equivalencia/inferencia)</div>
+
+        <!-- Paso 1: Negar conclusión -->
+        <div style="font-size:0.58rem;color:#f87171;letter-spacing:0.1em;margin-bottom:0.3rem;">PASO 1 — Negar la conclusión</div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;padding:0.55rem 0.7rem;margin-bottom:0.6rem;">
+          <div class="rule-grid" style="font-size:0.72rem;">
+            <div class="rg-label">∴</div><div class="rg-lhs">¬p</div><div class="rg-op"></div><div class="rg-rhs"></div>
+            <div class="rg-divider"></div>
+            <div class="rg-label" style="color:#f87171;font-size:0.65rem;">¬∴</div>
+            <div class="rg-lhs" style="color:#f87171;">¬(¬p)</div>
+            <div class="rg-op"></div><div class="rg-rhs"></div>
+          </div>
+          <div style="margin-top:0.4rem;font-size:0.58rem;color:#4b5563;">asumo la conclusión falsa</div>
+        </div>
+
+        <!-- Paso 2: Doble negación -->
+        <div style="font-size:0.58rem;color:#a78bfa;letter-spacing:0.1em;margin-bottom:0.3rem;">PASO 2 — Equivalencia: doble negación</div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;padding:0.55rem 0.7rem;margin-bottom:0.6rem;">
+          <div class="rule-grid" style="font-size:0.72rem;">
+            <div class="rg-label" style="color:#f87171;font-size:0.65rem;">¬∴</div>
+            <div class="rg-lhs" style="color:#f87171;">¬(¬p)</div>
+            <div class="rg-op"></div><div class="rg-rhs"></div>
+            <div class="rg-divider"></div>
+            <div class="rg-label" style="color:#a78bfa;font-size:0.65rem;">≡</div>
+            <div class="rg-lhs" style="color:#fff;">p</div>
+            <div class="rg-op"></div><div class="rg-rhs"></div>
+          </div>
+          <div style="margin-top:0.4rem;font-size:0.58rem;color:#4b5563;">ley: ¬(¬p) ≡ p</div>
+        </div>
+
+        <!-- Paso 3: Modus Ponens -->
+        <div style="font-size:0.58rem;color:#a78bfa;letter-spacing:0.1em;margin-bottom:0.3rem;">PASO 3 — Modus Ponens</div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;padding:0.55rem 0.7rem;margin-bottom:0.6rem;">
+          <div class="rule-grid" style="font-size:0.72rem;">
+            <div class="rg-label">p1</div><div class="rg-lhs">p</div><div class="rg-op">→</div><div class="rg-rhs">q</div>
+            <div class="rg-label" style="color:#f87171;font-size:0.55rem;">¬∴→p</div><div class="rg-lhs">p</div><div class="rg-op"></div><div class="rg-rhs"></div>
+            <div class="rg-divider"></div>
+            <div class="rg-label therefore">∴</div>
+            <div class="rg-lhs conc">q</div><div class="rg-op"></div><div class="rg-rhs"></div>
+          </div>
+          <div style="margin-top:0.4rem;font-size:0.58rem;color:#4b5563;">regla: Modus Ponens &nbsp;·&nbsp; <span style="color:#f87171;">p viene de negar la conclusión (paso 1+2)</span></div>
+        </div>
+
+        <!-- Paso 4: Contradicción -->
+        <div style="font-size:0.58rem;color:#f87171;letter-spacing:0.1em;margin-bottom:0.3rem;">PASO 4 — Contradicción con p2</div>
+        <div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.3);border-radius:5px;padding:0.55rem 0.7rem;">
+          <div class="rule-grid" style="font-size:0.72rem;">
+            <div class="rg-label" style="color:var(--accent3);">∴</div><div class="rg-lhs">q</div><div class="rg-op"></div><div class="rg-rhs"></div>
+            <div class="rg-label">p2</div><div class="rg-lhs">¬q</div><div class="rg-op"></div><div class="rg-rhs"></div>
+            <div class="rg-divider"></div>
+            <div class="rg-label" style="color:#f87171;">⚡</div>
+            <div class="rg-lhs" style="color:#f87171;">q</div>
+            <div class="rg-op" style="color:#f87171;">∧</div>
+            <div class="rg-rhs" style="color:#f87171;">¬q</div>
+          </div>
+          <div style="margin-top:0.4rem;font-size:0.6rem;color:#4ade80;font-weight:700;">contradicción → válido ✓</div>
+        </div>
+      </div>
+
+    </div><!-- fin comparación -->
+
+  </div>
+
+  <!-- Teoremas y demostraciones (énfasis final) -->
+  <div class="card green">
+    <div class="card-title">★ Teoremas y demostraciones — foco del final</div>
+    <div style="font-size:0.78rem;color:var(--muted);line-height:1.6;margin-bottom:0.9rem;">
+      Un <strong style="color:#fff">teorema</strong> es un razonamiento válido donde las premisas forman la <strong style="color:#fff">hipótesis (H)</strong> y la conclusión es la <strong style="color:#fff">tesis (T)</strong>. Demostrarlo = probar <span style="font-family:var(--mono);color:#fff">H → T</span> aplicando <strong style="color:#fff">propiedades y definiciones</strong> (leyes lógicas, de conjuntos, etc.).
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.7rem;">
+
+      <div style="background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.25);border-radius:5px;padding:0.7rem;">
+        <div style="color:var(--accent3);font-size:0.6rem;letter-spacing:0.12em;font-weight:700;margin-bottom:0.45rem;">MÉTODO DIRECTO</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.55;">Acepto <strong style="color:#fff">H verdadera</strong> y, aplicando propiedades y definiciones, deduzco que <strong style="color:#fff">T es verdadera</strong>.</div>
+        <div style="margin-top:0.5rem;font-family:var(--mono);font-size:0.66rem;color:#4ade80;">H&nbsp;V&nbsp;⟹&nbsp;T&nbsp;V</div>
+      </div>
+
+      <div style="background:rgba(124,58,237,0.05);border:1px solid rgba(124,58,237,0.25);border-radius:5px;padding:0.7rem;">
+        <div style="color:#a78bfa;font-size:0.6rem;letter-spacing:0.12em;font-weight:700;margin-bottom:0.45rem;">MÉTODO INDIRECTO</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.55;">Acepto la <strong style="color:#fff">tesis falsa (¬T)</strong> y deduzco la <strong style="color:#fff">falsedad de la hipótesis (¬H)</strong>. Es el contrarrecíproco <span style="font-family:var(--mono)">¬T → ¬H</span>.</div>
+        <div style="margin-top:0.5rem;font-family:var(--mono);font-size:0.66rem;color:#a78bfa;">¬T&nbsp;⟹&nbsp;¬H</div>
+      </div>
+
+      <div style="background:rgba(239,68,68,0.04);border:1px solid rgba(239,68,68,0.25);border-radius:5px;padding:0.7rem;">
+        <div style="color:#f87171;font-size:0.6rem;letter-spacing:0.12em;font-weight:700;margin-bottom:0.45rem;">REDUCCIÓN AL ABSURDO</div>
+        <div style="font-size:0.7rem;color:var(--muted);line-height:1.55;">Acepto <strong style="color:#fff">H verdadera y T falsa</strong> a la vez y opero hasta una <strong style="color:#f87171">contradicción</strong>. Si la hay → válido.</div>
+        <div style="margin-top:0.5rem;font-family:var(--mono);font-size:0.66rem;color:#f87171;">H&nbsp;∧&nbsp;¬T&nbsp;⟹&nbsp;⚡</div>
+      </div>
+
+    </div>
+    <div style="margin-top:0.8rem;font-family:var(--mono);font-size:0.64rem;color:#4b5563;padding:0.45rem 0.65rem;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:4px;line-height:1.6;">
+      No confundir: el <span style="color:#a78bfa">indirecto</span> deduce ¬H desde ¬T (una sola cadena). El <span style="color:#f87171">absurdo</span> usa H <em>y</em> ¬T juntas y busca que algo choque. Ambos arrancan negando la conclusión/tesis.
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECCIÓN 2: REGLAS DE INFERENCIA
+══════════════════════════════════════════ -->
+
+<div class="section-label">02 — Reglas de inferencia</div>
+
+<div style="max-width:1400px;margin:0 auto 1rem;font-family:var(--mono);font-size:0.68rem;color:var(--muted);padding:0.5rem 0.9rem;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:6px;">
+  La <span style="color:#fff">4ª forma</span> de demostrar validez. Una regla de inferencia es todo esquema válido de razonamiento (toda regla es una <span style="color:#fff">tautología</span>). Las premisas van arriba de la línea; la conclusión (∴) debajo. Se <span style="color:#fff">encadenan</span> —junto con leyes de equivalencia— hasta transformar las premisas en la conclusión.
+</div>
+
+<div class="grid grid-5" style="max-width:1400px;margin:0 auto;">
+
+  <!-- Modus Ponens -->
+  <div class="card purple">
+    <div class="card-title">Ponens</div>
+          <div class="rule-block">
+        <div class="rule-name">Modus Ponens</div>
+        <div class="rule-grid">
+          <div class="rg-label">p1</div><div class="rg-lhs">p</div><div class="rg-op">→</div><div class="rg-rhs">q</div>
+          <div class="rg-label">p2</div><div class="rg-lhs">p</div><div class="rg-op"></div><div class="rg-rhs"></div>
+          <div class="rg-divider"></div>
+          <div class="rg-label therefore">∴</div><div class="rg-lhs conc">q</div><div class="rg-op conc"></div><div class="rg-rhs conc"></div>
+        </div>
+      </div>
+    <div class="rule-hint">
+      Si el condicional es V y el antecedente es V,<br>
+      <span>el consecuente debe ser V.</span>
+    </div>
+  </div>
+
+  <!-- Modus Tollens -->
+  <div class="card purple">
+    <div class="card-title">Tollens</div>
+          <div class="rule-block">
+        <div class="rule-name">Modus Tollens</div>
+        <div class="rule-grid">
+          <div class="rg-label">p1</div><div class="rg-lhs">p</div><div class="rg-op">→</div><div class="rg-rhs">q</div>
+          <div class="rg-label">p2</div><div class="rg-lhs">¬q</div><div class="rg-op"></div><div class="rg-rhs"></div>
+          <div class="rg-divider"></div>
+          <div class="rg-label therefore">∴</div><div class="rg-lhs conc">¬p</div><div class="rg-op conc"></div><div class="rg-rhs conc"></div>
+        </div>
+      </div>
+    <div class="rule-hint">
+      Negar el consecuente obliga a negar el antecedente.<br>
+      <span>Usa la contrarecíproca.</span>
+    </div>
+  </div>
+
+  <!-- Silogismo hipotético -->
+  <div class="card cyan">
+    <div class="card-title">Sil. hipotético</div>
+          <div class="rule-block">
+        <div class="rule-name">Silogismo hipotético</div>
+        <div class="rule-grid">
+          <div class="rg-label">p1</div><div class="rg-lhs">p</div><div class="rg-op">→</div><div class="rg-rhs">q</div>
+          <div class="rg-label">p2</div><div class="rg-lhs">q</div><div class="rg-op">→</div><div class="rg-rhs">r</div>
+          <div class="rg-divider"></div>
+          <div class="rg-label therefore">∴</div><div class="rg-lhs conc">p</div><div class="rg-op conc">→</div><div class="rg-rhs conc">r</div>
+        </div>
+      </div>
+    <div class="rule-hint">
+      Encadena implicaciones.<br>
+      <span>p → q → r implica p → r</span>
+    </div>
+  </div>
+
+  <!-- Silogismo disyuntivo -->
+  <div class="card cyan">
+    <div class="card-title">Sil. disyuntivo</div>
+          <div class="rule-block">
+        <div class="rule-name">Silogismo disyuntivo</div>
+        <div class="rule-grid">
+          <div class="rg-label">p1</div><div class="rg-lhs">p</div><div class="rg-op">∨</div><div class="rg-rhs">q</div>
+          <div class="rg-label">p2</div><div class="rg-lhs">¬p</div><div class="rg-op"></div><div class="rg-rhs"></div>
+          <div class="rg-divider"></div>
+          <div class="rg-label therefore">∴</div><div class="rg-lhs conc">q</div><div class="rg-op conc"></div><div class="rg-rhs conc"></div>
+        </div>
+      </div>
+    <div class="rule-hint">
+      Si hay dos opciones y una es falsa,<br>
+      <span>la otra debe ser verdadera.</span>
+    </div>
+  </div>
+
+  <!-- Simplificación -->
+  <div class="card green">
+    <div class="card-title">Simplificación</div>
+          <div class="rule-block">
+        <div class="rule-name">Simplificación</div>
+        <div class="rule-grid">
+          <div class="rg-label">p1</div><div class="rg-lhs">p</div><div class="rg-op">∧</div><div class="rg-rhs">q</div>
+          <div class="rg-divider"></div>
+          <div class="rg-label therefore">∴</div><div class="rg-lhs conc">p</div><div class="rg-op conc"></div><div class="rg-rhs conc"></div>
+        </div>
+      </div>
+    <div class="rule-hint">
+      Si la conjunción es V,<br>
+      <span>cada parte por separado también es V.</span>
+    </div>
+  </div>
+
+  <!-- Adición -->
+  <div class="card green">
+    <div class="card-title">Adición</div>
+          <div class="rule-block">
+        <div class="rule-name">Adición</div>
+        <div class="rule-grid">
+          <div class="rg-label">p1</div><div class="rg-lhs">p</div><div class="rg-op"></div><div class="rg-rhs"></div>
+          <div class="rg-divider"></div>
+          <div class="rg-label therefore">∴</div><div class="rg-lhs conc">p</div><div class="rg-op conc">∨</div><div class="rg-rhs conc">q</div>
+        </div>
+      </div>
+    <div class="rule-hint">
+      Si p es V, p ∨ (cualquier cosa)<br>
+      <span>también es V.</span>
+    </div>
+  </div>
+
+  <!-- Conjunción -->
+  <div class="card green">
+    <div class="card-title">Conjunción</div>
+          <div class="rule-block">
+        <div class="rule-name">Conjunción</div>
+        <div class="rule-grid">
+          <div class="rg-label">p1</div><div class="rg-lhs">p</div><div class="rg-op"></div><div class="rg-rhs"></div>
+          <div class="rg-label">p2</div><div class="rg-lhs">q</div><div class="rg-op"></div><div class="rg-rhs"></div>
+          <div class="rg-divider"></div>
+          <div class="rg-label therefore">∴</div><div class="rg-lhs conc">p</div><div class="rg-op conc">∧</div><div class="rg-rhs conc">q</div>
+        </div>
+      </div>
+    <div class="rule-hint">
+      Si p y q son V por separado,<br>
+      <span>juntos también son V.</span>
+    </div>
+  </div>
+
+  <!-- Dilema constructivo -->
+  <div class="card amber">
+    <div class="card-title">Dil. constructivo</div>
+          <div class="rule-block">
+        <div class="rule-name">Dilema constructivo</div>
+        <div class="rule-grid">
+          <div class="rg-label">p1</div><div class="rg-lhs">p</div><div class="rg-op">→</div><div class="rg-rhs">q</div>
+          <div class="rg-label">p2</div><div class="rg-lhs">r</div><div class="rg-op">→</div><div class="rg-rhs">s</div>
+          <div class="rg-label">p3</div><div class="rg-lhs">p</div><div class="rg-op">∨</div><div class="rg-rhs">r</div>
+          <div class="rg-divider"></div>
+          <div class="rg-label therefore">∴</div><div class="rg-lhs conc">q</div><div class="rg-op conc">∨</div><div class="rg-rhs conc">s</div>
+        </div>
+      </div>
+    <div class="rule-hint">
+      <span>Dos caminos, ambos llevan a alguna consecuencia.</span>
+    </div>
+  </div>
+
+  <!-- Dilema destructivo -->
+  <div class="card amber">
+    <div class="card-title">Dil. destructivo</div>
+          <div class="rule-block">
+        <div class="rule-name">Dilema destructivo</div>
+        <div class="rule-grid">
+          <div class="rg-label">p1</div><div class="rg-lhs">p</div><div class="rg-op">→</div><div class="rg-rhs">q</div>
+          <div class="rg-label">p2</div><div class="rg-lhs">r</div><div class="rg-op">→</div><div class="rg-rhs">s</div>
+          <div class="rg-label">p3</div><div class="rg-lhs">¬q</div><div class="rg-op">∨</div><div class="rg-rhs">¬s</div>
+          <div class="rg-divider"></div>
+          <div class="rg-label therefore">∴</div><div class="rg-lhs conc">¬p</div><div class="rg-op conc">∨</div><div class="rg-rhs conc">¬r</div>
+        </div>
+      </div>
+    <div class="rule-hint">
+      <span>Negar alguna consecuencia obliga a negar alguna causa.</span>
+    </div>
+  </div>
+
+  <!-- Demostración por casos -->
+  <div class="card red">
+    <div class="card-title">Por casos</div>
+          <div class="rule-block">
+        <div class="rule-name">Demostración por casos</div>
+        <div class="rule-grid">
+          <div class="rg-label">p1</div><div class="rg-lhs">p</div><div class="rg-op">→</div><div class="rg-rhs">r</div>
+          <div class="rg-label">p2</div><div class="rg-lhs">q</div><div class="rg-op">→</div><div class="rg-rhs">r</div>
+          <div class="rg-divider"></div>
+          <div class="rg-label therefore">∴</div><div class="rg-lhs conc">(p ∨ q)</div><div class="rg-op conc">→</div><div class="rg-rhs conc">r</div>
+        </div>
+      </div>
+    <div class="rule-hint">
+      Si ambos caminos llevan al mismo resultado,<br>
+      <span>cualquiera de los dos basta.</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Ejemplo trabajado nivel-final: transformar premisas en la conclusión -->
+<div class="card amber" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">Ejemplo nivel-final — transformar las premisas en la conclusión</div>
+  <div style="font-size:0.75rem;color:var(--muted);line-height:1.6;margin-bottom:0.8rem;">
+    En el final no alcanza con una regla suelta: se <strong style="color:#fff">encadenan reglas de inferencia + leyes de equivalencia</strong> hasta llegar a la conclusión. Acá se combinan <strong style="color:#fff">contrarrecíproco</strong>, <strong style="color:#fff">silogismo hipotético</strong> y una cadena de equivalencias.
+  </div>
+
+  <div style="margin:0 0 0.8rem;padding:0.6rem 0.9rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;font-family:var(--mono);font-size:0.74rem;">
+    <span style="color:#4b5563;font-size:0.6rem;letter-spacing:0.12em;display:block;margin-bottom:0.4rem;">RAZONAMIENTO</span>
+    <span style="color:var(--muted);">p1: (p ∧ q) → r &nbsp;&nbsp; p2: p → ¬r &nbsp;&nbsp;</span><span style="color:var(--accent3);">∴</span> <span style="color:#fff;font-weight:700;">¬p ∨ ¬q</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.9rem;">
+
+    <!-- Paso reglas de inferencia -->
+    <div style="background:rgba(124,58,237,0.05);border:1px solid rgba(124,58,237,0.25);border-radius:5px;padding:0.8rem;">
+      <div style="color:#a78bfa;font-size:0.6rem;letter-spacing:0.12em;font-weight:700;margin-bottom:0.6rem;">PASO 1-2 · REGLAS DE INFERENCIA</div>
+      <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);line-height:1.7;">
+        <div style="margin-bottom:0.55rem;"><span style="color:#4b5563;">①</span> Contrarrecíproco en p2:<br><span style="color:#fff;">p → ¬r &nbsp;≡&nbsp; r → ¬p</span> &nbsp;<span style="color:#4b5563;">(p2′)</span></div>
+        <div><span style="color:#4b5563;">②</span> Silogismo hipotético p1 + p2′:<br><span style="color:var(--muted);">(p∧q) → r &nbsp;y&nbsp; r → ¬p</span><br><span style="color:var(--accent3);">∴</span> <span style="color:#fff;">(p ∧ q) → ¬p</span></div>
+      </div>
+    </div>
+
+    <!-- Cadena de equivalencias -->
+    <div style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.25);border-radius:5px;padding:0.8rem;">
+      <div style="color:var(--accent4);font-size:0.6rem;letter-spacing:0.12em;font-weight:700;margin-bottom:0.6rem;">PASO 3-6 · LEYES DE EQUIVALENCIA</div>
+      <div style="font-family:var(--mono);font-size:0.7rem;line-height:1.9;">
+        <div><span style="color:#fff;">(p∧q) → ¬p</span></div>
+        <div><span style="color:var(--accent4);">≡</span> <span style="color:#fff;">¬(p∧q) ∨ ¬p</span> &nbsp;<span style="color:#4b5563;font-size:0.62rem;">equiv. implicación</span></div>
+        <div><span style="color:var(--accent4);">≡</span> <span style="color:#fff;">(¬p ∨ ¬q) ∨ ¬p</span> &nbsp;<span style="color:#4b5563;font-size:0.62rem;">De Morgan</span></div>
+        <div><span style="color:var(--accent4);">≡</span> <span style="color:#fff;">(¬p ∨ ¬p) ∨ ¬q</span> &nbsp;<span style="color:#4b5563;font-size:0.62rem;">conmut. + asoc.</span></div>
+        <div><span style="color:var(--accent4);">≡</span> <span style="color:#4ade80;font-weight:700;">¬p ∨ ¬q ✓</span> &nbsp;<span style="color:#4b5563;font-size:0.62rem;">idempotencia</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div style="margin-top:0.8rem;font-family:var(--mono);font-size:0.66rem;color:#4ade80;padding:0.45rem 0.65rem;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.25);border-radius:4px;">
+    Llegamos exactamente a la conclusión ¬p ∨ ¬q → el razonamiento es <strong>válido</strong>.
+  </div>
+</div>
+
+<!-- Ejemplo trabajado nivel-final: reducción al absurdo con 5 premisas -->
+<div class="card red" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">Ejemplo nivel-final — reducción al absurdo con 5 premisas</div>
+  <div style="font-size:0.75rem;color:var(--muted);line-height:1.6;margin-bottom:0.8rem;">
+    Asumo la <strong style="color:#f87171">conclusión falsa</strong> y todas las premisas verdaderas; propago valores hasta que algo <strong style="color:#f87171">choque</strong>. (Una premisa que es un solo literal, como p5, fija su valor de entrada.)
+  </div>
+
+  <div style="display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start;">
+    <div style="padding:0.6rem 0.9rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;font-family:var(--mono);font-size:0.72rem;line-height:1.9;">
+      <span style="color:#4b5563;font-size:0.6rem;letter-spacing:0.12em;display:block;margin-bottom:0.3rem;">RAZONAMIENTO</span>
+      <span style="color:#4b5563;">p1:</span> <span style="color:var(--muted);">p → q</span><br>
+      <span style="color:#4b5563;">p2:</span> <span style="color:var(--muted);">¬s → p</span><br>
+      <span style="color:#4b5563;">p3:</span> <span style="color:var(--muted);">q → r</span><br>
+      <span style="color:#4b5563;">p4:</span> <span style="color:var(--muted);">¬t → ¬s</span><br>
+      <span style="color:#4b5563;">p5:</span> <span style="color:var(--muted);">¬r</span><br>
+      <div style="border-top:1px solid var(--border);margin:0.3rem 0;"></div>
+      <span style="color:var(--accent3);">∴</span> <span style="color:#fff;font-weight:700;">t</span>
+    </div>
+
+    <div style="font-family:var(--mono);font-size:0.7rem;line-height:1.85;color:var(--muted);">
+      <div><span style="color:#f87171;">Asumo c = F:</span> &nbsp;V(t)=F &nbsp;→&nbsp; <span style="color:#fff;">V(¬t)=V</span></div>
+      <div>p4 con ¬t=V &nbsp;→&nbsp; <span style="color:#fff;">¬s=V</span> &nbsp;<span style="color:#4b5563;">(s=F)</span></div>
+      <div>p2 con ¬s=V &nbsp;→&nbsp; <span style="color:#fff;">p=V</span></div>
+      <div>p1 con p=V &nbsp;→&nbsp; <span style="color:#fff;">q=V</span></div>
+      <div>p3 con q=V &nbsp;→&nbsp; <span style="color:#fff;">r=V</span></div>
+      <div>p5 es premisa: ¬r=V &nbsp;→&nbsp; <span style="color:#fff;">r=F</span></div>
+      <div style="margin-top:0.5rem;padding:0.4rem 0.6rem;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:4px;color:#f87171;">⚡ p3 da r=V y p5 da r=F → contradicción → razonamiento <span style="color:#4ade80;font-weight:700;">válido</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LEYES PARA JUSTIFICAR PASOS (repaso U1 · imprescindible en el final)
+══════════════════════════════════════════ -->
+
+<div class="section-label">Leyes para justificar pasos · repaso Unidad 1</div>
+
+<div class="card green" style="max-width:1400px;margin:0 auto;">
+  <div class="card-title">Equivalencias que más se usan al demostrar — hay que saberlas de memoria</div>
+  <div style="font-size:0.72rem;color:var(--muted);line-height:1.6;margin-bottom:0.9rem;">
+    En el final <strong style="color:#f87171">no podés traer la hoja de propiedades</strong>: cada paso de una demostración se justifica nombrando la ley. Estas son las imprescindibles para razonamientos (el detalle completo está en el cheatsheet de Unidad 1).
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;font-family:var(--mono);font-size:0.68rem;">
+    <div style="padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;line-height:1.6;"><span style="color:var(--accent4);">Equiv. implicación</span><br><span style="color:#fff;">p → q ≡ ¬p ∨ q</span></div>
+    <div style="padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;line-height:1.6;"><span style="color:var(--accent4);">Contrarrecíproco</span><br><span style="color:#fff;">p → q ≡ ¬q → ¬p</span></div>
+    <div style="padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;line-height:1.6;"><span style="color:var(--accent4);">Doble negación</span><br><span style="color:#fff;">¬(¬p) ≡ p</span></div>
+    <div style="padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;line-height:1.6;"><span style="color:var(--accent4);">De Morgan</span><br><span style="color:#fff;">¬(p ∧ q) ≡ ¬p ∨ ¬q</span><br><span style="color:#fff;">¬(p ∨ q) ≡ ¬p ∧ ¬q</span></div>
+    <div style="padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;line-height:1.6;"><span style="color:var(--accent4);">Conmutativa</span><br><span style="color:#fff;">p ∨ q ≡ q ∨ p</span><br><span style="color:#fff;">p ∧ q ≡ q ∧ p</span></div>
+    <div style="padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;line-height:1.6;"><span style="color:var(--accent4);">Asociativa</span><br><span style="color:#fff;">(p ∨ q) ∨ r ≡ p ∨ (q ∨ r)</span></div>
+    <div style="padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;line-height:1.6;"><span style="color:var(--accent4);">Distributiva</span><br><span style="color:#fff;">p ∧ (q ∨ r) ≡ (p∧q) ∨ (p∧r)</span></div>
+    <div style="padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;line-height:1.6;"><span style="color:var(--accent4);">Idempotencia</span><br><span style="color:#fff;">p ∨ p ≡ p &nbsp;·&nbsp; p ∧ p ≡ p</span></div>
+    <div style="padding:0.5rem 0.7rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;line-height:1.6;"><span style="color:var(--accent4);">Absorción</span><br><span style="color:#fff;">p ∨ (p ∧ q) ≡ p</span><br><span style="color:#fff;">p ∧ (p ∨ q) ≡ p</span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECCIÓN 3: CUANTIFICADORES
+══════════════════════════════════════════ -->
+
+<div class="section-label">03 — Función proposicional y cuantificadores</div>
+
+<!-- Intro función proposicional -->
+<div class="card cyan" style="max-width:1400px;margin:0 auto 1.2rem;">
+  <div class="card-title">Función proposicional</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:center;">
+    <div style="font-size:0.78rem;color:var(--muted);line-height:1.6;">
+      Una <strong style="color:#fff">función proposicional</strong> p(x) es una expresión con un <strong style="color:#fff">sujeto</strong> indeterminado (variable x, y, z…) y un <strong style="color:#fff">predicado</strong> (mayúscula: adjetivo, sustantivo o verbo). No es una proposición todavía — no se puede decir si es V o F hasta que se le asigna un valor a x (ejemplificación) o se la cuantifica. También se nota <span style="font-family:var(--mono)">E(x)</span>.
+    </div>
+    <div style="font-family:var(--mono);font-size:0.75rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;padding:0.8rem 1rem;line-height:2;">
+      <span style="color:#4b5563;">p(x):</span> <span style="color:var(--muted);">"x es un número par"</span><br>
+      <span style="color:#4b5563;">p(4):</span> <span style="color:#4ade80;">V</span> <span style="color:#4b5563;font-size:0.65rem;">→ proposición</span><br>
+      <span style="color:#4b5563;">p(7):</span> <span style="color:#f87171;">F</span> <span style="color:#4b5563;font-size:0.65rem;">→ proposición</span><br>
+      <span style="color:#4b5563;">p(x):</span> <span style="color:var(--accent3);">?</span> <span style="color:#4b5563;font-size:0.65rem;">→ sigue siendo función proposicional</span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.7rem;margin-top:1.1rem;">
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;padding:0.7rem;">
+      <div style="color:var(--accent2);font-size:0.6rem;letter-spacing:0.12em;font-weight:700;margin-bottom:0.4rem;">2 VÍAS DE PASAJE A PROPOSICIÓN</div>
+      <div style="font-size:0.7rem;color:var(--muted);line-height:1.6;">
+        <strong style="color:#fff">a) Ejemplificación:</strong> sustituir la variable por valores <span style="font-family:var(--mono)">a, b, c…</span> de un conjunto <strong style="color:#fff">referencial</strong>.<br>
+        <strong style="color:#fff">b) Cuantificación:</strong> anteponer ∀ o ∃.
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;padding:0.7rem;">
+      <div style="color:var(--accent2);font-size:0.6rem;letter-spacing:0.12em;font-weight:700;margin-bottom:0.4rem;">CONJUNTO DE VERDAD</div>
+      <div style="font-size:0.7rem;color:var(--muted);line-height:1.6;">
+        Si p(x) está definida en un conjunto, su <strong style="color:#fff">conjunto de verdad</strong> son todos los elementos que la hacen <strong style="color:#fff">verdadera</strong>.
+      </div>
+    </div>
+    <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:5px;padding:0.7rem;">
+      <div style="color:var(--accent2);font-size:0.6rem;letter-spacing:0.12em;font-weight:700;margin-bottom:0.4rem;">VARIABLE LIBRE vs. LIGADA</div>
+      <div style="font-size:0.7rem;color:var(--muted);line-height:1.6;">
+        Al cuantificarla, la variable queda <strong style="color:#fff">ligada</strong> (bajo el <strong style="color:#fff">alcance</strong> del cuantificador); sin cuantificar es <strong style="color:#fff">libre</strong>. Con varias variables, queda proposición solo si <strong style="color:#fff">todas</strong> se cuantifican.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-2" style="max-width:1400px;margin:0 auto;">
+
+  <!-- Universal -->
+  <div class="card purple">
+    <div class="card-title">Cuantificador universal</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start;">
+      <div class="q-symbol" style="color:#a78bfa;">∀</div>
+      <div>
+        <div class="q-reads">
+          Se lee: <strong style="color:#fff">para todo · todos · cualquiera · cualquier · los</strong><br>
+          Notación: <span style="color:#a78bfa;">∀x: p(x)</span>
+        </div>
+        <div class="q-truth">
+          <strong>Valor de verdad:</strong> Es V cuando <strong>todos</strong> los elementos del conjunto referencial hacen verdadera a p(x).<br>
+          Basta un contraejemplo para que sea F.
+        </div>
+        <div class="q-example">
+          ∀x ∈ ℝ: x² ≥ 0 &nbsp;<span style="color:#4ade80;">→ V</span><br>
+          ∀x ∈ ℝ: x > 0 &nbsp;&nbsp;<span style="color:#f87171;">→ F</span> (ej: x = −1)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Existencial -->
+  <div class="card cyan">
+    <div class="card-title">Cuantificador existencial</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:start;">
+      <div class="q-symbol" style="color:var(--accent2);">∃</div>
+      <div>
+        <div class="q-reads">
+          Se lee: <strong style="color:#fff">existe · existe algún · algún · hay · algunos · ciertos</strong><br>
+          Notación: <span style="color:var(--accent2);">∃x: p(x)</span>
+        </div>
+        <div class="q-truth">
+          <strong>Valor de verdad:</strong> Es V cuando <strong>al menos uno</strong> de los elementos del conjunto referencial hace verdadera a p(x).
+        </div>
+        <div class="q-example">
+          ∃x ∈ ℝ: x² = 4 &nbsp;&nbsp;<span style="color:#4ade80;">→ V</span> (ej: x = 2)<br>
+          ∃x ∈ ℝ: x² = −1 &nbsp;<span style="color:#f87171;">→ F</span> (ninguno)
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Orden de cuantificadores -->
+<div class="card amber" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">⚠ Orden de cuantificadores — importa cuando son distintos</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+    <div>
+      <div style="font-family:var(--mono);font-size:0.78rem;color:#fff;margin-bottom:0.4rem;">∀x ∈ ℤ, ∃y ∈ ℤ / x + y = 8</div>
+      <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);line-height:1.5;margin-bottom:0.3rem;">
+        "Para cada x entero, existe un y entero tal que suman 8"<br>
+        Cada x produce un y diferente (y = 8 − x).
+      </div>
+      <div style="font-family:var(--mono);font-size:0.68rem;color:#4ade80;">→ VERDADERA</div>
+    </div>
+    <div>
+      <div style="font-family:var(--mono);font-size:0.78rem;color:#fff;margin-bottom:0.4rem;">∃y ∈ ℤ, ∀x ∈ ℤ / x + y = 8</div>
+      <div style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);line-height:1.5;margin-bottom:0.3rem;">
+        "Existe un único y entero tal que para todo x entero suman 8"<br>
+        Imposible: un solo y no puede funcionar para todos los x.
+      </div>
+      <div style="font-family:var(--mono);font-size:0.68rem;color:#f87171;">→ FALSA</div>
+    </div>
+  </div>
+  <div style="margin-top:0.8rem;font-family:var(--mono);font-size:0.65rem;color:#4b5563;padding:0.4rem 0.6rem;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.15);border-radius:4px;">
+    Si los cuantificadores son iguales (ambos ∀ o ambos ∃), el orden es indistinto.
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SECCIÓN 4: NEGACIÓN DE CUANTIFICADORES
+══════════════════════════════════════════ -->
+
+<div class="section-label">04 — Negación de cuantificadores</div>
+
+<div class="grid grid-2" style="max-width:1400px;margin:0 auto;">
+
+  <!-- Negación del universal -->
+  <div class="card purple">
+    <div class="card-title">Negar ∀ → ∃</div>
+    <div style="font-family:var(--mono);font-size:0.68rem;color:var(--muted);margin-bottom:0.9rem;">
+      Negar "todos" equivale a decir "alguno no". Un solo contraejemplo alcanza.
+    </div>
+
+    <div class="neg-row">
+      <div class="neg-before">
+        <span class="neg-label">original</span>
+        ¬[∀x: p(x)]
+      </div>
+      <div class="neg-arrow">⟹</div>
+      <div class="neg-after">
+        <span class="neg-label" style="color:var(--accent2);">equivale a</span>
+        ∃x / ¬p(x)
+      </div>
+    </div>
+
+    <div class="neg-row">
+      <div class="neg-before">
+        <span class="neg-label">original</span>
+        ¬[∀x: ¬p(x)]
+      </div>
+      <div class="neg-arrow">⟹</div>
+      <div class="neg-after">
+        <span class="neg-label" style="color:var(--accent2);">equivale a</span>
+        ∃x / p(x)
+      </div>
+    </div>
+
+    <div style="margin-top:0.9rem;padding:0.5rem 0.7rem;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);border-radius:4px;font-family:var(--mono);font-size:0.68rem;color:var(--muted);">
+      Ej: "No todos los reales son positivos" ≡ <span style="color:#fff">"Algún real no es positivo"</span>
+    </div>
+  </div>
+
+  <!-- Negación del existencial -->
+  <div class="card cyan">
+    <div class="card-title">Negar ∃ → ∀</div>
+    <div style="font-family:var(--mono);font-size:0.68rem;color:var(--muted);margin-bottom:0.9rem;">
+      Negar "alguno" equivale a decir "ninguno", es decir, "todos no".
+    </div>
+
+    <div class="neg-row">
+      <div class="neg-before">
+        <span class="neg-label">original</span>
+        ¬[∃x / p(x)]
+      </div>
+      <div class="neg-arrow">⟹</div>
+      <div class="neg-after">
+        <span class="neg-label" style="color:var(--accent2);">equivale a</span>
+        ∀x: ¬p(x)
+      </div>
+    </div>
+
+    <div class="neg-row">
+      <div class="neg-before">
+        <span class="neg-label">original</span>
+        ¬[∃x / ¬p(x)]
+      </div>
+      <div class="neg-arrow">⟹</div>
+      <div class="neg-after">
+        <span class="neg-label" style="color:var(--accent2);">equivale a</span>
+        ∀x: p(x)
+      </div>
+    </div>
+
+    <div style="margin-top:0.9rem;padding:0.5rem 0.7rem;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.2);border-radius:4px;font-family:var(--mono);font-size:0.68rem;color:var(--muted);">
+      Ej: "No existe ningún número entero" ≡ <span style="color:#fff">"Todo número no es entero"</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Resumen regla general -->
+<div class="card green" style="max-width:1400px;margin:1.2rem auto 0;">
+  <div class="card-title">★ Regla general — negación de cuantificadores</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;">
+    <div style="font-family:var(--mono);font-size:0.85rem;line-height:2.5;text-align:center;">
+      <div>
+        <span style="color:var(--muted);">¬∀</span>
+        <span style="color:#4b5563;margin:0 0.8rem;">⟹</span>
+        <span style="color:#fff;">∃¬</span>
+      </div>
+      <div>
+        <span style="color:var(--muted);">¬∃</span>
+        <span style="color:#4b5563;margin:0 0.8rem;">⟹</span>
+        <span style="color:#fff;">∀¬</span>
+      </div>
+    </div>
+    <div style="font-size:0.78rem;color:var(--muted);line-height:1.7;">
+      Al negar, el cuantificador <strong style="color:#fff">se intercambia</strong> (∀↔∃) y la negación <strong style="color:#fff">pasa al predicado</strong>. Funciona igual con predicados ya negados.
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Razonamientos · Matemática · Universidad de Palermo</p>
+</footer>
+
+<script type="application/json" id="nl-data">[]</script>
+<!-- notas-lector v5 -->
+<style id="nl-css">
+/* Capa de notas del lector. Overlay puro: no toca el layout de la hoja.
+   Colores: tokens v2 con fallback dark tomado de la allowlist de verify.mjs,
+   asi el bloque tambien funciona en hojas System A (v1) y en los talleres.
+   Excepcion declarada (1.21.0): los cinco colores de resaltado son literales, los del
+   visor de PDF de Apple (Vista Previa), medidos en el /C de sus anotaciones Highlight:
+   amarillo 250,205,90 · verde 124,200,104 · azul 105,176,241 · rosa 251,92,137 ·
+   violeta 200,133,218. Los cinco estan en la allowlist de verify.mjs. */
+#nl-fab{position:fixed;right:18px;bottom:18px;z-index:96;width:40px;height:40px;
+  border-radius:50%;border:1px solid var(--line,#2b3037);background:var(--surface,#171a1e);
+  color:var(--formal,#8ab8dd);font:600 16px/1 var(--sans,system-ui);display:flex;
+  align-items:center;justify-content:center;padding:0;cursor:pointer;
+  box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-fab:hover{border-color:var(--formal,#8ab8dd)}
+html.nl-mode #nl-fab,html.nl-edit #nl-fab{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+#nl-pub{position:fixed;right:22px;bottom:66px;z-index:96;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--exam,#dcaa4e);background:var(--surface,#171a1e);color:var(--exam,#dcaa4e);
+  font:600 15px/1 var(--sans,system-ui);display:none;align-items:center;justify-content:center;
+  padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#nl-pub:hover{background:var(--exam,#dcaa4e);color:var(--bg,#101214)}
+html.nl-edit #nl-pub{bottom:262px}
+#nl-toast{position:fixed;right:18px;bottom:112px;z-index:97;max-width:320px;padding:8px 12px;
+  border:1px solid var(--line,#2b3037);border-radius:7px;background:var(--surface,#171a1e);
+  color:var(--ink,#e9e6e0);font:500 12.5px/1.4 var(--sans,system-ui);opacity:0;pointer-events:none;
+  transition:opacity .25s}
+#nl-toast.on{opacity:1}
+html.nl-edit #nl-toast{right:66px;bottom:66px}
+html.nl-mode,html.nl-mode body{cursor:crosshair}
+#nl-ov{position:absolute;left:0;top:0;width:0;height:0;overflow:visible;z-index:90;pointer-events:none}
+html.nl-mode #nl-ov{cursor:crosshair}
+/* paleta del modo edicion: la herramienta de nota arriba y los cinco colores debajo, en
+   columna sobre el FAB. Solo existe con html.nl-edit. Sobrevive los tres modos de lectura
+   (1.22.0): esta capa es del lector, no cromo de la hoja, y los modos no la tocan. */
+#nl-pal{position:fixed;right:18px;bottom:66px;z-index:96;display:none;flex-direction:column;
+  align-items:center;gap:8px;padding:8px 9px;border:1px solid var(--line,#2b3037);
+  border-radius:20px;background:var(--surface,#171a1e);box-shadow:0 4px 14px rgba(0,0,0,.45)}
+html.nl-edit #nl-pal{display:flex}
+.nl-sw{width:22px;height:22px;border-radius:50%;border:1px solid var(--bg,#101214);padding:0;
+  cursor:pointer;background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 11.5px/20px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  user-select:none;-webkit-user-select:none}
+.nl-sw:hover{transform:scale(1.12)}
+.nl-sw.nl-on{box-shadow:0 0 0 2px var(--surface,#171a1e),0 0 0 4px var(--ink,#e9e6e0)}
+.nl-sw.nl-h1{background:#facd5a}
+.nl-sw.nl-h2{background:#7cc868}
+.nl-sw.nl-h3{background:#69b0f1}
+.nl-sw.nl-h4{background:#fb5c89}
+.nl-sw.nl-h5{background:#c885da}
+/* el resaltado en la hoja. En oscuro el color va al 40 % sobre la superficie y la tinta
+   clara sigue legible (medido: >= 4,9:1 contra --ink en los cinco). En claro va opaco y
+   en multiply, que es exactamente como Vista Previa lo pinta sobre la pagina. */
+mark.nl-hl{color:inherit;background:transparent;padding:0;border-radius:2px;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.nl-hl.nl-h1{background:rgba(250,205,90,.4)}
+mark.nl-hl.nl-h2{background:rgba(124,200,104,.4)}
+mark.nl-hl.nl-h3{background:rgba(105,176,241,.4)}
+mark.nl-hl.nl-h4{background:rgba(251,92,137,.4)}
+mark.nl-hl.nl-h5{background:rgba(200,133,218,.4)}
+html[data-theme="light"] mark.nl-hl{mix-blend-mode:multiply}
+html[data-theme="light"] mark.nl-hl.nl-h1{background:#facd5a}
+html[data-theme="light"] mark.nl-hl.nl-h2{background:#7cc868}
+html[data-theme="light"] mark.nl-hl.nl-h3{background:#69b0f1}
+html[data-theme="light"] mark.nl-hl.nl-h4{background:#fb5c89}
+html[data-theme="light"] mark.nl-hl.nl-h5{background:#c885da}
+html.nl-edit mark.nl-hl{cursor:pointer}
+.nl-pin{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;
+  border:2px solid var(--bg,#101214);background:var(--formal,#8ab8dd);color:var(--bg,#101214);
+  font:700 12px/22px var(--sans,system-ui);text-align:center;text-transform:uppercase;
+  padding:0;cursor:pointer;pointer-events:auto;user-select:none;-webkit-user-select:none;
+  touch-action:none;box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.nl-pin::after{content:'';position:absolute;inset:-8px;border-radius:50%}
+/* identidad del comentador: la inicial hashea a los 4 acentos de la paleta (c0 = formal,
+   el default de .nl-pin). Aca el color es identidad, no semantica de bloque. */
+.nl-pin.nl-c1,.nl-ph b.nl-c1{background:var(--ok,#7cc7a5)}
+.nl-pin.nl-c2,.nl-ph b.nl-c2{background:var(--exam,#dcaa4e)}
+.nl-pin.nl-c3,.nl-ph b.nl-c3{background:var(--danger,#e0756a)}
+.nl-pin.nl-open{box-shadow:0 0 0 3px var(--formal-line,rgba(138,184,221,.32)),0 3px 10px rgba(0,0,0,.45)}
+.nl-pin.nl-lost{border-style:dashed;border-color:var(--ink,#e9e6e0)}
+.nl-pin.nl-drag{cursor:grabbing}
+#nl-pop{position:absolute;width:268px;max-width:84vw;z-index:95;pointer-events:auto;
+  background:var(--surface,#171a1e);border:1px solid var(--line,#2b3037);border-radius:8px;
+  box-shadow:0 10px 30px rgba(0,0,0,.55);color:var(--ink,#e9e6e0);font-family:var(--sans,system-ui)}
+#nl-pop,#nl-pop *{box-sizing:border-box}
+.nl-ph{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line-soft,#22262c)}
+.nl-ph b{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--formal,#8ab8dd);
+  color:var(--bg,#101214);font:700 11.5px/18px var(--sans,system-ui);text-align:center;
+  text-transform:uppercase;border:1px solid var(--bg,#101214)}
+.nl-ph time{font:500 11.5px/1.3 var(--sans,system-ui);letter-spacing:.04em;color:var(--meta,#a4a096)}
+.nl-ph .nl-x{margin-left:auto;border:0;background:none;color:var(--meta,#a4a096);
+  font:400 16px/1 var(--sans,system-ui);cursor:pointer;padding:2px 6px}
+.nl-ph .nl-x:hover{color:var(--ink,#e9e6e0)}
+.nl-pt{padding:10px 12px;font:400 14px/1.55 var(--serif,Georgia,serif);white-space:pre-wrap;
+  overflow-wrap:break-word;cursor:text;max-height:40vh;overflow:auto}
+#nl-pop textarea{display:block;width:100%;min-height:88px;max-height:40vh;padding:10px 12px;
+  border:0;outline:0;resize:vertical;background:transparent;color:var(--ink,#e9e6e0);
+  font:400 14px/1.55 var(--serif,Georgia,serif)}
+#nl-pop textarea::placeholder{color:var(--meta,#a4a096)}
+.nl-pf{display:flex;gap:6px;justify-content:flex-end;padding:8px 10px;border-top:1px solid var(--line-soft,#22262c)}
+.nl-pf button{border:1px solid var(--line,#2b3037);border-radius:5px;background:none;color:var(--meta,#a4a096);
+  font:600 11.5px/1 var(--sans,system-ui);letter-spacing:.06em;text-transform:uppercase;
+  padding:6px 10px;cursor:pointer}
+.nl-pf button:hover{color:var(--ink,#e9e6e0);border-color:var(--meta,#a4a096)}
+.nl-pf .nl-save{background:var(--formal,#8ab8dd);border-color:var(--formal,#8ab8dd);color:var(--bg,#101214)}
+.nl-pf .nl-save:hover{color:var(--bg,#101214);border-color:var(--formal,#8ab8dd)}
+.nl-pf .nl-del{color:var(--danger,#e0756a);border-color:var(--danger-line,rgba(224,117,106,.36))}
+.nl-pf .nl-del:hover{color:var(--danger,#e0756a);border-color:var(--danger,#e0756a)}
+.nl-pf .nl-del.nl-arm{background:var(--danger,#e0756a);border-color:var(--danger,#e0756a);color:var(--bg,#101214)}
+.nl-pf .nl-del.nl-arm:hover{color:var(--bg,#101214)}
+</style>
+<script>
+/* Capa de notas del lector (studio:cheatsheet).
+   El lector deja pins circulares con su inicial en cualquier punto de la hoja; cada pin
+   expande un popover con su comentario. Desde v4 tambien resalta texto en cinco colores
+   (los del visor de PDF de Apple) desde un modo edicion con paleta. Todo persiste en
+   localStorage por hoja y viaja dentro del archivo (bloque nl-data). Las notas se
+   re-anclan por selector + huella de texto; los resaltados por cita de texto (exacto +
+   contexto) mas posicion. Fuente canonica: references/notas-lector.html.
+   Se inyecta o actualiza con scripts/notas-retrofit.mjs; no editar dentro de una hoja. */
+(function(){
+'use strict';
+var D=document,W=window;
+if(W.__notasLector)return;W.__notasLector=1;
+
+/* identidad de la hoja: {carpeta-madre}/{archivo}, tomando la carpeta anterior a
+   cheatsheets/ para que las notas sobrevivan la mudanza a _archivo/. Overrides:
+   data-id en este <script> o <meta name="nl-id">. */
+var cur=D.currentScript;
+function docId(){
+  var v=cur&&cur.getAttribute('data-id');if(v)return v;
+  var m=D.querySelector('meta[name="nl-id"]');
+  if(m&&m.getAttribute('content'))return m.getAttribute('content');
+  var segs;try{segs=decodeURIComponent(location.pathname).split('/').filter(Boolean)}catch(e){segs=location.pathname.split('/').filter(Boolean)}
+  var file=segs.length?segs[segs.length-1]:'hoja';
+  var i=segs.lastIndexOf('cheatsheets');
+  var madre=i>0?segs[i-1]:(segs.length>1?segs[segs.length-2]:'');
+  return madre+'/'+file;
+}
+var KEY='manual-notas:'+docId(),KINI='manual-notas-inicial',KCOL='manual-notas-color';
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* estado en dos capas.
+   1) Embebida: el bloque JSON con id nl-data del archivo (queda fuera de los marcadores
+      del bloque de codigo), que viaja con la hoja: git, mail, otra maquina. Es UN array
+      con notas y resaltados mezclados; el resaltado se distingue por k:'hl'.
+   2) Local: localStorage {n:[notas],h:[resaltados],x:{id:fechaDeBorrado}} (los formatos
+      viejos, un array pelado o {n,x}, se migran solos). Al abrir se mezclan por id (gana
+      la mas nueva) y los borrados locales (tombstones) tapan lo embebido hasta la
+      proxima publicacion. */
+var HL_N=5;
+function limpia(n){return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null,f:n.f||null}}
+function limpiaH(h){return{k:'hl',id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null,pos:h.pos||null}}
+function esHl(o){return !!(o&&o.k==='hl'&&o.id&&o.q&&o.q.x&&o.c>=1&&o.c<=HL_N)}
+function esNota(o){return !!(o&&o.k!=='hl'&&o.id&&o.txt)}
+var tomb={};
+function loadLocal(){
+  try{
+    var j=JSON.parse(lsGet(KEY)||'null');
+    if(Array.isArray(j))return{n:j.filter(esNota),h:j.filter(esHl),x:{}};
+    if(j&&(Array.isArray(j.n)||Array.isArray(j.h)))return{
+      n:(j.n||[]).filter(esNota),h:(j.h||[]).filter(esHl),x:(j.x&&typeof j.x==='object')?j.x:{}};
+  }catch(e){}
+  return{n:[],h:[],x:{}};
+}
+var emb=(function(){
+  var el=D.getElementById('nl-data'),j=[];
+  if(el){try{j=JSON.parse(el.textContent||'[]');if(!Array.isArray(j))j=[]}catch(e){j=[]}}
+  return{n:j.filter(esNota).map(limpia),h:j.filter(esHl).map(limpiaH)};
+})();
+function mezcla(a,b,cl){
+  var by={},i,n,id;
+  for(i=0;i<a.length;i++){n=a[i];by[n.id]=cl(n)}
+  for(i=0;i<b.length;i++){
+    n=b[i];var e=by[n.id];
+    if(!e||String(n.mod||n.ts||'')>=String(e.mod||e.ts||''))by[n.id]=cl(n);
+  }
+  for(id in tomb)delete by[id];
+  var out=[];for(id in by)out.push(by[id]);
+  return out;
+}
+var loc=loadLocal();tomb=loc.x;
+var notes=mezcla(emb.n,loc.n,limpia);
+var hls=mezcla(emb.h,loc.h,limpiaH);
+/* para detectar cambios sin publicar se ignoran f (notas) y pos (resaltados): los dos se
+   refrescan solos en cada carga y no son una edicion del lector */
+function byId(a,b){return a.id<b.id?-1:a.id>b.id?1:0}
+function serial(ns,hs){
+  return JSON.stringify({
+    n:ns.filter(function(n){return n&&n.txt}).map(function(n){
+      return{id:n.id,ini:n.ini,txt:n.txt,ts:n.ts,mod:n.mod||null,a:n.a||null};
+    }).sort(byId),
+    h:hs.map(function(h){return{id:h.id,c:h.c,ts:h.ts,mod:h.mod||null,q:h.q||null}}).sort(byId)
+  });
+}
+function sinPublicar(){return serial(notes,hls)!==serial(emb.n,emb.h)}
+function persist(){
+  lsSet(KEY,JSON.stringify({n:notes.filter(function(n){return n.txt}).map(limpia),h:hls.map(limpiaH),x:tomb}));
+  refreshPub();
+}
+
+/* dom base */
+var ov=D.createElement('div');ov.id='nl-ov';
+var fab=D.createElement('button');fab.id='nl-fab';fab.type='button';
+fab.textContent='✎︎';
+fab.setAttribute('aria-label','Editar la hoja: notas y resaltado');
+var pub=D.createElement('button');pub.id='nl-pub';pub.type='button';
+pub.textContent='⤓';
+pub.setAttribute('aria-label','Guardar las notas dentro del archivo');
+pub.title='Guardar notas y resaltados dentro del archivo de la hoja (la primera vez te pide elegirlo)';
+var pal=D.createElement('div');pal.id='nl-pal';
+pal.setAttribute('role','toolbar');pal.setAttribute('aria-label','Herramientas de edición');
+var pop=null,openN=null,editing=false,mode=false,pins={};
+/* edit: el modo edicion (paleta visible). tool: el color activo 1..5, persiste. mode: el
+   modo de colocacion de una nota (escudo + crosshair), que se arma desde la herramienta
+   de nota de la paleta o, como siempre, con Alt+clic. */
+var edit=false,tool=parseInt(lsGet(KCOL)||'1',10);
+if(!(tool>=1&&tool<=HL_N))tool=1;
+function fabTitle(){
+  fab.title=mode?'Elegí el lugar de la nota (Esc cancela)'
+    :edit?'Salir del modo edición (Esc)'
+    :'Editar la hoja: resaltar en 5 colores y dejar notas. Alt+clic: nota directa. Doble clic: cambiar inicial';
+}
+
+/* helpers */
+function isNL(el){return !!(el&&el.closest&&el.closest('#nl-ov,#nl-fab,#nl-pop,#nl-pal,#nl-pub,#nl-toast'))}
+function norm(s){return (s||'').replace(/\s+/g,' ').trim()}
+function colorCls(ini){
+  var s=0,t=String(ini||'');
+  for(var i=0;i<t.length;i++)s+=t.charCodeAt(i);
+  var c=s%4;
+  return c?' nl-c'+c:'';
+}
+function ovOff(){var r=ov.getBoundingClientRect();return{x:r.left+W.scrollX,y:r.top+W.scrollY}}
+function visible(el){
+  if(!el.getClientRects().length)return false;
+  var r=el.getBoundingClientRect();
+  if(r.width<1&&r.height<1)return false;
+  return getComputedStyle(el).visibility!=='hidden';
+}
+var BLOCK='p,li,tr,h1,h2,h3,h4,figure,pre,table,blockquote,details,section,header,footer,'+
+  '.blk,.fx,.prof,.rnote,.nota,.vale,.props,.vocab,.fig,.tw,.map,.mapa,.anim-row,.row,[id]';
+
+/* selector estable: nth-of-type hasta el ancestro con id mas cercano */
+function q(el){
+  var p=[],e=el;
+  while(e&&e.nodeType===1&&e!==D.body&&e!==D.documentElement){
+    if(e.id){p.unshift('#'+(W.CSS&&CSS.escape?CSS.escape(e.id):e.id));break}
+    var t=e.tagName.toLowerCase(),i=1,s=e;
+    while((s=s.previousElementSibling)){if(s.tagName===e.tagName)i++}
+    p.unshift(t+':nth-of-type('+i+')');
+    e=e.parentElement;
+  }
+  return p.join(' > ');
+}
+
+/* ancla en un punto de pagina: elemento bajo el punto elevado al bloque legible */
+function anchorFor(px,py){
+  var cx=px-W.scrollX,cy=py-W.scrollY,hit=null,list=D.elementsFromPoint(cx,cy)||[];
+  for(var i=0;i<list.length;i++){
+    var el=list[i];
+    if(isNL(el))continue;
+    if(el===D.documentElement||el===D.body)break;
+    hit=el;break;
+  }
+  if(!hit)return null;
+  var a=hit.closest(BLOCK)||hit;
+  if(a===D.body||a===D.documentElement)a=hit;
+  var r=a.getBoundingClientRect();
+  if(r.width<4||r.height<4)return null;
+  return{
+    sel:q(a),tag:a.tagName.toLowerCase(),tx:norm(a.textContent).slice(0,90),
+    rx:+((cx-r.left)/r.width).toFixed(4),ry:+((cy-r.top)/r.height).toFixed(4)
+  };
+}
+
+function fpOk(el,a){
+  if(!a.tx)return true;
+  var n=Math.min(a.tx.length,40);
+  if(n<8)return true;
+  return norm(el.textContent).slice(0,n)===a.tx.slice(0,n);
+}
+
+/* escalera de re-anclaje: selector con huella ok, si no busqueda por huella de texto,
+   si no el selector pelado, si no null (el caller cae al fallback absoluto) */
+function resolve(a){
+  if(!a)return null;
+  var el=null;
+  if(a.sel){try{el=D.querySelector(a.sel)}catch(e){}}
+  if(el&&fpOk(el,a))return el;
+  if(a.tx&&a.tx.length>=8){
+    var best=null,bs=0,cand=D.getElementsByTagName(a.tag||'p');
+    var N=Math.min(cand.length,6000);
+    for(var i=0;i<N;i++){
+      var c=cand[i];if(isNL(c))continue;
+      var t=norm(c.textContent).slice(0,120);if(!t)continue;
+      var s=0;
+      if(t===a.tx)s=3;
+      else if(t.indexOf(a.tx)===0)s=2.5;
+      else if(a.tx.length>=24&&t.indexOf(a.tx.slice(0,32))>-1)s=1.6;
+      if(s>bs){bs=s;best=c;if(s===3)break}
+    }
+    if(best&&bs>=1.6)return best;
+  }
+  return el;
+}
+
+/* posicion de pagina de una nota; found=false si quedo en fallback absoluto */
+function place(n){
+  var el=resolve(n.a),lost=false;
+  if(el){
+    var rx=n.a.rx,ry=n.a.ry,vis=el;
+    while(vis&&vis!==D.body&&vis!==D.documentElement&&!visible(vis))vis=vis.parentElement;
+    if(vis&&vis!==D.body&&vis!==D.documentElement){
+      if(vis!==el){lost=true;rx=Math.min(Math.max(rx,0),1);ry=0.08}
+      var r=vis.getBoundingClientRect();
+      return{x:r.left+W.scrollX+rx*r.width,y:r.top+W.scrollY+ry*r.height,lost:lost,found:true};
+    }
+  }
+  var de=D.documentElement,f=n.f||{};
+  var x=f.w?f.x*de.scrollWidth/f.w:(f.x||24);
+  var y=f.h?f.y*de.scrollHeight/f.h:(f.y||24);
+  return{x:x,y:y,lost:true,found:false};
+}
+function refreshFallback(n,px,py){
+  var de=D.documentElement;
+  n.f={x:Math.round(px),y:Math.round(py),w:de.scrollWidth,h:de.scrollHeight};
+}
+
+/* pins */
+function pinFor(n){
+  var el=pins[n.id];
+  if(el)return el;
+  el=D.createElement('button');el.type='button';el.className='nl-pin'+colorCls(n.ini);
+  el.textContent=n.ini||'?';
+  pins[n.id]=el;ov.appendChild(el);wirePin(el,n);
+  return el;
+}
+function paintOne(n){
+  var el=pinFor(n),p=place(n),off=ovOff(),de=D.documentElement;
+  var x=Math.min(Math.max(p.x,12),de.scrollWidth-12);
+  el.style.left=(x-off.x)+'px';
+  el.style.top=(Math.max(p.y,12)-off.y)+'px';
+  el.classList.toggle('nl-lost',p.lost);
+  el.title=n.txt?n.txt.slice(0,140):'Nota nueva';
+  if(p.found)refreshFallback(n,x,p.y);
+  return p;
+}
+function paintAll(save){
+  for(var i=0;i<notes.length;i++)paintOne(notes[i]);
+  if(openN)positionPop();
+  if(save)persist();
+}
+var raf=0;
+function paintSoon(){if(raf)return;raf=requestAnimationFrame(function(){raf=0;paintAll(false)})}
+
+/* drag para reubicar, clic para abrir */
+function wirePin(el,n){
+  var sx,sy,ox,oy,drag=false,pid;
+  el.addEventListener('pointerdown',function(e){
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    sx=e.clientX;sy=e.clientY;drag=false;pid=e.pointerId;
+    ox=parseFloat(el.style.left)||0;oy=parseFloat(el.style.top)||0;
+    try{el.setPointerCapture(pid)}catch(err){}
+    e.preventDefault();e.stopPropagation();
+  });
+  el.addEventListener('pointermove',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var dx=e.clientX-sx,dy=e.clientY-sy;
+    if(!drag&&dx*dx+dy*dy>36){drag=true;el.classList.add('nl-drag');if(openN===n)closePop()}
+    if(drag){el.style.left=(ox+dx)+'px';el.style.top=(oy+dy)+'px'}
+  });
+  el.addEventListener('pointerup',function(e){
+    if(pid===undefined||e.pointerId!==pid)return;
+    var was=drag;drag=false;pid=undefined;el.classList.remove('nl-drag');
+    if(was){
+      var off=ovOff();
+      var px=(parseFloat(el.style.left)||0)+off.x,py=(parseFloat(el.style.top)||0)+off.y;
+      el.style.visibility='hidden';
+      var a=anchorFor(px,py);
+      el.style.visibility='';
+      if(a)n.a=a;
+      refreshFallback(n,px,py);
+      n.mod=new Date().toISOString();
+      if(n.txt){persist();autoPub()}
+      paintOne(n);
+    }else{
+      if(openN===n)closePop();else openPop(n,!n.txt);
+    }
+  });
+  el.addEventListener('pointercancel',function(){drag=false;pid=undefined;el.classList.remove('nl-drag')});
+}
+
+/* popover */
+function fecha(iso){
+  if(!iso)return'';
+  try{return new Date(iso).toLocaleDateString('es-AR',{day:'2-digit',month:'short'})}catch(e){return''}
+}
+function buildPop(){
+  if(pop)return;
+  pop=D.createElement('div');pop.id='nl-pop';
+  pop.setAttribute('role','dialog');pop.setAttribute('aria-label','Nota del lector');
+  ov.appendChild(pop);
+}
+function renderPop(){
+  var n=openN;if(!n)return;
+  buildPop();
+  pop.innerHTML='';
+  var h=D.createElement('div');h.className='nl-ph';
+  var b=D.createElement('b');b.textContent=n.ini||'?';
+  var bc=colorCls(n.ini);if(bc)b.className=bc.replace(' ','');
+  var t=D.createElement('time');
+  t.textContent=fecha(n.ts)+(n.mod&&fecha(n.mod)!==fecha(n.ts)?', ed. '+fecha(n.mod):'');
+  var x=D.createElement('button');x.type='button';x.className='nl-x';
+  x.textContent='×';x.title='Cerrar';
+  x.addEventListener('click',function(){editing?cancelEdit():closePop()});
+  h.appendChild(b);h.appendChild(t);h.appendChild(x);pop.appendChild(h);
+  var f=D.createElement('div');f.className='nl-pf';
+  if(editing){
+    var ta=D.createElement('textarea');
+    ta.placeholder='Escribí tu nota. Ctrl+Enter guarda.';
+    ta.value=n.txt||'';
+    ta.addEventListener('keydown',function(e){
+      if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();saveEdit()}
+      if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancelEdit()}
+    });
+    pop.appendChild(ta);
+    var bc2=D.createElement('button');bc2.type='button';bc2.textContent='Cancelar';
+    bc2.addEventListener('click',cancelEdit);
+    var bs=D.createElement('button');bs.type='button';bs.className='nl-save';bs.textContent='Guardar';
+    bs.addEventListener('click',saveEdit);
+    f.appendChild(bc2);f.appendChild(bs);
+  }else{
+    var tx=D.createElement('div');tx.className='nl-pt';tx.textContent=n.txt||'';
+    tx.title='Editar';
+    tx.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    pop.appendChild(tx);
+    var bd=D.createElement('button');bd.type='button';bd.className='nl-del';bd.textContent='Borrar';
+    bd.addEventListener('click',function(){
+      if(bd.classList.contains('nl-arm')){removeNote(n)}
+      else{bd.classList.add('nl-arm');bd.textContent='¿Seguro?'}
+    });
+    var be=D.createElement('button');be.type='button';be.textContent='Editar';
+    be.addEventListener('click',function(){editing=true;renderPop();focusTa()});
+    f.appendChild(bd);f.appendChild(be);
+  }
+  pop.appendChild(f);
+  positionPop();
+}
+function focusTa(){var ta=pop&&pop.querySelector('textarea');if(ta){ta.focus();ta.selectionStart=ta.value.length}}
+function positionPop(){
+  if(!pop||!openN)return;
+  var el=pins[openN.id];if(!el)return;
+  var px=parseFloat(el.style.left)||0,py=parseFloat(el.style.top)||0;
+  var off=ovOff(),de=D.documentElement;
+  var w=pop.offsetWidth||268,maxX=de.scrollWidth-off.x;
+  var lx=px+20;
+  if(lx+w>maxX-8)lx=Math.max(px-20-w,8-off.x);
+  pop.style.left=lx+'px';
+  pop.style.top=Math.max(py-10,12-off.y)+'px';
+}
+function openPop(n,edit){
+  openN=n;editing=!!edit;
+  renderPop();
+  for(var id in pins)pins[id].classList.toggle('nl-open',id===n.id);
+  if(editing)focusTa();
+}
+function closePop(){
+  var n=openN;
+  openN=null;editing=false;
+  if(pop){pop.remove();pop=null}
+  for(var id in pins)pins[id].classList.remove('nl-open');
+  if(n&&n._new&&!n.txt)removeNote(n,true);
+}
+function saveEdit(){
+  var n=openN,ta=pop&&pop.querySelector('textarea');if(!n||!ta)return;
+  var txt=ta.value.trim();
+  if(!txt){removeNote(n);return}
+  var isNew=!!n._new;
+  n.txt=txt;
+  if(isNew)delete n._new;else n.mod=new Date().toISOString();
+  persist();autoPub();
+  editing=false;renderPop();
+  var el=pins[n.id];if(el)el.title=txt.slice(0,140);
+}
+function cancelEdit(){
+  var n=openN;if(!n)return;
+  if(n._new&&!n.txt){closePop();return}
+  editing=false;renderPop();
+}
+function removeNote(n,quiet){
+  var i=notes.indexOf(n);if(i>-1)notes.splice(i,1);
+  var el=pins[n.id];if(el){el.remove();delete pins[n.id]}
+  if(!quiet){tomb[n.id]=new Date().toISOString();persist();autoPub()}
+  if(openN===n){openN=null;editing=false;if(pop){pop.remove();pop=null}}
+}
+
+/* ---- resaltado ----
+   Cada resaltado guarda una cita de texto (exacto + 32 caracteres de contexto a cada
+   lado) y su posicion, medidas sobre el texto de la hoja con el espacio en blanco
+   normalizado y sin el cromo (indices, topbar, botones, la propia capa). Se pinta
+   envolviendo los nodos de texto en mark.nl-hl (el DOM cambia, el texto no: las
+   posiciones son invariantes al envolver y al desenvolver). Al abrir se busca la cita:
+   si el texto exacto aparece varias veces gana el contexto que mas coincide, y a igual
+   contexto la posicion mas cercana; si no aparece, el resaltado queda guardado, no se
+   pinta y un aviso lo dice (cero desaparicion silenciosa). */
+var EXC='#nl-ov,#nl-fab,#nl-pal,#nl-pub,#nl-toast,#nl-pop,script,style,noscript,template,'+
+  'textarea,svg,iframe,nav.side,.topbar,.idx-panel,button.read';
+var idx=null;
+function textIndex(){
+  if(idx)return idx;
+  var ents=[],raw=[],pos=0,n;
+  var w=D.createTreeWalker(D.body,NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT,{acceptNode:function(x){
+    if(x.nodeType===1)return(x.matches&&x.matches(EXC))?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_SKIP;
+    return x.data.length?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_SKIP;
+  }});
+  while((n=w.nextNode())){ents.push({n:n,r:pos});raw.push(n.data);pos+=n.data.length}
+  var R=raw.join(''),L=R.length,map=new Uint32Array(L||1),out=[],k=0,ws=false,i,ch;
+  for(i=0;i<L;i++){
+    ch=R.charAt(i);
+    if(/\s/.test(ch)){if(!ws&&k>0){out.push(' ');map[k++]=i}ws=true}
+    else{out.push(ch);map[k++]=i;ws=false}
+  }
+  idx={e:ents,raw:R,norm:out.join(''),map:map,len:k};
+  return idx;
+}
+function n2r(j){var x=textIndex();return j>=x.len?x.raw.length:x.map[j]}
+function r2n(r){
+  var x=textIndex(),lo=0,hi=x.len;
+  while(lo<hi){var m=(lo+hi)>>1;if(x.map[m]<r)lo=m+1;else hi=m}
+  return lo;
+}
+function entAt(r){
+  var e=textIndex().e,lo=0,hi=e.length-1;
+  while(lo<hi){var m=(lo+hi+1)>>1;if(e[m].r<=r)lo=m;else hi=m-1}
+  return lo;
+}
+/* envuelve el texto crudo [rs,re) en marks del resaltado h; invalida el indice */
+function wrapRaw(rs,re,h){
+  var x=textIndex(),e=x.e,i=entAt(rs),made=0;
+  for(;i<e.length&&e[i].r<re;i++){
+    var t=e[i].n,ls=Math.max(rs-e[i].r,0),le=Math.min(re-e[i].r,t.data.length);
+    if(le<=ls||!t.parentNode)continue;
+    var seg=t;
+    if(ls>0)seg=seg.splitText(ls);
+    if(le-ls<seg.data.length)seg.splitText(le-ls);
+    if(!/\S/.test(seg.data)){
+      var wsm=getComputedStyle(seg.parentNode).whiteSpace||'';
+      if(wsm.indexOf('pre')!==0)continue;
+    }
+    var m=D.createElement('mark');m.className='nl-hl nl-h'+h.c;m.setAttribute('data-nl',h.id);
+    seg.parentNode.insertBefore(m,seg);m.appendChild(seg);made++;
+  }
+  idx=null;
+  return made;
+}
+function unwrap(id){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+id+'"]'),i,m,p;
+  for(i=0;i<ms.length;i++){
+    m=ms[i];p=m.parentNode;if(!p)continue;
+    while(m.firstChild)p.insertBefore(m.firstChild,m);
+    p.removeChild(m);p.normalize();
+  }
+  idx=null;
+}
+function hlById(id){for(var i=0;i<hls.length;i++)if(hls[i].id===id)return hls[i];return null}
+/* busca la cita en el texto normalizado: exacto, y entre repeticiones gana el contexto */
+function locate(h){
+  var x=textIndex(),nm=x.norm,qq=h.q;if(!qq||!qq.x)return null;
+  var at=-1,best=-1,bs=-Infinity,want=h.pos?h.pos.s:0,c=0,p=qq.p||'',sf=qq.s||'';
+  while((at=nm.indexOf(qq.x,at+1))>-1&&c++<400){
+    var s=0,k=0,j=0,end=at+qq.x.length;
+    while(k<p.length&&at-1-k>=0&&nm.charCodeAt(at-1-k)===p.charCodeAt(p.length-1-k))k++;
+    while(j<sf.length&&end+j<nm.length&&nm.charCodeAt(end+j)===sf.charCodeAt(j))j++;
+    s=k+j-Math.abs(at-want)/4000;
+    if(s>bs){bs=s;best=at}
+  }
+  if(best<0)return null;
+  return{s:best,e:best+qq.x.length};
+}
+function paintHl(h){
+  var p=locate(h);
+  if(!p){h._lost=true;return false}
+  h._lost=false;h.pos=p;
+  wrapRaw(n2r(p.s),n2r(p.e-1)+1,h);
+  return true;
+}
+function paintHls(){
+  var lost=0,i;
+  for(i=0;i<hls.length;i++)if(!paintHl(hls[i]))lost++;
+  if(lost)aviso(lost===1?'1 resaltado no encontró su texto en esta hoja'
+    :lost+' resaltados no encontraron su texto en esta hoja');
+}
+function removeHl(h){
+  unwrap(h.id);
+  var i=hls.indexOf(h);if(i>-1)hls.splice(i,1);
+  tomb[h.id]=new Date().toISOString();
+  persist();autoPub();
+}
+function recolor(h,c){
+  var ms=D.querySelectorAll('mark.nl-hl[data-nl="'+h.id+'"]');
+  for(var i=0;i<ms.length;i++)ms[i].className='nl-hl nl-h'+c;
+  h.c=c;h.mod=new Date().toISOString();
+  persist();autoPub();
+}
+/* la seleccion vigente pasa a resaltado del color activo; devuelve true si creo uno */
+var lastHl=0;
+function hlFromSelection(){
+  var sel=W.getSelection();
+  if(!sel||!sel.rangeCount||sel.isCollapsed)return false;
+  var rg=sel.getRangeAt(0),ca=rg.commonAncestorContainer;
+  if(isNL(ca.nodeType===1?ca:ca.parentNode))return false;
+  var x=textIndex(),e=x.e,first=-1,last=-1,i;
+  for(i=0;i<e.length;i++){if(rg.intersectsNode(e[i].n)){if(first<0)first=i;last=i}}
+  if(first<0)return false;
+  var rs=e[first].r+(rg.startContainer===e[first].n?rg.startOffset:0);
+  var re=e[last].r+(rg.endContainer===e[last].n?rg.endOffset:e[last].n.data.length);
+  var ns=r2n(rs),ne=r2n(re),nm=x.norm;
+  while(ns<ne&&nm.charCodeAt(ns)===32)ns++;
+  while(ne>ns&&nm.charCodeAt(ne-1)===32)ne--;
+  if(ne-ns<1)return false;
+  var h={
+    id:'h'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    c:tool,ts:new Date().toISOString(),mod:null,
+    q:{x:nm.slice(ns,ne),p:nm.slice(Math.max(0,ns-32),ns),s:nm.slice(ne,ne+32)},
+    pos:{s:ns,e:ne}
+  };
+  /* un resaltado que queda entero adentro del nuevo se reemplaza, no se anida */
+  var dentro=hls.filter(function(o){return o.pos&&!o._lost&&o.pos.s>=ns&&o.pos.e<=ne});
+  for(i=0;i<dentro.length;i++){
+    unwrap(dentro[i].id);
+    var k=hls.indexOf(dentro[i]);if(k>-1)hls.splice(k,1);
+    tomb[dentro[i].id]=new Date().toISOString();
+  }
+  sel.removeAllRanges();
+  wrapRaw(n2r(ns),n2r(ne-1)+1,h);
+  hls.push(h);
+  persist();autoPub();
+  lastHl=Date.now();
+  return true;
+}
+
+/* paleta */
+var NOM=['nota','amarillo','verde','azul','rosa','violeta'],sws=[];
+function mkSw(i){
+  var b=D.createElement('button');b.type='button';
+  b.className='nl-sw'+(i?' nl-h'+i:' nl-sw0');
+  if(i){
+    b.setAttribute('aria-label','Resaltar en '+NOM[i]);
+    b.title='Resaltar en '+NOM[i]+' (tecla '+i+'): elegí el color y seleccioná texto. '+
+      'Clic sobre un resaltado lo pasa a este color, o lo quita si ya lo tiene';
+    b.addEventListener('click',function(){setTool(i)});
+  }else{
+    b.setAttribute('aria-label','Dejar una nota');
+    b.title='Nota: clic acá y después en el lugar de la hoja (Esc cancela)';
+    b.addEventListener('click',function(){setMode(!mode)});
+  }
+  pal.appendChild(b);sws.push(b);
+  return b;
+}
+for(var si=0;si<=HL_N;si++)mkSw(si);
+function paintTools(){
+  sws[0].textContent=lsGet(KINI)||'✎︎';
+  for(var i=0;i<sws.length;i++)sws[i].classList.toggle('nl-on',i?(!mode&&tool===i):mode);
+}
+function setTool(c){
+  tool=c;lsSet(KCOL,String(c));
+  if(mode)setMode(false);else paintTools();
+}
+function setEdit(on){
+  if(edit===on)return;
+  edit=on;
+  D.documentElement.classList.toggle('nl-edit',on);
+  if(!on&&mode)setMode(false);
+  fab.textContent=on?'×':'✎︎';
+  fabTitle();paintTools();
+}
+
+/* publicacion: escribe notas y resaltados dentro del bloque nl-data del propio archivo,
+   via File System Access API (Chrome/Edge; en otros browsers el boton no aparece y todo
+   queda local). El handle se recuerda en IndexedDB por hoja: la primera vez se elige el
+   archivo, despues alcanza el permiso de la sesion, y con permiso ya concedido cada
+   cambio se guarda solo. */
+function aviso(t){
+  var el=D.getElementById('nl-toast');
+  if(!el){el=D.createElement('div');el.id='nl-toast';D.body.appendChild(el)}
+  el.textContent=t;el.classList.add('on');
+  clearTimeout(aviso._t);aviso._t=setTimeout(function(){el.classList.remove('on')},3600);
+}
+function refreshPub(){
+  var api=typeof W.showOpenFilePicker==='function';
+  pub.style.display=(api&&sinPublicar())?'flex':'none';
+}
+function idb(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open('notas-lector',1);
+    r.onupgradeneeded=function(){r.result.createObjectStore('h')};
+    r.onsuccess=function(){res(r.result)};
+    r.onerror=function(){rej(r.error)};
+  });
+}
+function hGet(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h').objectStore('h').get(KEY);
+      t.onsuccess=function(){res(t.result||null)};
+      t.onerror=function(){res(null)};
+    });
+  }).catch(function(){return null});
+}
+function hPut(h){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').put(h,KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function hDel(){
+  return idb().then(function(db){
+    return new Promise(function(res){
+      var t=db.transaction('h','readwrite');
+      t.objectStore('h').delete(KEY);
+      t.oncomplete=function(){res()};t.onerror=function(){res()};
+    });
+  }).catch(function(){});
+}
+function archivoActual(){
+  var s;try{s=decodeURIComponent(location.pathname).split('/')}catch(e){s=location.pathname.split('/')}
+  return s[s.length-1]||'';
+}
+var pubBusy=false;
+function publicar(interactivo){
+  if(pubBusy||typeof W.showOpenFilePicker!=='function')return;
+  pubBusy=true;
+  var fin=function(){pubBusy=false;refreshPub()};
+  hGet().then(function(h){
+    if(h)return h;
+    if(!interactivo)return null;
+    aviso('Elegí el archivo de ESTA hoja: '+archivoActual());
+    return W.showOpenFilePicker({types:[{description:'Hoja HTML',accept:{'text/html':['.html','.htm']}}]})
+      .then(function(a){return (a&&a[0])||null},function(){return null});
+  }).then(function(h){
+    if(!h){fin();return}
+    var qp=h.queryPermission?h.queryPermission({mode:'readwrite'}):Promise.resolve('granted');
+    return qp.then(function(p){
+      if(p==='granted')return'granted';
+      if(!interactivo)return'no';
+      return h.requestPermission?h.requestPermission({mode:'readwrite'}):'denied';
+    }).then(function(p){
+      if(p!=='granted'){fin();return}
+      if(h.name&&h.name!==archivoActual()){
+        aviso('Ese archivo no es esta hoja ('+h.name+'), volvé a elegirlo');
+        return hDel().then(fin);
+      }
+      return h.getFile().then(function(f){return f.text()}).then(function(src){
+        if(!/<script type="application\/json" id="nl-data">/.test(src)||!/<!-- notas-lector v\d+ -->/.test(src)){
+          aviso('El archivo elegido no tiene la capa de notas');
+          return hDel().then(fin);
+        }
+        var dn=notes.filter(function(n){return n.txt}).map(limpia),dh=hls.map(limpiaH);
+        var json=JSON.stringify(dn.concat(dh)).replace(/</g,'\\u003c');
+        var out=src.replace(
+          /(<script type="application\/json" id="nl-data">)[\s\S]*?(<\/script>)/,
+          function(m,a,b){return a+json+b}
+        );
+        return h.createWritable().then(function(w){
+          return w.write(out).then(function(){return w.close()});
+        }).then(function(){
+          hPut(h);emb={n:dn,h:dh};tomb={};persist();
+          aviso('Notas y resaltados guardados dentro del archivo');
+          fin();
+        });
+      });
+    });
+  }).catch(function(e){aviso('No se pudo guardar en el archivo');fin()});
+}
+/* con permiso ya concedido, publica solo (debounced) despues de cada cambio */
+var autoT=0;
+function autoPub(){
+  if(typeof W.showOpenFilePicker!=='function')return;
+  clearTimeout(autoT);
+  autoT=setTimeout(function(){
+    hGet().then(function(h){
+      if(!h||!h.queryPermission)return;
+      h.queryPermission({mode:'readwrite'}).then(function(p){
+        if(p==='granted'&&sinPublicar())publicar(false);
+      });
+    });
+  },1200);
+}
+pub.addEventListener('click',function(){publicar(true)});
+
+/* inicial del lector: se pide una vez y queda en localStorage */
+function getIni(){
+  var v=lsGet(KINI);
+  if(v)return v;
+  v=(W.prompt('Tu inicial para las notas (1 o 2 letras):','')||'').trim().slice(0,2).toUpperCase();
+  if(!v)return null;
+  lsSet(KINI,v);
+  paintTools();
+  return v;
+}
+
+/* alta de una nota en un punto de pagina */
+function create(px,py){
+  var ini=getIni();if(ini===null)return;
+  var n={
+    id:'n'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36),
+    ini:ini,txt:'',ts:new Date().toISOString(),mod:null,
+    a:anchorFor(px,py),f:null,_new:true
+  };
+  refreshFallback(n,px,py);
+  notes.push(n);
+  paintOne(n);
+  openPop(n,true);
+}
+
+/* modo de colocacion: el overlay se vuelve escudo de pagina completa, asi el clic
+   se captura tambien sobre iframes (animaciones embebidas) */
+function setMode(on){
+  mode=on;
+  D.documentElement.classList.toggle('nl-mode',on);
+  if(on){
+    var de=D.documentElement;
+    ov.style.width=de.scrollWidth+'px';ov.style.height=de.scrollHeight+'px';
+    ov.style.pointerEvents='auto';
+    closePop();
+  }else{
+    ov.style.width='0';ov.style.height='0';ov.style.pointerEvents='none';
+  }
+  fabTitle();paintTools();
+}
+
+/* eventos globales */
+D.addEventListener('click',function(e){
+  if(pal.contains(e.target))return;
+  if(mode){
+    if(fab.contains(e.target))return;
+    e.preventDefault();e.stopPropagation();
+    if(e.target!==ov&&isNL(e.target)){setMode(false);return}
+    setMode(false);
+    create(e.pageX,e.pageY);
+  }else if(e.altKey&&!isNL(e.target)){
+    e.preventDefault();e.stopPropagation();
+    create(e.pageX,e.pageY);
+  }else if(edit&&!isNL(e.target)){
+    var m=e.target&&e.target.closest&&e.target.closest('mark.nl-hl');
+    if(!m)return;
+    e.preventDefault();e.stopPropagation();
+    if(Date.now()-lastHl<400)return;
+    var sel=W.getSelection();if(sel&&!sel.isCollapsed)return;
+    var h=hlById(m.getAttribute('data-nl'));if(!h)return;
+    if(h.c===tool)removeHl(h);else recolor(h,tool);
+  }
+},true);
+/* la seleccion con mouse se resalta al soltar; con dedo (iPad) no hay mouseup que cierre
+   la seleccion, asi que se toma cuando deja de cambiar por 900 ms */
+var touch=false,selT=0;
+D.addEventListener('pointerdown',function(e){
+  touch=e.pointerType==='touch';
+  if(openN&&!editing&&!isNL(e.target))closePop();
+},true);
+D.addEventListener('mouseup',function(e){
+  if(!edit||mode||touch||isNL(e.target))return;
+  setTimeout(hlFromSelection,0);
+});
+D.addEventListener('selectionchange',function(){
+  clearTimeout(selT);
+  if(!edit||mode||!touch)return;
+  var sel=W.getSelection();if(!sel||sel.isCollapsed)return;
+  selT=setTimeout(hlFromSelection,900);
+});
+D.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    if(mode){setMode(false);return}
+    if(openN){editing?cancelEdit():closePop();return}
+    if(edit)setEdit(false);
+    return;
+  }
+  if(!edit||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target;
+  if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+  var k=parseInt(e.key,10);
+  if(k>=1&&k<=HL_N){e.preventDefault();setTool(k)}
+});
+fab.addEventListener('click',function(){
+  if(mode||edit){setMode(false);setEdit(false)}else setEdit(true);
+});
+fab.addEventListener('dblclick',function(){
+  var v=(W.prompt('Inicial para tus notas (1 o 2 letras):',lsGet(KINI)||'')||'').trim().slice(0,2).toUpperCase();
+  if(v){lsSet(KINI,v);paintTools()}
+});
+/* 1.22.0: los modos de lectura y repaso no tocan esta capa. El FAB, la paleta, el boton de
+   publicar y los resaltados siguen ahi, y la edicion no se cierra al cambiar de modo: lo
+   que el modo apaga es lo que la hoja le pone encima al texto, no lo que le puso el lector. */
+W.addEventListener('resize',paintSoon);
+W.addEventListener('load',function(){paintAll(true)});
+if(D.fonts&&D.fonts.ready)D.fonts.ready.then(function(){paintSoon()});
+if('ResizeObserver' in W){
+  try{new ResizeObserver(paintSoon).observe(D.documentElement)}catch(e){}
+}
+D.addEventListener('toggle',paintSoon,true);
+
+function mount(){
+  D.body.appendChild(ov);D.body.appendChild(pal);D.body.appendChild(fab);D.body.appendChild(pub);
+  fabTitle();paintTools();
+  paintHls();
+  paintAll(true);
+  refreshPub();
+}
+if(D.readyState==='loading')D.addEventListener('DOMContentLoaded',mount);
+else mount();
+})();
+</script>
+<!-- /notas-lector -->
+<a href="../../../../index.html#algebra" aria-label="Volver al índice" style="position:fixed;z-index:2147483647;left:max(12px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:999px;background:rgba(28,35,48,.88);color:#fff;font:600 15px/1 -apple-system,system-ui,sans-serif;text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)">&#8592; Índice</a></body>
+</html>
